@@ -1,0 +1,24 @@
+{
+  "name": "campus-server",
+  "version": "1.0.0",
+  "main": "./core/server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon --env-file=.env.example ./core/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "CampusLink",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "express": "^4.21.0",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.5"
+  }
+}

@@ -1,0 +1,1 @@
+Configure your cors options in this folder
