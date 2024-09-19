@@ -2,6 +2,7 @@ import cors from "cors";
 import express from "express";
 import cookieParser from "cookie-parser";
 import { logger } from "./middleware/logger.js";
+import { corsConfig } from "./config/corsConfig.js";
 
 // routes
 import { attendRouter } from "../modules/attendance/routes/attendRouter.js";
@@ -26,6 +27,9 @@ app.use(logger);
 
 // cookie parser middleware
 app.use(cookieParser());
+
+// cors configuration
+app.use(cors(corsConfig));
 
 // urlencoded form data
 app.use(express.urlencoded({ extended: false }));
