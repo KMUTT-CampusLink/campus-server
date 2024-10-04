@@ -23,13 +23,26 @@ npm run dev
 
 ## Folder Structure :file_folder:
 
-We have two main folders, `core` and `modules`. However, you only need to focus on `modules` folder unless you are from **_REGISTRATION_**. Inside `/modules/your-feature` folder, please create the following folders:
+We have two main folders, `core` and `modules`. Please do the following steps to create an organized folder:
 
-- controllers
-- utils (for utility functions that you can use across your application)
+1. Under `/core/prisma/schema/` folder, please create a schema file for your group.
+
+> [!TIP]
+> Clear naming conventions: schema files should be named **clearly** and **succinctly**.\
+> Use names like `chatbot.prisma` and `payment.prisma` and not `myModels.prisma` or `CommentFeaturesSchema.prisma`.
+
+2. Under `/modules/your-feature` folder, please create the following folders:
+   - controllers
+   - middleware (middleware for role-based access control)
+   - utils (for utility functions that you use across your application)
 
 In case you feel lost, please see the following image:<br><br>
-![server_folder](https://github.com/user-attachments/assets/4e59b6b3-0be7-44a4-892e-a28be4e99bec)
+![server_folder](https://github.com/user-attachments/assets/21a11702-33ac-494a-98f7-d8181ccf8b91)
+
+## Bit branching & Pull request
+
+> [!TIP]
+> Please refer to this [git guide](https://github.com/KMUTT-CampusLink/campus-client?tab=readme-ov-file#bit-branching--pull-request)
 
 ## Formatting your code
 
@@ -38,7 +51,7 @@ In case you feel lost, please see the following image:<br><br>
 
 ## Tech Stack
 
-This tech stack is the bare minimum, so dependeing on features you will develop, you will need others as well.
+This tech stack is the bare minimum, so depending on features you will develop, you will need others as well.
 
 - expressjs
 - prisma
