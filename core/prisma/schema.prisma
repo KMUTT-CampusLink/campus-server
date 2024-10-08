@@ -344,7 +344,7 @@ model driver {
 }
 
 model employee {
-  id                String       @id @default(dbgenerated("('EMP'::text || lpad((nextval('employee_id_seq'::regclass))::text, 5, '0'::text))")) @db.VarChar(20)
+  id                String       @id @db.VarChar(20)
   firstname         String       @db.VarChar(50)
   midname           String?      @db.VarChar(50)
   lastname          String?      @db.VarChar(50)
@@ -755,7 +755,7 @@ model stop {
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model student {
-  id                    String                  @id @default(dbgenerated("('STU'::text || lpad((nextval('student_id_seq'::regclass))::text, 5, '0'::text))")) @db.VarChar(20)
+  id                    String                  @id @db.VarChar(20)
   firstname             String                  @db.VarChar(50)
   midname               String?                 @db.VarChar(50)
   lastname              String?                 @db.VarChar(50)
@@ -855,6 +855,8 @@ model user {
   is_activated                                    Boolean?              @default(false)
   created_at                                      DateTime              @default(now()) @db.Timestamp(6)
   updated_at                                      DateTime              @default(now()) @db.Timestamp(6)
+  no_of_student                                   Int?                  @default(1)
+  no_of_employee                                  Int?                  @default(1)
   book_reservation                                book_reservation[]
   complaint                                       complaint[]
   discussion_reply                                discussion_reply[]
