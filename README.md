@@ -13,25 +13,27 @@
 
 Open the root project folder in your favorite terminal and run the following commands:
 
+```shell
+> git clone https://github.com/KMUTT-CampusLink/campus-server.git
+> cd campus-server
+> cp .env.example .env.local
+> npx prisma generate
+> npm install
+> npm run dev
 ```
-git clone https://github.com/KMUTT-CampusLink/campus-server.git
-cd campus-server
-cp .env.example .env.local
-npm install
-npm run dev
+
+> [!IMPORTANT]
+> To use the `prisma client`, you don't need to create a new prisma object as creating many objects has some damage. Just put the following line in your files.
+
+```js
+import prisma from "./db/prismaInstance.js";
 ```
 
 ## Folder Structure :file_folder:
 
 We have two main folders, `core` and `modules`. Please do the following steps to create an organized folder:
 
-1. Under `/core/prisma/schema/` folder, please create a schema file for your group.
-
-> [!TIP]
-> Clear naming conventions: schema files should be named **clearly** and **succinctly**.\
-> Use names like `chatbot.prisma` and `payment.prisma` and not `myModels.prisma` or `CommentFeaturesSchema.prisma`.
-
-2. Under `/modules/your-feature` folder, please create the following folders:
+1. Under `/modules/your-feature` folder, please create the following folders:
    - controllers
    - middleware (middleware for role-based access control)
    - utils (for utility functions that you use across your application)
@@ -39,7 +41,7 @@ We have two main folders, `core` and `modules`. Please do the following steps to
 In case you feel lost, please see the following image:<br><br>
 ![server_folder](https://github.com/user-attachments/assets/21a11702-33ac-494a-98f7-d8181ccf8b91)
 
-## Bit branching & Pull request
+## Git branching & Pull request
 
 > [!TIP]
 > Please refer to this [git guide](https://github.com/KMUTT-CampusLink/campus-client?tab=readme-ov-file#bit-branching--pull-request)
