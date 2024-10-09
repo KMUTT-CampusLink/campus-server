@@ -29,13 +29,6 @@ Open the root project folder in your favorite terminal and run the following com
 import prisma from "./db/prismaInstance.js";
 ```
 
-> [!TIP]
-> If you run into `The table (not available) does not exist in the current database` error while doing `CRUD`, you might want to run this migration command:
-
-```shell
-> npx prisma migrate dev --name init
-```
-
 ## Seeding Database :memo:
 
 > [!NOTE]
