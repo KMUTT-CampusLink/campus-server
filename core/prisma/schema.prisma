@@ -898,8 +898,8 @@ model verified_car {
 
 model grade {
   id                Int                 @id @default(autoincrement())
-  grade_letter      String?             @db.VarChar(2)
-  grade_point       Int?
+  grade_letter      String              @db.VarChar(2)
+  grade_point       Decimal             @db.Decimal(3, 2)
   grade_info        grade_info_enum?
   enrollment_detail enrollment_detail[]
 }
