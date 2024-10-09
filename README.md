@@ -17,8 +17,8 @@ Open the root project folder in your favorite terminal and run the following com
 > git clone https://github.com/KMUTT-CampusLink/campus-server.git
 > cd campus-server
 > cp .env.example .env.local
-> npx prisma generate
 > npm install
+> npx prisma generate
 > npm run dev
 ```
 
