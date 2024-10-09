@@ -16,7 +16,7 @@ Open the root project folder in your favorite terminal and run the following com
 ```shell
 > git clone https://github.com/KMUTT-CampusLink/campus-server.git
 > cd campus-server
-> cp .env.example .env.local
+> cp .env.example .env
 > npm install
 > npx prisma generate
 > npm run dev
@@ -27,6 +27,16 @@ Open the root project folder in your favorite terminal and run the following com
 
 ```js
 import prisma from "./db/prismaInstance.js";
+```
+
+## Seeding Database (for testing)
+
+> [!INFO] If you want to populate your tables with seed, which is random testing data, please do the following. [Learn More](https://www.prisma.io/docs/orm/prisma-migrate/workflows/seeding)
+
+Inside `/core/prisma/` folder, create a new folder called `seed`. In that folder you have just created, create a new file named `index.js` where your seeding logic will be implemented. After your logic is setup, run the following command:
+
+```shell
+> npx prisma db seed
 ```
 
 ## Folder Structure :file_folder:

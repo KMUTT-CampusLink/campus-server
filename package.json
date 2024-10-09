@@ -4,7 +4,7 @@
   "main": "./core/server.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon --env-file=.env.local ./core/server.js",
+    "dev": "nodemon --env-file=.env ./core/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "CampusLink",
@@ -25,6 +25,7 @@
     "prisma": "^5.19.1"
   },
   "prisma": {
-    "schema": "./core/prisma/"
+    "schema": "./core/prisma/",
+    "seed": "node ./core/prisma/seed/index.js"
   }
 }
