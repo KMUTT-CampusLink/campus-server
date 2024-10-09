@@ -378,10 +378,10 @@ model enrollment_detail {
   section_id      Int
   status          enroll_status_enum? @default(Active)
   progress        Decimal?            @db.Decimal(5, 2)
-  grade           grade_enum?
-  score           Int?
   created_at      DateTime            @default(now()) @db.Timestamp(6)
   updated_at      DateTime            @default(now()) @db.Timestamp(6)
+  grade_id        Int?
+  grade           grade?              @relation(fields: [grade_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   enrollment_head enrollment_head     @relation(fields: [head_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   section         section             @relation(fields: [section_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   student         student?            @relation(fields: [student_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -896,6 +896,14 @@ model verified_car {
   user                user                  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
+model grade {
+  id                Int                 @id @default(autoincrement())
+  grade_letter      String?             @db.VarChar(2)
+  grade_point       Int?
+  grade_info        grade_info_enum?
+  enrollment_detail enrollment_detail[]
+}
+
 enum attendance_status_enum {
   Present
   Absent
@@ -945,21 +953,6 @@ enum exam_status_enum {
 enum gender_enum {
   Male
   Female
-}
-
-enum grade_enum {
-  A
-  B_ @map("B+")
-  B
-  C_ @map("C+")
-  C
-  D_ @map("D+")
-  D
-  F
-  S
-  U
-  W
-  Fa
 }
 
 enum lost_found_status_enum {
@@ -1025,4 +1018,19 @@ enum weekday_enum {
   Friday
   Saturday
   Sunday
+}
+
+enum grade_info_enum {
+  A___Excellent                 @map("A = Excellent")
+  B____Very_Good                @map("B+ = Very Good")
+  B___Good                      @map("B = Good")
+  C____Fairly_Good              @map("C+ = Fairly Good")
+  C___Satisfactory              @map("C = Satisfactory")
+  D____Somewhat_Satisfactory    @map("D+ = Somewhat Satisfactory")
+  D___Passing_but_Below_Average @map("D = Passing but Below Average")
+  F___Fail                      @map("F = Fail")
+  S___Satisfactory              @map("S = Satisfactory")
+  U___Unsatisfactory            @map("U = Unsatisfactory")
+  W___Withdraw                  @map("W = Withdraw")
+  Fa___Failure_due_to_Absence   @map("Fa = Failure due to Absence")
 }
