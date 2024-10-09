@@ -156,3 +156,4 @@ dist
 
 # remove seed folder
 seed
+migrations

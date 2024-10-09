@@ -29,11 +29,19 @@ Open the root project folder in your favorite terminal and run the following com
 import prisma from "./db/prismaInstance.js";
 ```
 
-## Seeding Database (for testing)
+> [!TIP]
+> If you run into `The table (not available) does not exist in the current database` error while doing `CRUD`, you might want to run this migration command:
 
-> [!INFO] If you want to populate your tables with seed, which is random testing data, please do the following. [Learn More](https://www.prisma.io/docs/orm/prisma-migrate/workflows/seeding)
+```shell
+> npx prisma migrate dev --name init
+```
 
-Inside `/core/prisma/` folder, create a new folder called `seed`. In that folder you have just created, create a new file named `index.js` where your seeding logic will be implemented. After your logic is setup, run the following command:
+## Seeding Database :memo:
+
+> [!NOTE]
+> If you want to populate your tables with seed, which is random data to test your logic, please do the following. [Learn More](https://www.prisma.io/docs/orm/prisma-migrate/workflows/seeding)
+
+Create a new folder called' seed' inside `/core/prisma/` folder. In that folder you have just created, create a new file named `index.js` where your seeding logic will be implemented. After your logic is set, run the following command:
 
 ```shell
 > npx prisma db seed
