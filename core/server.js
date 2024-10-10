@@ -3,8 +3,10 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import { logger } from "./middleware/logger.js";
 import { corsConfig } from "./config/corsConfig.js";
+import { verifyAccessToken } from "./middleware/jwtHandler.js";
 
 // routes
+import { userRouter } from "./routes/userRouter.js";
 import { attendRouter } from "../modules/attendance/routes/attendRouter.js";
 import { secureRouter } from "../modules/building-security/routes/secureRouter.js";
 import { botRouter } from "../modules/chatbot/routes/botRouter.js";
@@ -38,6 +40,16 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
 // all routing
+app.use("/api/users", userRouter);
+app.use(verifyAccessToken);
+app.get("/api/authorize", (req,res) => {
+  return res.status(200).json({
+    condition: "success",
+    data: req.user.role,
+    message: "Authorized",
+  });
+});
+
 app.use("/api/regis", regisRouter);
 app.use("/api/attend", attendRouter);
 app.use("/api/security", secureRouter);
