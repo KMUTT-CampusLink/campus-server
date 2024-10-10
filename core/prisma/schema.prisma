@@ -69,11 +69,11 @@ model assignment_submission {
 }
 
 model attachment {
+  id             Int            @id @default(autoincrement())
   material_id    Int
   file_path      String?        @db.VarChar(255)
   created_at     DateTime       @default(now()) @db.Timestamp(6)
   updated_at     DateTime       @default(now()) @db.Timestamp(6)
-  id             Int            @id @default(autoincrement())
   class_material class_material @relation(fields: [material_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
@@ -121,7 +121,7 @@ model book {
 model book_reservation {
   id         Int                           @id @default(autoincrement())
   status     book_reservation_status_enum?
-  user_id    Int
+  user_id    String                        @db.Uuid
   book_id    Int
   start_date DateTime?                     @db.Date
   end_date   DateTime?                     @db.Date
@@ -240,7 +240,7 @@ model complaint {
   id          Int      @id @default(autoincrement())
   title       String   @db.VarChar(100)
   content     String?
-  user_id     Int
+  user_id     String   @db.Uuid
   building_id Int
   created_at  DateTime @default(now()) @db.Timestamp(6)
   updated_at  DateTime @default(now()) @db.Timestamp(6)
@@ -314,7 +314,7 @@ model department {
 model discussion_reply {
   id               Int              @id @default(autoincrement())
   topic_id         Int
-  user_id          Int
+  user_id          String           @db.Uuid
   content          String?
   create_at        DateTime         @default(now()) @db.Timestamp(6)
   updated_at       DateTime         @default(now()) @db.Timestamp(6)
@@ -325,7 +325,7 @@ model discussion_reply {
 model discussion_topic {
   id               Int                @id @default(autoincrement())
   section_id       Int
-  user_id          Int
+  user_id          String             @db.Uuid
   title            String             @db.VarChar(100)
   content          String?
   discussion_img   String?            @db.VarChar(255)
@@ -355,7 +355,7 @@ model employee {
   gender            gender_enum?
   identification_no String?      @unique @db.VarChar(20)
   passport_no       String?      @unique @db.VarChar(20)
-  user_id           Int
+  user_id           String       @db.Uuid
   dept_id           Int?
   position          String?      @db.VarChar(50)
   job_title         String?      @db.VarChar(50)
@@ -378,9 +378,9 @@ model enrollment_detail {
   section_id      Int
   status          enroll_status_enum? @default(Active)
   progress        Decimal?            @db.Decimal(5, 2)
+  grade_id        Int?
   created_at      DateTime            @default(now()) @db.Timestamp(6)
   updated_at      DateTime            @default(now()) @db.Timestamp(6)
-  grade_id        Int?
   grade           grade?              @relation(fields: [grade_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   enrollment_head enrollment_head     @relation(fields: [head_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   section         section             @relation(fields: [section_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -480,7 +480,7 @@ model guard {
 
 model guard_reservation {
   id               Int                  @id @default(autoincrement())
-  user_id          Int
+  user_id          String               @db.Uuid
   guard_id         Int
   description      String?
   status           request_status_enum? @default(Pending)
@@ -495,7 +495,7 @@ model guard_reservation {
 
 model invoice {
   id              String               @id @db.VarChar(50)
-  user_id         Int
+  user_id         String               @db.Uuid
   issued_by       String?              @db.VarChar(50)
   issued_date     DateTime?            @db.Timestamp(6)
   due_date        DateTime?            @db.Timestamp(6)
@@ -543,7 +543,7 @@ model library_event {
 
 model library_request {
   id         Int      @id @default(autoincrement())
-  user_id    Int
+  user_id    String   @db.Uuid
   library_id Int
   title      String   @db.VarChar(100)
   edition    Int?
@@ -566,12 +566,12 @@ model library_update {
 
 model lost_and_found {
   id                                    Int                     @id @default(autoincrement())
-  reporter_id                           Int
+  reporter_id                           String                  @db.Uuid
   name                                  String                  @db.VarChar(100)
   description                           String?
   found_location                        String?                 @db.VarChar(255)
   status                                lost_found_status_enum?
-  owner_id                              Int?
+  owner_id                              String?                 @db.Uuid
   created_at                            DateTime                @default(now()) @db.Timestamp(6)
   updated_at                            DateTime                @default(now()) @db.Timestamp(6)
   user_lost_and_found_owner_idTouser    user?                   @relation("lost_and_found_owner_idTouser", fields: [owner_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -580,7 +580,7 @@ model lost_and_found {
 
 model maintenance_request {
   id          Int                    @id @default(autoincrement())
-  user_id     Int
+  user_id     String                 @db.Uuid
   location    String?                @db.VarChar(255)
   type        maintenance_type_enum?
   description String?
@@ -610,7 +610,7 @@ model parking_floor {
 
 model parking_help {
   id         Int      @id @default(autoincrement())
-  user_id    Int
+  user_id    String   @db.Uuid
   name       String?  @db.VarChar(100)
   email      String?  @db.VarChar(100)
   content    String?
@@ -672,7 +672,7 @@ model program {
 
 model query_log {
   id         Int      @id @default(autoincrement())
-  user_id    Int
+  user_id    String   @db.Uuid
   question   String
   answer     String?
   created_at DateTime @default(now()) @db.Timestamp(6)
@@ -693,7 +693,7 @@ model room {
 
 model room_booking {
   id           Int       @id @default(autoincrement())
-  user_id      Int
+  user_id      String    @db.Uuid
   room_id      Int
   booking_date DateTime? @db.Date
   start_time   DateTime? @db.Timestamp(6)
@@ -766,7 +766,7 @@ model student {
   gender                gender_enum?
   identification_no     String?                 @unique @db.VarChar(20)
   passport_no           String?                 @unique @db.VarChar(20)
-  user_id               Int
+  user_id               String                  @db.Uuid
   program_id            Int
   batch_id              Int?
   gpax                  Decimal?                @db.Decimal(4, 2)
@@ -823,7 +823,7 @@ model trip {
 
 model trip_booking {
   id               Int                  @id @default(autoincrement())
-  user_id          Int
+  user_id          String               @db.Uuid
   trip_schedule_id Int
   status           booking_status_enum? @default(Confirm)
   created_at       DateTime             @default(now()) @db.Timestamp(6)
@@ -848,9 +848,9 @@ model trip_schedule {
 }
 
 model user {
-  id                                              Int                   @id @default(autoincrement())
+  id                                              String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   campus_email                                    String                @unique @db.VarChar(100)
-  personal_email                                  String                @db.VarChar(100)
+  personal_email                                  String                @unique @db.VarChar(100)
   password                                        String                @db.VarChar(255)
   role                                            role_enum
   is_activated                                    Boolean               @default(false)
@@ -886,7 +886,7 @@ model vehicle {
 
 model verified_car {
   id                  Int                   @id @default(autoincrement())
-  user_id             Int
+  user_id             String                @db.Uuid
   license_no          String?               @unique @db.VarChar(50)
   created_at          DateTime              @default(now()) @db.Timestamp(6)
   updated_at          DateTime              @default(now()) @db.Timestamp(6)
@@ -910,10 +910,11 @@ enum attendance_status_enum {
 }
 
 enum book_reservation_status_enum {
-  ReservedIn_Use @map("ReservedIn Use")
+  Reserved
+  In_Use   @map("In Use")
   Returned
   Late
-  In_Queue       @map("In Queue")
+  In_Queue @map("In Queue")
 }
 
 enum booking_status_enum {
