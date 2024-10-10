@@ -302,15 +302,6 @@ model course_attendance {
   student          student            @relation(fields: [student_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
-model department {
-  id         Int        @id @default(autoincrement())
-  faculty_id Int?
-  name       String     @db.VarChar(100)
-  faculty    faculty?   @relation(fields: [faculty_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  employee   employee[]
-  program    program[]
-}
-
 model discussion_reply {
   id               Int              @id @default(autoincrement())
   topic_id         Int
@@ -356,16 +347,16 @@ model employee {
   identification_no String?      @unique @db.VarChar(20)
   passport_no       String?      @unique @db.VarChar(20)
   user_id           String       @db.Uuid
-  dept_id           Int?
   position          String?      @db.VarChar(50)
   job_title         String?      @db.VarChar(50)
   salary            Int?
   bonus             Int?
   created_at        DateTime     @default(now()) @db.Timestamp(6)
   updated_at        DateTime     @default(now()) @db.Timestamp(6)
+  faculty_id        Int?
   advisor           advisor[]
   driver            driver[]
-  department        department?  @relation(fields: [dept_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  faculty           faculty?     @relation(fields: [faculty_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   user              user         @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   professor         professor[]
 }
@@ -454,10 +445,10 @@ model exam_question {
 }
 
 model faculty {
-  id         Int          @id @default(autoincrement())
-  name       String       @db.VarChar(100)
-  department department[]
-  program    program[]
+  id       Int        @id @default(autoincrement())
+  name     String     @db.VarChar(100)
+  employee employee[]
+  program  program[]
 }
 
 model floor {
@@ -653,7 +644,6 @@ model professor {
 
 model program {
   id           Int                   @id @default(autoincrement())
-  dept_id      Int?
   faculty_id   Int?
   name         String                @db.VarChar(100)
   price        Int?
@@ -665,7 +655,6 @@ model program {
   updated_at   DateTime              @default(now()) @db.Timestamp(6)
   batch        batch[]
   course       course[]
-  department   department?           @relation(fields: [dept_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   faculty      faculty?              @relation(fields: [faculty_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   student      student[]
 }
