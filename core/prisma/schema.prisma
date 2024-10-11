@@ -17,16 +17,16 @@ model FAQ {
 }
 
 model advisor {
-  id              Int               @id
-  emp_id          String            @db.VarChar(20)
-  batch_id        Int?
-  start_time      DateTime?         @db.Timestamp(6)
-  end_time        DateTime?         @db.Timestamp(6)
-  created_at      DateTime          @default(now()) @db.Timestamp(6)
-  updated_at      DateTime          @default(now()) @db.Timestamp(6)
-  batch           batch?            @relation(fields: [batch_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  employee        employee          @relation(fields: [emp_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  advisor_request advisor_request[]
+  id               Int               @id @default(autoincrement())
+  emp_id           String            @db.VarChar(20)
+  program_batch_id Int?
+  start_time       DateTime?         @db.Timestamp(6)
+  end_time         DateTime?         @db.Timestamp(6)
+  created_at       DateTime          @default(now()) @db.Timestamp(6)
+  updated_at       DateTime          @default(now()) @db.Timestamp(6)
+  employee         employee          @relation(fields: [emp_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  program_batch    program_batch?    @relation(fields: [program_batch_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  advisor_request  advisor_request[]
 }
 
 model advisor_request {
@@ -78,28 +78,18 @@ model attachment {
 }
 
 model attendance_qr_code {
-  id           Int                   @id @default(autoincrement())
+  id           Int       @id @default(autoincrement())
   section_id   Int
   professor_id Int
-  qrcode       String?               @db.VarChar(255)
-  location     Unsupported("point")?
-  start_at     DateTime?             @db.Timestamp(6)
-  end_at       DateTime?             @db.Timestamp(6)
-  created_at   DateTime              @default(now()) @db.Timestamp(6)
-  updated_at   DateTime              @default(now()) @db.Timestamp(6)
-  professor    professor             @relation(fields: [professor_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  section      section               @relation(fields: [section_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-}
-
-model batch {
-  id         Int       @id @default(autoincrement())
-  batch_name String    @unique @db.VarChar(20)
-  program_id Int
-  created_at DateTime  @default(now()) @db.Timestamp(6)
-  updated_at DateTime  @default(now()) @db.Timestamp(6)
-  advisor    advisor[]
-  program    program   @relation(fields: [program_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  student    student[]
+  qrcode       String?   @db.VarChar(255)
+  latitude     Decimal?  @db.Decimal(9, 6)
+  longitude    Decimal?  @db.Decimal(9, 6)
+  start_at     DateTime? @db.Timestamp(6)
+  end_at       DateTime? @db.Timestamp(6)
+  created_at   DateTime  @default(now()) @db.Timestamp(6)
+  updated_at   DateTime  @default(now()) @db.Timestamp(6)
+  professor    professor @relation(fields: [professor_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  section      section   @relation(fields: [section_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model book {
@@ -145,10 +135,14 @@ model building {
 }
 
 model campus {
-  id       Int        @id @default(autoincrement())
-  name     String     @db.VarChar(100)
-  map_path String?    @db.VarChar(255)
-  building building[]
+  id           Int            @id @default(autoincrement())
+  name         String         @db.VarChar(100)
+  map_path     String?        @db.VarChar(255)
+  start_year   Int
+  created_at   DateTime       @default(now()) @db.Timestamp(6)
+  updated_at   DateTime       @default(now()) @db.Timestamp(6)
+  building     building[]
+  campus_batch campus_batch[]
 }
 
 model category {
@@ -264,7 +258,6 @@ model connection {
 
 model course {
   code        String            @id @db.VarChar(20)
-  semester_id Int
   program_id  Int
   name        String            @db.VarChar(100)
   description String?
@@ -274,7 +267,6 @@ model course {
   created_at  DateTime          @default(now()) @db.Timestamp(6)
   updated_at  DateTime          @default(now()) @db.Timestamp(6)
   program     program           @relation(fields: [program_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  semester    semester          @relation(fields: [semester_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model course_announcement {
@@ -346,14 +338,14 @@ model employee {
   gender            gender_enum?
   identification_no String?      @unique @db.VarChar(20)
   passport_no       String?      @unique @db.VarChar(20)
-  user_id           String       @db.Uuid
+  user_id           String       @unique @db.Uuid
+  faculty_id        Int?
   position          String?      @db.VarChar(50)
   job_title         String?      @db.VarChar(50)
   salary            Int?
   bonus             Int?
   created_at        DateTime     @default(now()) @db.Timestamp(6)
   updated_at        DateTime     @default(now()) @db.Timestamp(6)
-  faculty_id        Int?
   advisor           advisor[]
   driver            driver[]
   faculty           faculty?     @relation(fields: [faculty_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -383,7 +375,7 @@ model enrollment_head {
   id                Int                  @id @default(autoincrement())
   student_id        String               @db.VarChar(20)
   semester_id       Int
-  invoice_id        String?              @db.VarChar(50)
+  invoice_id        String?              @db.Uuid
   status            payment_status_enum? @default(Unpaid)
   gpa               Decimal?             @db.Decimal(4, 2)
   created_at        DateTime             @default(now()) @db.Timestamp(6)
@@ -485,7 +477,7 @@ model guard_reservation {
 }
 
 model invoice {
-  id              String               @id @db.VarChar(50)
+  id              String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   user_id         String               @db.Uuid
   issued_by       String?              @db.VarChar(50)
   issued_date     DateTime?            @db.Timestamp(6)
@@ -653,10 +645,9 @@ model program {
   no_of_course Int?                  @default(1)
   created_at   DateTime              @default(now()) @db.Timestamp(6)
   updated_at   DateTime              @default(now()) @db.Timestamp(6)
-  batch        batch[]
   course       course[]
+  degree       degree[]
   faculty      faculty?              @relation(fields: [faculty_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  student      student[]
 }
 
 model query_log {
@@ -707,6 +698,7 @@ model section {
   course_code         String                @db.VarChar(10)
   name                String?               @db.VarChar(100)
   room_id             Int?
+  semester_id         Int
   day                 weekday_enum?
   start_time          DateTime?             @db.Time(6)
   end_time            DateTime?             @db.Time(6)
@@ -722,6 +714,7 @@ model section {
   exam                exam[]
   professor           professor[]
   room                room?                 @relation(fields: [room_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  semester            semester              @relation(fields: [semester_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model semester {
@@ -729,18 +722,19 @@ model semester {
   name            String?           @db.VarChar(20)
   start_date      DateTime?         @db.Date
   end_date        DateTime?         @db.Date
-  course          course[]
   enrollment_head enrollment_head[]
+  section         section[]
 }
 
 model stop {
-  id                                   Int                   @id @default(autoincrement())
-  name                                 String                @db.VarChar(100)
-  location                             Unsupported("point")?
-  created_at                           DateTime              @default(now()) @db.Timestamp(6)
-  updated_at                           DateTime              @default(now()) @db.Timestamp(6)
-  connection_connection_end_idTostop   connection[]          @relation("connection_end_idTostop")
-  connection_connection_start_idTostop connection[]          @relation("connection_start_idTostop")
+  id                                   Int          @id @default(autoincrement())
+  name                                 String       @db.VarChar(100)
+  latitude                             Decimal?     @db.Decimal(9, 6)
+  longitude                            Decimal?     @db.Decimal(9, 6)
+  created_at                           DateTime     @default(now()) @db.Timestamp(6)
+  updated_at                           DateTime     @default(now()) @db.Timestamp(6)
+  connection_connection_end_idTostop   connection[] @relation("connection_end_idTostop")
+  connection_connection_start_idTostop connection[] @relation("connection_start_idTostop")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -755,9 +749,10 @@ model student {
   gender                gender_enum?
   identification_no     String?                 @unique @db.VarChar(20)
   passport_no           String?                 @unique @db.VarChar(20)
-  user_id               String                  @db.Uuid
-  program_id            Int
-  batch_id              Int?
+  user_id               String                  @unique @db.Uuid
+  degree_id             Int
+  campus_batch_id       Int?
+  program_batch_id      Int?
   gpax                  Decimal?                @db.Decimal(4, 2)
   created_at            DateTime                @default(now()) @db.Timestamp(6)
   updated_at            DateTime                @default(now()) @db.Timestamp(6)
@@ -769,8 +764,9 @@ model student {
   course_attendance     course_attendance[]
   enrollment_detail     enrollment_detail[]
   enrollment_head       enrollment_head[]
-  batch                 batch?                  @relation(fields: [batch_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  program               program                 @relation(fields: [program_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  campus_batch          campus_batch?           @relation(fields: [campus_batch_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  degree                degree                  @relation(fields: [degree_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  program_batch         program_batch?          @relation(fields: [program_batch_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   user                  user                    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   student_answer        student_answer[]
   student_exam          student_exam[]
@@ -849,7 +845,7 @@ model user {
   complaint                                       complaint[]
   discussion_reply                                discussion_reply[]
   discussion_topic                                discussion_topic[]
-  employee                                        employee[]
+  employee                                        employee?
   guard_reservation                               guard_reservation[]
   invoice                                         invoice[]
   library_request                                 library_request[]
@@ -859,7 +855,7 @@ model user {
   parking_help                                    parking_help[]
   query_log                                       query_log[]
   room_booking                                    room_booking[]
-  student                                         student[]
+  student                                         student?
   trip_booking                                    trip_booking[]
   verified_car                                    verified_car[]
 }
@@ -889,6 +885,44 @@ model grade {
   grade_point       Decimal             @db.Decimal(3, 2)
   grade_info        grade_info_enum?
   enrollment_detail enrollment_detail[]
+}
+
+model campus_batch {
+  id            Int             @id @default(autoincrement())
+  batch_no      Int?
+  campus_id     Int
+  year          Int             @unique
+  created_at    DateTime        @default(now()) @db.Timestamp(6)
+  updated_at    DateTime        @default(now()) @db.Timestamp(6)
+  campus        campus          @relation(fields: [campus_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  program_batch program_batch[]
+  student       student[]
+}
+
+model degree {
+  id            Int                   @id @default(autoincrement())
+  program_id    Int
+  name          String                @db.VarChar(100)
+  degree_level  education_level_enum?
+  start_year    Int
+  created_at    DateTime              @default(now()) @db.Timestamp(6)
+  updated_at    DateTime              @default(now()) @db.Timestamp(6)
+  program       program               @relation(fields: [program_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  program_batch program_batch[]
+  student       student[]
+}
+
+model program_batch {
+  id              Int          @id @default(autoincrement())
+  batch_no        Int?
+  degree_id       Int
+  campus_batch_id Int
+  created_at      DateTime     @default(now()) @db.Timestamp(6)
+  updated_at      DateTime     @default(now()) @db.Timestamp(6)
+  advisor         advisor[]
+  campus_batch    campus_batch @relation(fields: [campus_batch_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  degree          degree       @relation(fields: [degree_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  student         student[]
 }
 
 enum attendance_status_enum {
@@ -1009,16 +1043,15 @@ enum weekday_enum {
 }
 
 enum grade_info_enum {
-  A___Excellent                 @map("A = Excellent")
-  B____Very_Good                @map("B+ = Very Good")
-  B___Good                      @map("B = Good")
-  C____Fairly_Good              @map("C+ = Fairly Good")
-  C___Satisfactory              @map("C = Satisfactory")
-  D____Somewhat_Satisfactory    @map("D+ = Somewhat Satisfactory")
-  D___Passing_but_Below_Average @map("D = Passing but Below Average")
-  F___Fail                      @map("F = Fail")
-  S___Satisfactory              @map("S = Satisfactory")
-  U___Unsatisfactory            @map("U = Unsatisfactory")
-  W___Withdraw                  @map("W = Withdraw")
-  Fa___Failure_due_to_Absence   @map("Fa = Failure due to Absence")
+  Excellent
+  Very_Good                 @map("Very Good")
+  Good
+  Fairly_Good               @map("Fairly Good")
+  Satisfactory
+  Somewhat_Satisfactory     @map("Somewhat Satisfactory")
+  Passing_but_Below_Average @map("Passing but Below Average")
+  Fail
+  Unsatisfactory
+  Withdraw
+  Failure_due_to_Absence    @map("Failure due to Absence")
 }
