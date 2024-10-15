@@ -90,20 +90,35 @@ export const deleteEnrollmentDetail = async (req, res) => {
   const { selectedEnrollmentId } = req.params;
 
   if (!selectedEnrollmentId) {
-    return res.status(400).json({ message: "enrollment detail is required." });
+    return res.status(400).json({ message: "Enrollment detail ID is required." });
   }
 
   try {
+    // Fetch the enrollment detail to get the student ID and check if it exists
     const existingEnrollment = await prisma.$queryRaw`
     SELECT * FROM enrollment_detail 
     WHERE id = ${Number(selectedEnrollmentId)};`;
 
     if (existingEnrollment.length === 0) {
       return res.status(404).json({
-        message: "Enrollment not found with the given enrollment detail.",
+        message: "Enrollment not found with the given enrollment detail ID.",
       });
     }
 
+    const { student_id } = existingEnrollment[0];
+
+    // Check how many active enrollments the student has
+    const studentEnrollments = await prisma.$queryRaw`
+      SELECT * FROM enrollment_detail 
+      WHERE student_id = ${student_id} AND status='Active';`;
+
+    if (studentEnrollments.length === 1) {
+      return res.status(400).json({
+        message: "Cannot delete the last remaining section for the student.",
+      });
+    }
+
+    // Proceed to delete the enrollment detail if the student has more than one section
     await prisma.$executeRaw`
     DELETE FROM enrollment_detail 
     WHERE id = ${Number(selectedEnrollmentId)}; 
