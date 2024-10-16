@@ -31,7 +31,7 @@ app.use(logger);
 app.use(cookieParser());
 
 // cors configuration
-app.use(cors(corsConfig));
+app.use(cors());
 
 // urlencoded form data
 app.use(express.urlencoded({ extended: false }));
@@ -41,7 +41,7 @@ app.use(express.json());
 
 // all routing
 app.use("/api/users", userRouter);
-app.use(verifyAccessToken);
+// app.use(verifyAccessToken);
 app.get("/api/authorize", (req, res) => {
   return res.status(200).json({
     condition: "success",
