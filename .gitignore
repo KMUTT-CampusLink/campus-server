@@ -157,3 +157,6 @@ dist
 # remove seed folder
 seed
 migrations
+
+# ignore prisma.schema file
+schema.prisma
