@@ -1,4 +1,3 @@
-import { number } from "zod";
 import prisma from "../../../core/db/prismaInstance.js";
 
 export default async function querryAllData(req, res) {

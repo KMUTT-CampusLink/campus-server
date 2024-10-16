@@ -1,21 +1,11 @@
 // intial setup for orientation purposes
 import prisma from "../../../../core/db/prismaInstance.js";
 
-export default async function showBookingsForDrive(req, res) {
+export default async function queryBookingsForTripByID(req, res) {
   try {
     const bookings = await prisma.trip_booking.findMany({
-      select: { booking_id: true },
-      where: { status: "confirm" },
-      include: {
-        trip: {
-          include: {
-            driver: {
-              where: {
-                driver_id: req.user.id,
-              },
-            },
-          },
-        },
+      where: {
+        trip_id: req.body.trip_id,
       },
     });
 

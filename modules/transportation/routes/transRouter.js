@@ -1,10 +1,9 @@
 import { Router } from "express";
 // import your logics from controllers here
-import showBookingsForDrive from "../controllers/driver/showBookingsForDrive.js";
-import testDB from "../controllers/driver/testDB.js";
 import populateDatabaseWithTestData from "../utils/populateDatabaseWithTestData.js";
 import queryAllData from "../utils/queryAllData.js";
-import { queryObjects } from "v8";
+import showRoutesBetweenStops from "../utils/graphQueries.js";
+import queryBookingsForTrip from "../controllers/driver/dataQueries.js";
 
 const transRouter = Router();
 
@@ -13,8 +12,8 @@ transRouter.get("/", (req, res) => {
   return res.send("Transportation");
 });
 
-transRouter.get("/showBookingsForDrive", showBookingsForDrive);
-transRouter.get("/test", testDB);
+transRouter.get("/tripBookings", queryBookingsForTrip);
+transRouter.get("/test");
 transRouter.get("/populate", populateDatabaseWithTestData);
 transRouter.get("/queryAllData", queryAllData);
 
