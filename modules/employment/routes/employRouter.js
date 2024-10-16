@@ -1,11 +1,13 @@
 import { Router } from "express";
-// import your logics from controllers here
+import getEmployee from '../controller/geEmployees.js';
+import createEmployee from '../controller/createUser.js';
+import getEmployeeById from '../controller/getEmployeeId.js';
 
 const employRouter = Router();
 
 // create routes here
-employRouter.get("/", (req, res) => {
-  return res.send("Employment Management");
-});
+employRouter.get("/get", getEmployee);
+employRouter.post("/post",createEmployee);
+employRouter.get("/get/:id",getEmployeeById);
 
 export { employRouter };
