@@ -41,15 +41,19 @@ app.use(express.json());
 
 // all routing
 app.use("/api/users", userRouter);
-app.use(verifyAccessToken);
-app.get("/api/authorize", (req, res) => {
+
+app.get("/api/authorize", verifyAccessToken, (req, res) => {
   return res.status(200).json({
     condition: "success",
-    data: req.user.role,
-    message: "Authorized",
+    data: {
+      id: req.user.id,
+      role: req.user.role,
+    },
+    message: "User is authorized",
   });
 });
 
+app.use(verifyAccessToken);
 app.use("/api/regis", regisRouter);
 app.use("/api/attend", attendRouter);
 app.use("/api/security", secureRouter);
