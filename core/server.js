@@ -40,8 +40,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
 // all routing
-// app.use("/api/users", userRouter);
-// app.use(verifyAccessToken);
+app.use("/api/users", userRouter);
+app.use(verifyAccessToken);
 app.get("/api/authorize", (req, res) => {
   return res.status(200).json({
     condition: "success",
