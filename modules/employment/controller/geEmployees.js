@@ -1,8 +1,7 @@
-import prisma from '../../../core/db/prismaInstance.js'
+import prisma from '../../../core/db/prismaInstance.js';
 
 const getUsers = async (req, res) => {
     try {
-        // const users = await prisma.employee.findMany(); // Retrieve all users from the database
         const users = await prisma.employee.findMany({
             include: {
                 faculty: {
@@ -11,6 +10,9 @@ const getUsers = async (req, res) => {
                     },
                 },
             },
+            orderBy: {
+                id: 'asc', // Sort by id in ascending order
+            },
         });
         res.json(users); // Send users as JSON response
     } catch (error) {
@@ -18,4 +20,5 @@ const getUsers = async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
+
 export default getUsers;
