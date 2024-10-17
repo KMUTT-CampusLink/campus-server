@@ -16,5 +16,6 @@ transRouter.get("/tripBookings", queryBookingsForTrip);
 transRouter.get("/test");
 transRouter.get("/populate", populateDatabaseWithTestData);
 transRouter.get("/queryAllData", queryAllData);
+transRouter.get("/routesBetweenStops", showRoutesBetweenStops);
 
 export { transRouter };
