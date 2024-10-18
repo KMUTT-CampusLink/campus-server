@@ -146,7 +146,7 @@ export async function getActiveCoursesByStudentId(req, res) {
     `;
 
     if (!sections.length) {
-      return res.status(404).json({ error: "Course data not found" });
+      return res.status(200).json([]);
     }
 
     res.json(sections);

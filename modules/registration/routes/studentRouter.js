@@ -5,6 +5,6 @@ const studentRouter = Router();
 studentRouter.get("/", (req, res) => {
   return res.send("Student");
 });
-studentRouter.get("/:userId", studentController);
+studentRouter.get("/:studentId", studentController);
 
 export { studentRouter };
