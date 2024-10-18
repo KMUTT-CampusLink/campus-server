@@ -1,11 +1,7 @@
 import prisma from "../../../core/db/prismaInstance.js";
 import errorHandler from "./errorHandler.js";
 
-export const populateDatabaseWithTestData = errorHandler(
-  populateDatabaseWithTestData
-);
-
-async function populateDatabaseWithTestData(req, res) {
+export const populateDatabaseWithTestData = errorHandler(async (req, res) => {
   // making all db operations a transaction for data safety
   await prisma.$transaction(async (prisma) => {
     //delete all data from tables
@@ -351,4 +347,4 @@ async function populateDatabaseWithTestData(req, res) {
     employees,
     bookings,
   });
-}
+});
