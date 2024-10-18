@@ -15,10 +15,10 @@ transRouter.get("/", (req, res) => {
   return res.send("Transportation");
 });
 
-transRouter.get("/tripBookings", queryBookingsForTrip);
+transRouter.get("/driver/tripBookings", queryBookingsForTrip);
 transRouter.get("/populate", populateDatabaseWithTestData);
 transRouter.get("/queryAllData", queryAllData);
-transRouter.get("/routesConnectingStops", queryRoutesConnectingTwoStops);
-transRouter.get("/routesAtStop", queryRoutesByStopId);
+transRouter.get("/user/routesConnectingStops", queryRoutesConnectingTwoStops);
+transRouter.get("/user/routesAtStop", queryRoutesByStopId);
 
 export { transRouter };
