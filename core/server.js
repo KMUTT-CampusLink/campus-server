@@ -41,12 +41,16 @@ app.use(express.json());
 
 // all routing
 app.use("/api/users", userRouter);
+
 app.use(verifyAccessToken);
 app.get("/api/authorize", (req, res) => {
   return res.status(200).json({
     condition: "success",
-    data: req.user.role,
-    message: "Authorized",
+    data: {
+      id: req.user.id,
+      role: req.user.role,
+    },
+    message: "User is authorized",
   });
 });
 
