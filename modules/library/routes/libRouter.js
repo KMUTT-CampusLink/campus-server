@@ -8,7 +8,6 @@ import { getAllBooknCate } from "../controllers/getAllBooknCate.js";
 import { getAllDupeRes } from "../controllers/getAllDupeRes.js";
 import { createReservation } from "../controllers/createReservation.js";
 import { updateReturnBook } from "../controllers/updateReturnBook.js";
-// import your logics from controllers here
 
 const libRouter = Router();
 libRouter.get("/event", getAllLibraryEvents);
@@ -20,7 +19,6 @@ libRouter.get("/book", getAllBooknCate);
 libRouter.get("/allDupe", getAllDupeRes);
 libRouter.post("/reservation", createReservation);
 libRouter.post("/returnBook", updateReturnBook);
-// create routes here
 
 libRouter.get("/", (req, res) => {
   return res.send("Library System");
