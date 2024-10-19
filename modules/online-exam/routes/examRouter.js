@@ -5,6 +5,7 @@ import createExam from "../controllers/professor/examModification/createExam.js"
 import editExam from "../controllers/professor/examModification/editExam.js";
 import getExamById from "../controllers/professor/examModification/getExamById.js";
 import getExams from "../controllers/professor/examModification/getExams.js";
+import getExamDataById from "../controllers/professor/examModification/getExamDataById.js";
 import deleteExamById from "../controllers/professor/examModification/deleteExamById.js";
 import updateExamSettings from "../controllers/professor/examModification/updateExamSettings.js";
 
@@ -17,12 +18,26 @@ import getStudentScore from "../controllers/professor/studentScoring/getStudentS
 // student import
 import getAllExamQuestionById from "../controllers/student/getAllExamQuestionById.js";
 import studentGetExamById from "../controllers/student/studentGetExamById.js";
-import verifyExamPassword from "../controllers/student/verifyExamPassword.js";
+import getAllExam from "../controllers/student/getAllExam.js";
+import getHistoryExams from "../controllers/student/getHistoryExam.js";
+import verifyPassword from "../controllers/student/verifyPassword.js";
 
 const examRouter = Router();
 
 examRouter.get("/", (req, res) => {
   return res.send("Online Exam");
 });
+
+//professor router
+examRouter.post("/professor/createExam", createExam);
+examRouter.get("/professor/getExams", getExams);
+examRouter.get("/professor/getExamById", getExamById);
+examRouter.delete("/professor/deleteExamById", deleteExamById);
+examRouter.get("/professor/getExamDataById",getExamDataById)
+
+//student rotuer
+examRouter.get("/student/getAllExam", getAllExam);
+examRouter.get("/student/getHistoryExams", getHistoryExams);
+examRouter.post("/student/verifyPassword",verifyPassword);
 
 export { examRouter };
