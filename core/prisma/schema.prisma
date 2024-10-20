@@ -93,32 +93,34 @@ model attendance_qr_code {
 }
 
 model book {
-  id               Int                @id @default(autoincrement())
-  category_id      Int
-  status           Boolean?           @default(true)
-  isbn             String             @unique @db.VarChar(20)
-  title            String             @db.VarChar(100)
-  edition          Int?
-  author           String?            @db.VarChar(100)
-  publisher        String?            @db.VarChar(100)
-  publish_date     DateTime?          @db.Date
-  created_at       DateTime           @default(now()) @db.Timestamp(6)
-  updated_at       DateTime           @default(now()) @db.Timestamp(6)
-  category         category           @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  book_reservation book_reservation[]
+  id             Int              @id @default(autoincrement())
+  category_id    Int
+  status         Boolean?         @default(true)
+  isbn           String           @unique @db.VarChar(20)
+  cover_image    String?          @db.VarChar(255)
+  title          String           @db.VarChar(255)
+  edition        Int?
+  author         String?          @db.VarChar(100)
+  no_of_page     Int?
+  publisher      String?          @db.VarChar(100)
+  publish_date   DateTime?        @db.Date
+  created_at     DateTime         @default(now()) @db.Timestamp(6)
+  updated_at     DateTime         @default(now()) @db.Timestamp(6)
+  category       category         @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  book_duplicate book_duplicate[]
 }
 
 model book_reservation {
-  id         Int                           @id @default(autoincrement())
-  status     book_reservation_status_enum?
-  user_id    String                        @db.Uuid
-  book_id    Int
-  start_date DateTime?                     @db.Date
-  end_date   DateTime?                     @db.Date
-  created_at DateTime                      @default(now()) @db.Timestamp(6)
-  updated_at DateTime                      @default(now()) @db.Timestamp(6)
-  book       book                          @relation(fields: [book_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  user       user                          @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id                Int                           @id @default(autoincrement())
+  status            book_reservation_status_enum?
+  user_id           String                        @db.Uuid
+  book_duplicate_id Int
+  start_date        DateTime?                     @db.Date
+  end_date          DateTime?                     @db.Date
+  created_at        DateTime                      @default(now()) @db.Timestamp(6)
+  updated_at        DateTime                      @default(now()) @db.Timestamp(6)
+  book_duplicate    book_duplicate                @relation(fields: [book_duplicate_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  user              user                          @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model building {
@@ -129,7 +131,10 @@ model building {
   phone        String?     @db.VarChar(20)
   fax          String?     @db.VarChar(20)
   location     String?     @db.VarChar(255)
+  faculty_id   Int?
+  zone         zone_enum?
   campus       campus?     @relation(fields: [campus_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  faculty      faculty?    @relation(fields: [faculty_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   complaint    complaint[]
   floor        floor[]
 }
@@ -147,11 +152,9 @@ model campus {
 
 model category {
   id          Int     @id @default(autoincrement())
-  library_id  Int
   title       String  @db.VarChar(100)
   description String?
   book        book[]
-  library     library @relation(fields: [library_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model class_attendance {
@@ -197,6 +200,10 @@ model club_announcement {
   id          Int         @id @default(autoincrement())
   title       String      @db.VarChar(100)
   content     String?
+  date        DateTime?   @db.Date
+  start_time  DateTime?   @db.Time(6)
+  end_time    DateTime?   @db.Time(6)
+  location    String?     @db.VarChar(100)
   club_id     Int
   member_id   Int
   created_at  DateTime    @default(now()) @db.Timestamp(6)
@@ -222,6 +229,7 @@ model club_post {
   id          Int         @id @default(autoincrement())
   title       String      @db.VarChar(100)
   content     String?
+  post_img    String?     @db.VarChar(255)
   club_id     Int
   member_id   Int
   created_at  DateTime    @default(now()) @db.Timestamp(6)
@@ -392,7 +400,7 @@ model exam {
   description    String?
   professor_id   Int
   section_id     Int
-  pin            String           @db.VarChar(100)
+  pin            String?          @db.VarChar(100)
   vi             String?          @db.VarChar(100)
   start_date     DateTime?        @db.Timestamp(6)
   end_date       DateTime?        @db.Timestamp(6)
@@ -437,10 +445,13 @@ model exam_question {
 }
 
 model faculty {
-  id       Int        @id @default(autoincrement())
-  name     String     @db.VarChar(100)
-  employee employee[]
-  program  program[]
+  id            Int        @id @default(autoincrement())
+  name          String     @db.VarChar(100)
+  contact_phone String?    @db.VarChar(20)
+  contact_email String?    @db.VarChar(100)
+  building      building[]
+  employee      employee[]
+  program       program[]
 }
 
 model floor {
@@ -492,59 +503,36 @@ model invoice {
   user            user                 @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
-model library {
-  id                   Int                    @id @default(autoincrement())
-  open_time            DateTime?              @db.Time(6)
-  close_time           DateTime?              @db.Time(6)
-  category             category[]
-  library_announcement library_announcement[]
-  library_event        library_event[]
-  library_request      library_request[]
-  library_update       library_update[]
-}
-
 model library_announcement {
   id          Int      @id @default(autoincrement())
-  library_id  Int
   title       String   @db.VarChar(100)
   description String?
+  image       String?  @db.VarChar(255)
+  location    String?  @db.VarChar(100)
   created_at  DateTime @default(now()) @db.Timestamp(6)
   updated_at  DateTime @default(now()) @db.Timestamp(6)
-  library     library  @relation(fields: [library_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model library_event {
   id          Int       @id @default(autoincrement())
-  library_id  Int
   title       String    @db.VarChar(100)
   description String?
+  image       String?   @db.VarChar(255)
+  location    String?   @db.VarChar(100)
   event_date  DateTime? @db.Timestamp(6)
   created_at  DateTime  @default(now()) @db.Timestamp(6)
   updated_at  DateTime  @default(now()) @db.Timestamp(6)
-  library     library   @relation(fields: [library_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model library_request {
   id         Int      @id @default(autoincrement())
   user_id    String   @db.Uuid
-  library_id Int
   title      String   @db.VarChar(100)
   edition    Int?
   author     String?  @db.VarChar(100)
   created_at DateTime @default(now()) @db.Timestamp(6)
   updated_at DateTime @default(now()) @db.Timestamp(6)
-  library    library  @relation(fields: [library_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   user       user     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-}
-
-model library_update {
-  id          Int      @id @default(autoincrement())
-  library_id  Int
-  title       String   @db.VarChar(100)
-  description String?
-  created_at  DateTime @default(now()) @db.Timestamp(6)
-  updated_at  DateTime @default(now()) @db.Timestamp(6)
-  library     library  @relation(fields: [library_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model lost_and_found {
@@ -635,19 +623,21 @@ model professor {
 }
 
 model program {
-  id           Int                   @id @default(autoincrement())
-  faculty_id   Int?
-  name         String                @db.VarChar(100)
-  price        Int?
-  degree_level education_level_enum?
-  duration     Int?
-  prefix       String                @unique @db.VarChar(3)
-  no_of_course Int?                  @default(1)
-  created_at   DateTime              @default(now()) @db.Timestamp(6)
-  updated_at   DateTime              @default(now()) @db.Timestamp(6)
-  course       course[]
-  degree       degree[]
-  faculty      faculty?              @relation(fields: [faculty_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id            Int                   @id @default(autoincrement())
+  faculty_id    Int?
+  name          String                @db.VarChar(100)
+  price         Int?
+  degree_level  education_level_enum?
+  duration      Int?
+  prefix        String                @unique @db.VarChar(3)
+  no_of_course  Int?                  @default(1)
+  contact_phone String?               @db.VarChar(20)
+  contact_email String?               @db.VarChar(100)
+  created_at    DateTime              @default(now()) @db.Timestamp(6)
+  updated_at    DateTime              @default(now()) @db.Timestamp(6)
+  course        course[]
+  degree        degree[]
+  faculty       faculty?              @relation(fields: [faculty_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model query_log {
@@ -698,6 +688,7 @@ model section {
   course_code         String                @db.VarChar(10)
   name                String?               @db.VarChar(100)
   room_id             Int?
+  seat_left           Int?
   semester_id         Int
   day                 weekday_enum?
   start_time          DateTime?             @db.Time(6)
@@ -796,40 +787,41 @@ model student_exam {
 }
 
 model trip {
-  id            Int             @id @default(autoincrement())
-  driver_id     Int
-  vehicle_id    Int
-  created_at    DateTime        @default(now()) @db.Timestamp(6)
-  updated_at    DateTime        @default(now()) @db.Timestamp(6)
-  driver        driver          @relation(fields: [driver_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  vehicle       vehicle         @relation(fields: [vehicle_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  trip_schedule trip_schedule[]
+  id               Int            @id @default(autoincrement())
+  driver_id        Int
+  trip_schedule_id Int
+  vehicle_id       Int
+  trip_date        DateTime?      @db.Date
+  created_at       DateTime       @default(now()) @db.Timestamp(6)
+  updated_at       DateTime       @default(now()) @db.Timestamp(6)
+  driver           driver         @relation(fields: [driver_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  trip_schedule    trip_schedule  @relation(fields: [trip_schedule_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  vehicle          vehicle        @relation(fields: [vehicle_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  trip_booking     trip_booking[]
 }
 
 model trip_booking {
-  id               Int                  @id @default(autoincrement())
-  user_id          String               @db.Uuid
-  trip_schedule_id Int
-  status           booking_status_enum? @default(Confirm)
-  created_at       DateTime             @default(now()) @db.Timestamp(6)
-  updated_at       DateTime             @default(now()) @db.Timestamp(6)
-  trip_schedule    trip_schedule        @relation(fields: [trip_schedule_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  user             user                 @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id         Int                  @id @default(autoincrement())
+  user_id    String               @db.Uuid
+  trip_id    Int
+  status     booking_status_enum? @default(Confirm)
+  created_at DateTime             @default(now()) @db.Timestamp(6)
+  updated_at DateTime             @default(now()) @db.Timestamp(6)
+  trip       trip                 @relation(fields: [trip_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  user       user                 @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model trip_schedule {
-  id           Int            @id @default(autoincrement())
-  route_id     Int
-  trip_id      Int
-  day          weekday_enum?
-  start_time   DateTime?      @db.Time(6)
-  end_time     DateTime?      @db.Time(6)
-  status       Boolean?       @default(false)
-  created_at   DateTime       @default(now()) @db.Timestamp(6)
-  updated_at   DateTime       @default(now()) @db.Timestamp(6)
-  trip_booking trip_booking[]
-  route        route          @relation(fields: [route_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  trip         trip           @relation(fields: [trip_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id         Int           @id @default(autoincrement())
+  route_id   Int
+  day        weekday_enum?
+  start_time DateTime?     @db.Time(6)
+  end_time   DateTime?     @db.Time(6)
+  status     Boolean?      @default(false)
+  created_at DateTime      @default(now()) @db.Timestamp(6)
+  updated_at DateTime      @default(now()) @db.Timestamp(6)
+  trip       trip[]
+  route      route         @relation(fields: [route_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model user {
@@ -923,6 +915,16 @@ model program_batch {
   campus_batch    campus_batch @relation(fields: [campus_batch_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   degree          degree       @relation(fields: [degree_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   student         student[]
+}
+
+model book_duplicate {
+  id               Int                @id @default(autoincrement())
+  book_id          Int
+  status           Boolean?           @default(true)
+  created_at       DateTime           @default(now()) @db.Timestamp(6)
+  updated_at       DateTime           @default(now()) @db.Timestamp(6)
+  book             book               @relation(fields: [book_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  book_reservation book_reservation[]
 }
 
 enum attendance_status_enum {
@@ -1054,4 +1056,9 @@ enum grade_info_enum {
   Unsatisfactory
   Withdraw
   Failure_due_to_Absence    @map("Failure due to Absence")
+}
+
+enum zone_enum {
+  North
+  South
 }

@@ -41,7 +41,7 @@ app.use(express.json());
 
 // all routing
 app.use("/api/users", userRouter);
-app.use(verifyAccessToken);
+//app.use(verifyAccessToken); **;//to uncomment before push**
 app.get("/api/authorize", (req, res) => {
   return res.status(200).json({
     condition: "success",
