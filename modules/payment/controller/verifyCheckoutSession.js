@@ -14,7 +14,7 @@ const verifyCheckoutSession = async (req, res) => {
       // อัปเดตสถานะการจองในฐานข้อมูลให้เป็น "ชำระเงินแล้ว"
       await prisma.invoice.update({
         where: { id: session.metadata.invoice_id },
-        data: { status: 'Paid' }, // เปลี่ยนสถานะเป็น 'Paid' หรือสถานะที่คุณต้องการ
+        data: { status: 'Paid', paid_date: new Date() }, // เปลี่ยนสถานะเป็น 'Paid' หรือสถานะที่คุณต้องการ
       });
 
       // ส่งข้อมูลการชำระเงินสำเร็จกลับไปยัง client

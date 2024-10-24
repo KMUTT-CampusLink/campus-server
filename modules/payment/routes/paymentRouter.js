@@ -2,6 +2,7 @@ import { Router } from "express";
 // import your logics from controllers here
 import { getAllInvoice } from "../controller/getAllInvoice.js";
 import { connectPaymentGateway } from "../controller/connectPaymentGateway.js";
+import { verifyCheckoutSession } from "../controller/verifyCheckoutSession.js"; // Import verifyCheckoutSession
 
 const paymentRouter = Router();
 
@@ -29,6 +30,20 @@ paymentRouter.post("/pay", (req, res) => {
     }
   } else {
     res.status(400).json({ message: "Invoice ID is required" });
+  }
+});
+
+// เพิ่มเส้นทางสำหรับ verifyCheckoutSession
+paymentRouter.get("/verify-session", async (req, res) => {
+  const { session_id } = req.query; // รับ session_id จาก query parameters
+  if (session_id) {
+    try {
+      await verifyCheckoutSession(req, res);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  } else {
+    res.status(400).json({ message: "Session ID is required" });
   }
 });
 
