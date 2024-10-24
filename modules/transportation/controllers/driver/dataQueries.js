@@ -2,9 +2,7 @@
 import prisma from "../../../../core/db/prismaInstance.js";
 import errorHandler from "../../utils/errorHandler.js";
 
-export const queryBookingsForTrip = errorHandler(queryBookingsForTripByID);
-
-export default async function queryBookingsForTripByID(req, res) {
+export const queryBookingsForTripByID = errorHandler(async (req, res) => {
   const bookings = await prisma.trip_booking.findMany({
     where: {
       trip_id: req.body.trip_id,
@@ -12,4 +10,14 @@ export default async function queryBookingsForTripByID(req, res) {
   });
 
   res.json({ bookings });
-}
+});
+
+export const queryDriverTrips = errorHandler(async (req, res) => {
+  const trips = await prisma.trip.findMany({
+    where: {
+      driver_id: req.body.driver_id,
+    },
+  });
+
+  res.json({ trips });
+});
