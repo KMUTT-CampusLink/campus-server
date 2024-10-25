@@ -1,11 +1,17 @@
 import { Router } from "express";
-// import your logics from controllers here
+import { getAllDepartments } from "../controllers/getAllDepartments.js";
+import { editDepartmentDetail } from "../controllers/editDepar";
+import { getAllContactNumber } from "../controllers/getAllContactNumbers.js";
+import { getAllComplaint } from "../controllers/getAllComplaint.js";
 
 const mapRouter = Router();
 
-// create routes here
-mapRouter.get("/", (req, res) => {
-  return res.send("Interactive Map");
-});
+mapRouter.get("/departments", getAllDepartments);
+mapRouter.get("/contacts", getAllContactNumber);
+mapRouter.get("/complaints", getAllComplaint);
+
+mapRouter.patch("/editDepartment", editDepartmentDetail);
+
+
 
 export { mapRouter };
