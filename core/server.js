@@ -42,8 +42,8 @@ app.use(express.json());
 // all routing
 app.use("/api/users", userRouter);
 
-app.use(verifyAccessToken);
-app.get("/api/authorize", (req, res) => {
+// app.use(verifyAccessToken);
+app.get("/api/authorize", verifyAccessToken, (req, res) => {
   return res.status(200).json({
     condition: "success",
     data: {
@@ -54,7 +54,7 @@ app.get("/api/authorize", (req, res) => {
   });
 });
 
-app.use("/api/regis", regisRouter);
+app.use("/api/regis", verifyAccessToken, regisRouter);
 app.use("/api/attend", attendRouter);
 app.use("/api/security", secureRouter);
 app.use("/api/botastra", botRouter);
