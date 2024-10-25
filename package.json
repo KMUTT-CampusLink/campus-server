@@ -29,7 +29,7 @@
     "prisma": "^5.19.1"
   },
   "prisma": {
-    "schema": "./core/prisma/",
+    "schema": "./core/prisma/schema.prisma",
     "seed": "node ./core/prisma/seed/index.js"
   }
 }
