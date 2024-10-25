@@ -46,7 +46,7 @@ const generateQrCode = async (req, res) => {
         professor_id: professorId,
         //location,
         start_at: new Date(),
-        end_at: new Date(new Date().getTime() + 15 * 60 * 1000),
+        end_at: new Date(new Date().getTime() + 2 * 60 * 1000),
       },
     });
 
