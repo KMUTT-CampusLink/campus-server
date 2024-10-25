@@ -7,6 +7,7 @@ import {
   queryRoutesByStopId,
 } from "../controllers/user/dataQueries.js";
 import { queryBookingsForTripByID } from "../controllers/driver/dataQueries.js";
+import { queryAllStops } from "../controllers/user/dataQueries.js";
 
 const transRouter = Router();
 
@@ -18,7 +19,8 @@ transRouter.get("/", (req, res) => {
 transRouter.post("/driver/tripBookings", queryBookingsForTripByID);
 transRouter.get("/populate", populateDatabaseWithTestData);
 transRouter.get("/queryAllData", queryAllData);
-transRouter.get("/user/routesConnectingStops", queryRoutesConnectingTwoStops);
-transRouter.get("/user/routesAtStop", queryRoutesByStopId);
+transRouter.get("/user/queryAllStops", queryAllStops);
+transRouter.post("/user/routesConnectingStops", queryRoutesConnectingTwoStops);
+transRouter.post("/user/routesAtStop", queryRoutesByStopId);
 
 export { transRouter };

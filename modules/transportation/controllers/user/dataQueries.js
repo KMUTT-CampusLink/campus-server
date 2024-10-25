@@ -28,3 +28,8 @@ export const queryRoutesByStopId = errorHandler(async (req, res) => {
   });
   res.json({ routes });
 });
+
+export const queryAllStops = errorHandler(async (req, res) => {
+  const stops = await prisma.stop.findMany();
+  res.json({ stops });
+});
