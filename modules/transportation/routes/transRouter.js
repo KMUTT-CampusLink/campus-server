@@ -3,7 +3,7 @@ import { Router } from "express";
 import { populateDatabaseWithTestData } from "../utils/populateDatabaseWithTestData.js";
 import { queryAllData } from "../utils/queryAllData.js";
 import {
-  queryRoutesConnectingTwoStops,
+  queryRoutesConnectingStops,
   queryRoutesByStopId,
 } from "../controllers/user/dataQueries.js";
 import { queryBookingsForTripByID } from "../controllers/driver/dataQueries.js";
@@ -16,11 +16,14 @@ transRouter.get("/", (req, res) => {
   return res.send("Transportation");
 });
 
-transRouter.post("/driver/tripBookings", queryBookingsForTripByID);
+transRouter.post("/driver/tripBookings/:tripID", queryBookingsForTripByID);
 transRouter.get("/populate", populateDatabaseWithTestData);
 transRouter.get("/queryAllData", queryAllData);
 transRouter.get("/user/queryAllStops", queryAllStops);
-transRouter.post("/user/routesConnectingStops", queryRoutesConnectingTwoStops);
+transRouter.get(
+  "/user/routesConnectingStops/:startStopID/:endStopID",
+  queryRoutesConnectingStops
+);
 transRouter.post("/user/routesAtStop", queryRoutesByStopId);
 
 export { transRouter };

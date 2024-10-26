@@ -1,17 +1,38 @@
 import prisma from "../../../../core/db/prismaInstance.js";
 import errorHandler from "../../utils/errorHandler.js";
 
-export const queryRoutesConnectingTwoStops = errorHandler(async (req, res) => {
+export const queryRoutesConnectingStops = errorHandler(async (req, res) => {
   //selecting all the routes which go through the start and end stops in this order
+
+  const startStop = parseInt(req.params.startStopID);
+  const endStop = parseInt(req.params.endStopID);
+
+  if (!startStop || !endStop) {
+    return res.status(400).json({
+      error:
+        "Incorrect parameters: startStopID or endStopID is missing or invalid",
+    });
+  }
+
   const routes = await prisma.route.findMany({
-    select: { id: true, name: true },
+    include: {
+      connection: {
+        include: {
+          stop_connection_start_idTostop: true,
+          stop_connection_end_idTostop: true,
+        },
+      },
+    },
     where: {
       AND: [
-        { connection: { some: { start_id: req.body.start_stop_id } } },
-        { connection: { some: { end_id: req.body.end_stop_id } } },
+        {
+          connection: { some: { start_id: startStop } },
+        },
+        { connection: { some: { end_id: endStop } } },
       ],
     },
   });
+  console.log(routes);
   res.json({ routes });
 });
 
