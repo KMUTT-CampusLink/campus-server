@@ -5,9 +5,11 @@ import { queryAllData } from "../utils/queryAllData.js";
 import { queryBookingsForTripByID } from "../controllers/driver/dataQueries.js";
 import {
   queryAllStops,
-  queryTripsByRouteId,
+  queryTripsByRouteID,
   queryRoutesConnectingStops,
-  queryRoutesByStopId,
+  queryRoutesByStopID,
+  queryUserBookings,
+  queryStopsByRouteID,
 } from "../controllers/user/dataQueries.js";
 
 const transRouter = Router();
@@ -20,12 +22,14 @@ transRouter.get("/", (req, res) => {
 transRouter.get("/driver/tripBookings/:tripID", queryBookingsForTripByID);
 transRouter.get("/populate", populateDatabaseWithTestData);
 transRouter.get("/queryAllData", queryAllData);
-transRouter.get("/user/queryAllStops", queryAllStops);
+transRouter.get("/user/queryAllStops", queryAllStops); //done on frontend api
 transRouter.get(
   "/user/routesConnectingStops/:startStopID/:endStopID",
   queryRoutesConnectingStops
-);
-transRouter.get("/user/routesAtStop/:stopID", queryRoutesByStopId);
-transRouter.get("/user/tripsByRouteID/:routeID", queryTripsByRouteId);
+); //done on frontend api
+transRouter.get("/user/routesAtStop/:stopID", queryRoutesByStopID);
+transRouter.get("/user/tripsByRouteID/:routeID", queryTripsByRouteID);
+transRouter.get("/user/queryBookingsForTrip/:tripID", queryBookingsForTripByID); //done on frontend api
+transRouter.get("/user/queryUserBookings", queryUserBookings);
 
 export { transRouter };

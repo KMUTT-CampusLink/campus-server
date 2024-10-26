@@ -1,6 +1,13 @@
 import prisma from "../../../../core/db/prismaInstance.js";
 import errorHandler from "../../utils/errorHandler.js";
 
+export const queryUserBookings = errorHandler(async (req, res) => {
+  const bookings = await prisma.booking.findMany({
+    where: { user_id: req.user.id },
+  });
+  res.json({ bookings });
+});
+
 export const queryRoutesConnectingStops = errorHandler(async (req, res) => {
   //selecting all the routes which go through the start and end stops in this order
 
@@ -41,7 +48,7 @@ export const queryStopsByRouteID = errorHandler(async (req, res) => {
   res.json({ stops });
 });
 
-export const queryRoutesByStopId = errorHandler(async (req, res) => {
+export const queryRoutesByStopID = errorHandler(async (req, res) => {
   const stopID = parseInt(req.params.stopID);
 
   if (!stopID) {
@@ -66,7 +73,7 @@ export const queryAllStops = errorHandler(async (req, res) => {
   res.json({ stops });
 });
 
-export const queryTripsByRouteId = errorHandler(async (req, res) => {
+export const queryTripsByRouteID = errorHandler(async (req, res) => {
   const routeID = parseInt(req.params.routeID);
 
   if (!routeID) {
