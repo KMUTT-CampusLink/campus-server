@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { getAllDepartments } from "../controllers/getAllDepartments.js";
-import { editDepartmentDetail } from "../controllers/editDepar";
+import { editDepartmentDetail } from "../controllers/editDepar.js";
 import { getAllContactNumber } from "../controllers/getAllContactNumbers.js";
 import { getAllComplaint } from "../controllers/getAllComplaint.js";
 
