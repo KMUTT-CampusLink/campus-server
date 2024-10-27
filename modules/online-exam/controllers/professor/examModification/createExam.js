@@ -22,7 +22,7 @@ export default async function createExam(req, res) {
       const questionId = queryQuestionRaw[0].id;
       if ( question.type === "Multiple Choice" ||question.type === "Checklist" ) {
         for (let i = 0;i < question.options.length;i++) {
-          const isCorrect = question.answer.includes(question.options[i]);
+          const isCorrect = (question.answer || []).includes(question.options[i]);
           await prisma.exam_choice.create({
             data: {
               question_id: questionId,
