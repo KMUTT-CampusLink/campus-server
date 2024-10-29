@@ -9,9 +9,10 @@ const botRouter = Router();
 
 botRouter.post("/webhook", async (req, res) => {
   const intentName = req.body.intentInfo.displayName;
+  console.log(intentName);
   if(intentName === "program.list") {
     const result = await programsListController();
-    console.log(result);
+    // console.log(result);
     res.json({
       "fulfillmentResponse": {
         "messages": [
@@ -30,7 +31,7 @@ botRouter.post("/message", async(req, res) => {
   const inputText = req.body.message;
   const sessionId = req.body.sessionId;
   const projectId = process.env.BOT_PROJECT_ID;
-  console.log(req.body);
+  // console.log(req.body);
   const reply = await detectIntentText(projectId, inputText, sessionId);
   res.json({replyMessage: reply});
 });

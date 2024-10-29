@@ -2,6 +2,7 @@ import prisma from "../../../core/db/prismaInstance.js";
 
 export const programsListController = async() => {
     const result = await fetchProgramsList();
+    // console.log(result);
     return result;
 }
 
