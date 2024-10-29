@@ -54,4 +54,3 @@ botRouter.get("/faqs", faqController);
 // });
 // botRouter.use("/faqs", faqRouter);
 export { botRouter };
-
