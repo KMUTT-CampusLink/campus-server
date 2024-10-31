@@ -37,7 +37,7 @@ export async function getGPAXByStudentId(req, res) {
     `;
 
     if (!enrollmentDetails) {
-      return res.status(404).json({ error: "Student data not found" });
+      return res.status(200).json([]);
     }
 
     const {
@@ -109,9 +109,7 @@ export async function getGPAXBySemesterId(req, res) {
     `;
 
     if (!enrollmentDetails.length) {
-      return res
-        .status(404)
-        .json({ error: "No data found for the given student and semester" });
+      return res.status(200).json([]);
     }
     const {
       gpa,

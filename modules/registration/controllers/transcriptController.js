@@ -37,7 +37,7 @@ export async function getTranscriptByStudentId(req, res) {
     `;
 
     if (!enrollmentDetails.length) {
-      return res.status(404).json({ error: "Student data not found" });
+      return res.status(200).json([]);
     }
 
     const groupedBySemester = groupBySemester(enrollmentDetails);
@@ -85,7 +85,7 @@ export async function getTranscriptBySemesterId(req, res) {
     `;
 
     if (!enrollmentDetails.length) {
-      return res.status(404).json({ error: "Student data not found" });
+      return res.status(200).json([]);
     }
 
     const groupedBySemester = groupBySemester(enrollmentDetails);

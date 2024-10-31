@@ -23,7 +23,7 @@ export const getSemesterByStudentId = async (req, res) => {
     `;
 
     if (semesters.length === 0) {
-      return res.status(404).json({ error: "Student data not found" });
+      return res.status(200).json([]);
     }
     semesters.pop();
 
@@ -44,6 +44,29 @@ export const addEnrollmentDetail = async (req, res) => {
   }
 
   try {
+    // Fetch the course code for the section the student is trying to enroll in
+    const section = await prisma.$queryRaw`
+      SELECT course_code FROM section WHERE id = ${Number(section_id)};
+    `;
+    if (section.length === 0) {
+      return res.status(404).json({ message: "Section not found." });
+    }
+    const { course_code } = section[0];
+
+    // Check if the student is already enrolled in any section for this course
+    const existingEnrollmentForCourse = await prisma.$queryRaw`
+      SELECT * FROM enrollment_detail ed
+      JOIN section s ON ed.section_id = s.id
+      WHERE ed.student_id = ${student_id} AND s.course_code = ${course_code};
+    `;
+
+    if (existingEnrollmentForCourse.length > 0) {
+      return res.status(409).json({
+        message: "You are already enrolled in a section for this course.",
+      });
+    }
+
+    // Check if the exact enrollment already exists
     const existingEnrollment = await prisma.$queryRaw`
     SELECT * FROM enrollment_detail 
     WHERE head_id = ${Number(
@@ -90,7 +113,9 @@ export const deleteEnrollmentDetail = async (req, res) => {
   const { selectedEnrollmentId } = req.params;
 
   if (!selectedEnrollmentId) {
-    return res.status(400).json({ message: "Enrollment detail ID is required." });
+    return res
+      .status(400)
+      .json({ message: "Enrollment detail ID is required." });
   }
 
   try {
@@ -132,5 +157,74 @@ export const deleteEnrollmentDetail = async (req, res) => {
     return res
       .status(500)
       .json({ message: "Error deleting enrollment detail." });
+  }
+};
+
+export const getOrCreateEnrollmentHead = async (req, res) => {
+  const { studentId, currentSemesterId } = req.body;
+
+  if (!studentId || !currentSemesterId) {
+    return res.status(400).json({
+      message: "Both studentId and currentSemesterId are required.",
+    });
+  }
+
+  try {
+    // Check if enrollment_head record exists for the given student and semester
+    const existingHead = await prisma.$queryRaw`
+      SELECT id FROM enrollment_head
+      WHERE student_id = ${studentId}
+      AND semester_id = ${Number(currentSemesterId)};`;
+
+    // If the record exists, return the head_id
+    if (existingHead.length > 0) {
+      return res
+        .status(200)
+        .json({ head_id: existingHead[0].id, message: "enroll head found" });
+    }
+
+    // If not, create a new enrollment_head record
+    const newHead = await prisma.$queryRaw`
+      INSERT INTO enrollment_head (student_id, semester_id, status, created_at, updated_at)
+      VALUES (${studentId}, ${Number(
+      currentSemesterId
+    )}, 'Unpaid', NOW(), NOW())
+      RETURNING id;`;
+
+    // Return the new head_id
+    return res
+      .status(201)
+      .json({ head_id: newHead[0].id, message: "enroll head created" });
+  } catch (error) {
+    console.error("Error fetching or creating enrollment head:", error);
+    return res
+      .status(500)
+      .json({ message: "Failed to fetch or create enrollment head." });
+  }
+};
+
+export const getPaymentStatus = async (req, res) => {
+  const { headId } = req.params;
+
+  if (!headId) {
+    return res.status(400).json({
+      message: "HeadId is required.",
+    });
+  }
+
+  try {
+    const enrollment = await prisma.$queryRaw`
+      SELECT status FROM enrollment_head
+      WHERE id = ${Number(headId)};`;
+
+    if (!enrollment.length) {
+      return res.status(200).json([]);
+    }
+    return res.status(200).json(enrollment[0].status);
+  } catch (error) {
+    console.error("Error fetching enrollment status:", error);
+    return res.status(500).json({
+      message: "Failed to fetch enrollment status.",
+    });
   }
 };

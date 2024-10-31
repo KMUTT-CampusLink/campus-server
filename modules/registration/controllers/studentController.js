@@ -1,7 +1,7 @@
 import prisma from "../../../core/db/prismaInstance.js";
 
 export default async function studentController(req, res) {
-  const { userId } = req.params;
+  const { studentId } = req.params;
 
   try {
     const result = await prisma.$queryRaw`
@@ -10,6 +10,7 @@ export default async function studentController(req, res) {
         s.firstname AS firstName,
         s.lastname AS lastName,
         p.name AS programName,
+        p.price AS programPrice,
         f.name AS facultyName
       FROM 
         student s
@@ -22,14 +23,14 @@ export default async function studentController(req, res) {
       JOIN 
         faculty f ON p.faculty_id = f.id
       WHERE 
-        s.user_id = CAST(${userId} AS UUID);
+        s.id = ${studentId};
     `;
 
     if (result.length === 0) {
-      return res.status(404).json({ error: "Student data not found" });
+      return res.status(200).json([]);
     }
 
-    const student = result[0];  // Get the first result from the query
+    const student = result[0];
     res.json(student);
   } catch (error) {
     console.error("Error fetching student data:", error);

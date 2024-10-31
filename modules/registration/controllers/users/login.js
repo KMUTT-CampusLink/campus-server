@@ -26,7 +26,7 @@ export default async function login(req, res) {
       // Find the student ID based on the user ID
       const student = await prisma.student.findUnique({
         where: { user_id: user.id },
-        select: { id: true },  // Only select the student ID
+        select: { id: true }, // Only select the student ID
       });
 
       // Generate a JWT token
@@ -43,8 +43,7 @@ export default async function login(req, res) {
       // Set the token in an HTTP-only cookie
       res.cookie("token", token, {
         httpOnly: true,
-        secure: true,  // Secure cookies in production
-        sameSite: "Strict",  // SameSite protection
+        sameSite: "Strict", // SameSite protection
         maxAge: 3 * 60 * 60 * 1000, // 3 hours
       });
 
@@ -54,7 +53,7 @@ export default async function login(req, res) {
         campus_email: user.campus_email,
         is_activated: user.is_activated,
         role: user.role,
-        studentId: student ? student.id : null,  // Include studentId if it exists
+        studentId: student ? student.id : null, // Include studentId if it exists
       });
     }
 

@@ -8,6 +8,8 @@ import getExamDataById from "../controllers/professor/examModification/getExamDa
 import deleteExamById from "../controllers/professor/examModification/deleteExamById.js";
 import updateExam from "../controllers/professor/examModification/updateExam.js";
 import updateExamSettings from "../controllers/professor/examModification/updateExamSettings.js";
+import getFullMark from "../controllers/professor/examModification/getFullMark.js";
+
 
 import announceScore from "../controllers/professor/studentScoring/announceScore.js";
 import dashboard from "../controllers/professor/studentScoring/dashboard.js";
@@ -39,9 +41,10 @@ examRouter.get("/professor/getExamById", getExamById);
 examRouter.delete("/professor/deleteExamById", deleteExamById);
 examRouter.get("/professor/getExamDataById",getExamDataById);
 examRouter.put("/professor/updateExam", updateExam);
+examRouter.get("/professor/getFullMark", getFullMark);
+examRouter.put("/professor/updateExamSettings", updateExamSettings);
 
-
-//student rotuer
+//student router
 examRouter.get("/student/getAllExam", getAllExam);
 examRouter.get("/student/getHistoryExams", getHistoryExams);
 examRouter.post("/student/verifyPassword",verifyPassword);
