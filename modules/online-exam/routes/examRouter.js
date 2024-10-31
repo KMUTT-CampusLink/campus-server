@@ -16,14 +16,15 @@ import finishScoringById from "../controllers/professor/studentScoring/finishSco
 import getStudentScore from "../controllers/professor/studentScoring/getStudentScore.js";
 
 // student import
-import getAllExamQuestionById from "../controllers/student/getAllExamQuestionById.js";
-import studentGetExamById from "../controllers/student/studentGetExamById.js";
 import getAllExam from "../controllers/student/getAllExam.js";
 import getHistoryExams from "../controllers/student/getHistoryExam.js";
 import studentGetExamDataById from "../controllers/student/studentGetExamDataById.js";
 import verifyPassword from "../controllers/student/verifyPassword.js";
 import submitExam from "../controllers/student/submitExam.js";
 import toggleExamStatus from "../controllers/student/toggleExamStatus.js";
+import getExamTitle from "../controllers/student/getExamTitle.js";
+import getInprogressExam from "../controllers/student/getInprogressExam.js";
+import getStudentAnswer from "../controllers/student/getStudentAnswer.js";
 
 const examRouter = Router();
 
@@ -47,5 +48,8 @@ examRouter.post("/student/verifyPassword",verifyPassword);
 examRouter.get("/student/getExamDataById", studentGetExamDataById);
 examRouter.post("/student/submitExam", submitExam);
 examRouter.put("/student/toggleExamStatus", toggleExamStatus);
+examRouter.get("/student/getExamTitle", getExamTitle);
+examRouter.get("/student/getInprogressExam", getInprogressExam);
+examRouter.get("/student/getStudentAnswer", getStudentAnswer);
 
 export { examRouter };

@@ -1,11 +1,11 @@
 import prisma from "../../../../core/db/prismaInstance.js";
 
 export default async function getAllExam(req, res) {
-  const studentId = req.query.studentId;
+  const studentId = "66130500850";
+  const sectionId = parseInt(req.query.sectionId);
   try {
-    const queryStudent = await prisma.$queryRaw`SELECT exam_id FROM student_exam WHERE student_id = ${studentId}`;
-    // const queryStudent = await prisma.$queryRaw`SELECT exam_id FROM student_exam WHERE student_id = ${studentId} AND status <> 'Completed'`;
-    const examIds = queryStudent.map((exam) => exam.exam_id);
+    const queryStudent = await prisma.$queryRaw`SELECT id FROM exam WHERE section_id = ${sectionId} AND publish_status = true AND id NOT IN (SELECT exam_id FROM student_exam WHERE student_id = ${studentId})`;
+    const examIds = queryStudent.map((exam) => exam.id);
     const queryExam = await prisma.exam.findMany({
       where: {
         id: {in: examIds},

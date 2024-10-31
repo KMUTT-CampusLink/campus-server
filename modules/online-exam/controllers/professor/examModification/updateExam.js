@@ -24,11 +24,15 @@ export default async function updateExam(req, res) {
       where: { exam_id: parseInt(examId) },
     });
     for (const question of questions) {
+      let score = parseInt(question.score);
+      if (question.type === "Checklist"){
+          score = question.score / question.answer.length;
+      }
       const queryQuestionRaw = await prisma.$queryRaw`
         INSERT INTO "exam_question" ("exam_id", "type", "title", "mark") 
         VALUES (${parseInt(examId)}, ${question.type}::question_type_enum, ${
         question.questionText
-      }, ${question.score}) 
+      }, ${score}) 
         RETURNING id`;
       const questionId = queryQuestionRaw[0].id;
       // Check if the question type has options (Multiple Choice or Checklist)
