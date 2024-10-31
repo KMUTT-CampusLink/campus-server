@@ -2,32 +2,19 @@ import prisma from "../../../core/db/prismaInstance.js";
 
 const getParking = async (req, res) => {
     try {
-    const queryParking = await prisma.$queryRaw`
-    SELECT b.name, b.parking_img, f.name, s.name ,s.status
-    FROM parking_building as b, parking_floor as f, parking_slot as s, verified_car as v
-    WHERE b.id = f.parking_building_id AND f.id = s.parking_floor_id
-    `;
+        const getParking = await prisma.$queryRaw`
+            SELECT b.id, b.name, b.building_img, b.parking_capacity , CAST(COUNT(s.status) AS INT) AS status_count
+            FROM building AS b
+            JOIN floor AS f ON f.building_id = b.id
+            JOIN parking_slot AS s ON s.floor_id = f.id
+            WHERE s.status = true and b.parking_capacity > 0
+            GROUP BY b.id
+        `;
 
-    // const floorCount = await prisma.$queryRaw`
-    // SELECT COUNT(s.status) as floorCount
-    // FROM parking_building as b, parking_floor as f, parking_slot as s, verified_car as v
-    // WHERE b.id = f.parking_building_id AND f.id = s.parking_floor_id AND s.status = true
-    // `;
-
-    // const licenseVerify = await prisma.$queryRaw`
-    // SELECT v.license_no
-    // FROM verified_car as v
-    // `;
-
-    const events = await prisma.parking_building.findMany({
-        include: {
-          parking_floor: true
-        },
-    });
-        res.json(events);
+        res.json(getParking);
     } catch (error) {
-        console.error("Error fetching parking events:", error);
-        res.status(500).json({ error: "Error fetching parking events" });
+        console.error("Error fetching parking:", error);
+        res.status(500).json({ error: "Error fetching parking" });
     }
 };
 
