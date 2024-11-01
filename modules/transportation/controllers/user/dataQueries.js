@@ -11,6 +11,7 @@ export const queryUserBookings = errorHandler(async (req, res) => {
   }
 
   const bookings = await prisma.trip_booking.findMany({
+    include: { trip: { include: { trip_schedule: true } }, user: true },
     where: { user_id: req.user.id },
   });
   res.json({ bookings });
