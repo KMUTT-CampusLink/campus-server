@@ -1,6 +1,6 @@
 import { Router } from "express";
 // import your logics from controllers here
-import { getAllStudents, getStudentbyId, getAllClubs, createClub, getClubbyId, requestToJoinClub, createPost } from "../controllers/club.js"; // Import the controller
+import { getAllStudents, getStudentbyId, getAllClubs, createClub, getClubbyId, requestToJoinClub, createPost} from "../controllers/club.js"; // Import the controller
 import multer from "multer";
 
 // Multer configuration for file uploads
