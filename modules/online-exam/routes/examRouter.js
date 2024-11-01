@@ -10,7 +10,6 @@ import updateExam from "../controllers/professor/examModification/updateExam.js"
 import updateExamSettings from "../controllers/professor/examModification/updateExamSettings.js";
 import getFullMark from "../controllers/professor/examModification/getFullMark.js";
 
-
 import announceScore from "../controllers/professor/studentScoring/announceScore.js";
 import dashboard from "../controllers/professor/studentScoring/dashboard.js";
 import examScoring from "../controllers/professor/studentScoring/examScoring.js";
@@ -39,7 +38,7 @@ examRouter.post("/professor/createExam", createExam);
 examRouter.get("/professor/getExams", getExams);
 examRouter.get("/professor/getExamById", getExamById);
 examRouter.delete("/professor/deleteExamById", deleteExamById);
-examRouter.get("/professor/getExamDataById",getExamDataById);
+examRouter.get("/professor/getExamDataById", getExamDataById);
 examRouter.put("/professor/updateExam", updateExam);
 examRouter.get("/professor/getFullMark", getFullMark);
 examRouter.put("/professor/updateExamSettings", updateExamSettings);
@@ -47,7 +46,7 @@ examRouter.put("/professor/updateExamSettings", updateExamSettings);
 //student router
 examRouter.get("/student/getAllExam", getAllExam);
 examRouter.get("/student/getHistoryExams", getHistoryExams);
-examRouter.post("/student/verifyPassword",verifyPassword);
+examRouter.post("/student/verifyPassword", verifyPassword);
 examRouter.get("/student/getExamDataById", studentGetExamDataById);
 examRouter.post("/student/submitExam", submitExam);
 examRouter.put("/student/toggleExamStatus", toggleExamStatus);

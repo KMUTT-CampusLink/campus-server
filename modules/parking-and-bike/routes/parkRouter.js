@@ -1,15 +1,18 @@
 import { Router } from "express";
-import { getAllBuildings } from "../controllers/getAllBuildings.js";
 import { getParking } from "../controllers/getParking.js";
-// import your logics from controllers here
+import { getBuildingById } from "../controllers/getBuildingById.js";
+// import { getFloorById } from "../controllers/getFloorById.js";
+import { postReservation } from "../controllers/postReservation.js";
 
 const parkRouter = Router();
 
 parkRouter.get("/", (req, res) => {
   return res.send("Parkings System");
 });
-parkRouter.get("/getAllBuildings", getAllBuildings);
+
 parkRouter.get("/getParking", getParking );
-// create routes here
+parkRouter.get("/getBuildingById/:building_id", getBuildingById)
+// parkRouter.get("/getFloorById/:floor_id", getFloorById)
+parkRouter.post("/postReservation", postReservation)
 
 export { parkRouter };
