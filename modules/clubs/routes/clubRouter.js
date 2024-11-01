@@ -1,6 +1,6 @@
 import { Router } from "express";
 // import your logics from controllers here
-import { getAllStudents, getStudentbyId, getAllClubs, createClub, getClubbyId, requestToJoinClub } from "../controllers/club.js"; // Import the controller
+import { getAllStudents, getStudentbyId, getAllClubs, createClub, getClubbyId, requestToJoinClub, createPost } from "../controllers/club.js"; // Import the controller
 import multer from "multer";
 
 // Multer configuration for file uploads
@@ -24,4 +24,5 @@ router.post("/clubs/:clubId/request", requestToJoinClub);
 router.get("/", getAllClubs);
 router.get("/:id", getClubbyId);
 router.post("/create", upload.single('club_img'), createClub);
+router.post("/admin/post", upload.single("photo"), createPost);
 export { router as clubRouter };
