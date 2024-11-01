@@ -86,3 +86,21 @@ export const queryTripsByRouteID = errorHandler(async (req, res) => {
   });
   res.json({ trips });
 });
+
+export const queryAllTripData = errorHandler(async (req, res) => {
+  if (!req.user) {
+    throw new UnauthorizedError();
+  }
+  if (!req.params.tripID) {
+    throw new BadRequestError("Trip ID is missing");
+  }
+  const trip = await prisma.trip.findFirst({
+    include: {
+      trip_schedule: true,
+      driver: { include: { employee: true } },
+      vehicle: true,
+    },
+    where: { id: parseInt(req.params.tripID) },
+  });
+  res.json({ trip });
+});

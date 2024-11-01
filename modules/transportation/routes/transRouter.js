@@ -8,6 +8,7 @@ import {
   queryTripsByRouteID,
   queryRoutesConnectingStops,
   queryUserBookings,
+  queryAllTripData,
 } from "../controllers/user/dataQueries.js";
 
 const transRouter = Router();
@@ -28,6 +29,7 @@ transRouter.get(
   queryRoutesConnectingStops
 ); //done on frontend api
 transRouter.get("/user/tripsByRouteID/:routeID", queryTripsByRouteID); //done on frontend api
-transRouter.get("/user/bookings", queryUserBookings);
+transRouter.get("/user/bookings", queryUserBookings); //done on frontend api
+transRouter.get("/user/tripData/:tripID", queryAllTripData); //done on frontend api
 
 export { transRouter };
