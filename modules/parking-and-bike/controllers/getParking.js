@@ -1,8 +1,8 @@
 import prisma from "../../../core/db/prismaInstance.js";
 
 const getParking = async (req, res) => {
-    try {
-        const getParking = await prisma.$queryRaw`
+  try {
+    const getParking = await prisma.$queryRaw`
             -- SELECT b.id, b.name, b.building_img, b.parking_capacity , CAST(COUNT(s.status) AS INT) AS status_count
             -- FROM building AS b
             -- JOIN floor AS f ON f.building_id = b.id
@@ -21,11 +21,11 @@ const getParking = async (req, res) => {
             WHERE b.parking_capacity > 0
         `;
 
-        res.json(getParking);
-    } catch (error) {
-        console.error("Error fetching parking:", error);
-        res.status(500).json({ error: "Error fetching parking" });
-    }
+    res.json(getParking);
+  } catch (error) {
+    console.error("Error fetching parking:", error);
+    res.status(500).json({ error: "Error fetching parking" });
+  }
 };
 
 export { getParking };
