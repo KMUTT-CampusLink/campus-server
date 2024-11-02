@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-
-=======
->>>>>>> cba7cdf7574f3168911d94cb35669d59d4027775
 // import prisma from "../../../core/db/prismaInstance.js";
 
 // const getBuildingById = async (req, res) => {
@@ -27,14 +23,13 @@
 
 //เผื่อไอบัสมันกระจอกทำไม่ได้
 
-
 import prisma from "../../../core/db/prismaInstance.js";
 
 const getBuildingById = async (req, res) => {
-    const { building_id } = req.params;
+  const { building_id } = req.params;
 
-    try {
-        const getFloor = await prisma.$queryRaw`
+  try {
+    const getFloor = await prisma.$queryRaw`
             SELECT b.id, b.name AS building_name, b.building_img,
             json_agg(
                 json_build_object(
@@ -59,15 +54,11 @@ const getBuildingById = async (req, res) => {
             GROUP BY b.id
         `;
 
-        res.json(getFloor);
-    } catch (error) {
-        console.error("Error fetching building:", error);
-        res.status(500).json({ error: "Error fetching building" });
-    }
+    res.json(getFloor);
+  } catch (error) {
+    console.error("Error fetching building:", error);
+    res.status(500).json({ error: "Error fetching building" });
+  }
 };
 
-<<<<<<< HEAD
 export { getBuildingById };
-=======
-export { getBuildingById };
->>>>>>> cba7cdf7574f3168911d94cb35669d59d4027775
