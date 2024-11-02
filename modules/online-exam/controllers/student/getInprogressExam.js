@@ -1,9 +1,9 @@
 import prisma from "../../../../core/db/prismaInstance.js";
 
-export default async function getHistoryExam(req, res) {
+export default async function getInprogressExam(req, res) {
     const studentId = req.query.studentId;
     try {
-      const queryStudent = await prisma.$queryRaw`SELECT exam_id FROM student_exam WHERE student_id = ${studentId} AND status = 'Completed'`;
+      const queryStudent = await prisma.$queryRaw`SELECT exam_id FROM student_exam WHERE student_id = ${studentId} AND status = 'In Progress'`;
       const examIds = queryStudent.map((exam) => exam.exam_id);
       const queryExam = await prisma.exam.findMany({
         where: {

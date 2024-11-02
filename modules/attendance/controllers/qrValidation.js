@@ -4,7 +4,6 @@ const prisma = new PrismaClient();
 
 const validateQrCodeController = async (req, res) => {
   const attendanceId = parseInt(req.params.attendanceId);
-
   try {
     // TODO: get student token
     const MOCK_STUDENT_ID = "STU00022";
@@ -24,12 +23,21 @@ const validateQrCodeController = async (req, res) => {
       return res.status(400).json("Student Not Found");
     }
 
+
     const attendances = await prisma.attendance_qr_code.findFirst({
       where: {
         id: attendanceId,
       },
     });
-
+    const isStudentExist = await prisma.class_attendance.findFirst({
+      where:{
+        attendance_qr_code_id: attendanceId,
+        student_id: studentId,
+      },
+    });
+    if( isStudentExist){
+      return res.status(400).json("You Already Scanned this Qrcode");
+    }
     if (!attendances) {
       return res.status(400).json("Attendence Not Found");
     }
@@ -37,6 +45,7 @@ const validateQrCodeController = async (req, res) => {
     if (attendances.end_at.getTime() < new Date().getTime()) {
       return res.status(400).json("Time Up");
     }
+    
 
     await prisma.class_attendance.create({
       data: {

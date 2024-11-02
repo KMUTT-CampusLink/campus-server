@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 
+=======
+>>>>>>> cba7cdf7574f3168911d94cb35669d59d4027775
 // import prisma from "../../../core/db/prismaInstance.js";
 
 // const getBuildingById = async (req, res) => {
@@ -63,4 +66,8 @@ const getBuildingById = async (req, res) => {
     }
 };
 
+<<<<<<< HEAD
 export { getBuildingById };
+=======
+export { getBuildingById };
+>>>>>>> cba7cdf7574f3168911d94cb35669d59d4027775
