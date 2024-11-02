@@ -4,6 +4,7 @@ import prisma from "../../../core/db/prismaInstance.js";
 export const getLostAndFoundList = async (req, res) => {
     try {
         // Query the LostAndFound table for all records
+
         const lostAndFoundItems = await prisma.lost_and_found.findMany({
             orderBy: { created_at: 'desc' }, // Optionally order by dateReported
         });
