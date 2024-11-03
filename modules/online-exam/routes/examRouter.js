@@ -10,7 +10,6 @@ import deleteExamById from "../controllers/professor/examModification/deleteExam
 import updateExamSettings from "../controllers/professor/examModification/updateExamSettings.js";
 import getFullMark from "../controllers/professor/examModification/getFullMark.js";
 
-
 import announceScore from "../controllers/professor/studentScoring/announceScore.js";
 import dashboard from "../controllers/professor/studentScoring/dashboard.js";
 import examScoring from "../controllers/professor/studentScoring/examScoring.js";
