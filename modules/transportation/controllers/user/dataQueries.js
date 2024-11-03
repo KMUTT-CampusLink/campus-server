@@ -5,6 +5,35 @@ import {
   BadRequestError,
 } from "../../utils/customErrors.js";
 
+export const isBooked = errorHandler(async (req, res) => {
+  if (!req.user) {
+    throw new UnauthorizedError();
+  }
+  if (!req.params.tripID) {
+    throw new BadRequestError("Trip ID is missing");
+  }
+  const user_id = req.user.id;
+  const trip_id = parseInt(req.params.tripID);
+
+  const existingBooking = await prisma.trip_booking.findFirst({
+    where: {
+      user_id: user_id,
+      trip_id: trip_id,
+    },
+  });
+
+  if (existingBooking) {
+    return res.status(200).json({
+      isBooked: true,
+      message: "Booking already exists",
+    });
+  } else {
+    return res
+      .status(200)
+      .json({ isBooked: false, message: "Booking does not exist" });
+  }
+});
+
 export const queryUserBookings = errorHandler(async (req, res) => {
   if (!req.user) {
     throw new UnauthorizedError();

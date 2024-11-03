@@ -9,6 +9,7 @@ import {
   queryRoutesConnectingStops,
   queryUserBookings,
   queryAllTripData,
+  isBooked,
 } from "../controllers/user/dataQueries.js";
 import { bookForTrip } from "../controllers/user/book.js";
 
@@ -22,6 +23,7 @@ transRouter.get("/", (req, res) => {
 transRouter.get("/driver/tripBookings/:tripID", queryBookingsForTripByID);
 transRouter.get("/populate", populateDatabaseWithTestData);
 transRouter.get("/queryAllData", queryAllData);
+transRouter.get("/user/isBooked/:tripID", isBooked);
 
 // routes for booking db operations
 transRouter.get("/user/queryAllStops", queryAllStops); //done on frontend api
