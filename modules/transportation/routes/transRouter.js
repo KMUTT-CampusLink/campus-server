@@ -32,6 +32,6 @@ transRouter.get(
 transRouter.get("/user/tripsByRouteID/:routeID", queryTripsByRouteID); //done on frontend api
 transRouter.get("/user/bookings", queryUserBookings); //done on frontend api
 transRouter.get("/user/tripData/:tripID", queryAllTripData); //done on frontend api
-transRouter.get("/user/book/:tripID", bookForTrip); //done on frontend api
+transRouter.post("/user/book", bookForTrip); //done on frontend api
 
 export { transRouter };
