@@ -26,6 +26,8 @@ import toggleExamStatus from "../controllers/student/toggleExamStatus.js";
 import getExamTitle from "../controllers/student/getExamTitle.js";
 import getInprogressExam from "../controllers/student/getInprogressExam.js";
 import getStudentAnswer from "../controllers/student/getStudentAnswer.js";
+import toggleAnswer from "../controllers/student/toggleAnswer.js";
+import getStudentReview from "../controllers/student/getStudentReview.js";
 
 const examRouter = Router();
 
@@ -39,6 +41,7 @@ examRouter.get("/professor/getExams", getExams);
 examRouter.get("/professor/getExamById", getExamById);
 examRouter.delete("/professor/deleteExamById", deleteExamById);
 examRouter.get("/professor/getExamDataById", getExamDataById);
+examRouter.get("/professor/getDashboardData", dashboard);
 examRouter.put("/professor/updateExam", updateExam);
 examRouter.get("/professor/getFullMark", getFullMark);
 examRouter.put("/professor/updateExamSettings", updateExamSettings);
@@ -53,5 +56,7 @@ examRouter.put("/student/toggleExamStatus", toggleExamStatus);
 examRouter.get("/student/getExamTitle", getExamTitle);
 examRouter.get("/student/getInprogressExam", getInprogressExam);
 examRouter.get("/student/getStudentAnswer", getStudentAnswer);
+examRouter.put("/student/getToggleAnswer", toggleAnswer);
+examRouter.get("/student/getStudentReview", getStudentReview);
 
 export { examRouter };
