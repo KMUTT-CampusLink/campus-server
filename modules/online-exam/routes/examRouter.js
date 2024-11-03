@@ -2,11 +2,11 @@ import { Router } from "express";
 
 // professor import
 import createExam from "../controllers/professor/examModification/createExam.js";
-import editExam from "../controllers/professor/examModification/editExam.js";
 import getExamById from "../controllers/professor/examModification/getExamById.js";
 import getExams from "../controllers/professor/examModification/getExams.js";
 import getExamDataById from "../controllers/professor/examModification/getExamDataById.js";
 import deleteExamById from "../controllers/professor/examModification/deleteExamById.js";
+import updateExam from "../controllers/professor/examModification/updateExam.js";
 import updateExamSettings from "../controllers/professor/examModification/updateExamSettings.js";
 import getFullMark from "../controllers/professor/examModification/getFullMark.js";
 
@@ -17,11 +17,15 @@ import finishScoringById from "../controllers/professor/studentScoring/finishSco
 import getStudentScore from "../controllers/professor/studentScoring/getStudentScore.js";
 
 // student import
-import getAllExamQuestionById from "../controllers/student/getAllExamQuestionById.js";
-import studentGetExamById from "../controllers/student/studentGetExamById.js";
 import getAllExam from "../controllers/student/getAllExam.js";
 import getHistoryExams from "../controllers/student/getHistoryExam.js";
+import studentGetExamDataById from "../controllers/student/studentGetExamDataById.js";
 import verifyPassword from "../controllers/student/verifyPassword.js";
+import submitExam from "../controllers/student/submitExam.js";
+import toggleExamStatus from "../controllers/student/toggleExamStatus.js";
+import getExamTitle from "../controllers/student/getExamTitle.js";
+import getInprogressExam from "../controllers/student/getInprogressExam.js";
+import getStudentAnswer from "../controllers/student/getStudentAnswer.js";
 
 const examRouter = Router();
 
@@ -34,12 +38,20 @@ examRouter.post("/professor/createExam", createExam);
 examRouter.get("/professor/getExams", getExams);
 examRouter.get("/professor/getExamById", getExamById);
 examRouter.delete("/professor/deleteExamById", deleteExamById);
-examRouter.get("/professor/getExamDataById",getExamDataById)
+examRouter.get("/professor/getExamDataById", getExamDataById);
+examRouter.put("/professor/updateExam", updateExam);
 examRouter.get("/professor/getFullMark", getFullMark);
 examRouter.put("/professor/updateExamSettings", updateExamSettings);
-//student rotuer
+
+//student router
 examRouter.get("/student/getAllExam", getAllExam);
 examRouter.get("/student/getHistoryExams", getHistoryExams);
-examRouter.post("/student/verifyPassword",verifyPassword);
+examRouter.post("/student/verifyPassword", verifyPassword);
+examRouter.get("/student/getExamDataById", studentGetExamDataById);
+examRouter.post("/student/submitExam", submitExam);
+examRouter.put("/student/toggleExamStatus", toggleExamStatus);
+examRouter.get("/student/getExamTitle", getExamTitle);
+examRouter.get("/student/getInprogressExam", getInprogressExam);
+examRouter.get("/student/getStudentAnswer", getStudentAnswer);
 
 export { examRouter };
