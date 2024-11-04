@@ -14,7 +14,7 @@ import {
 
 import { getAllPosts } from "../controllers/post.js"; // Import the controller
 import { getAllAnnouncements, createAnnouncement } from "../controllers/announcement.js";
-
+import { getAllBuildings } from "../controllers/building.js";
 import multer from "multer";
 
 // Multer configuration for file uploads
