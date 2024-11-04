@@ -3,7 +3,7 @@ import { SessionsClient } from "@google-cloud/dialogflow-cx";
 const client = new SessionsClient({
   credentials: {
     client_email: process.env.BOT_CLIENT_EMAIL,
-    private_key: process.env.BOT_PRIVATE_KEY.replace(/\\n/g, '\n')
+    // private_key: process.env.BOT_PRIVATE_KEY.replace(/\\n/g, '\n')
   }
 })
 
