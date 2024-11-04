@@ -8,6 +8,8 @@ import {
   getClubbyId,
   requestToJoinClub,
   createPost,
+  getAllProfessors,
+  updateClubDescription
 } from "../controllers/club.js"; // Import the controller
 
 import { getAllPosts } from "../controllers/post.js"; // Import the controller
@@ -30,6 +32,8 @@ const upload = multer({ storage }); // Configure multer storage
 const router = Router();
 
 router.get("/students", getAllStudents);
+router.get("/professors", getAllProfessors);
+router.get("/buildings", getAllBuildings);
 router.get("/students/:id", getStudentbyId);
 
 router.get("/posts", getAllPosts); // More specific path
@@ -38,6 +42,7 @@ router.post("/announcements", createAnnouncement); // Route to create an announc
 
 router.get("/", getAllClubs);       // General path for all clubs
 router.get("/:id", getClubbyId);    // ID-specific path for clubs
+router.put("/:id", updateClubDescription);
 
 router.post("/clubs/:clubId/request", requestToJoinClub);
 router.post("/create", upload.single("club_img"), createClub);
