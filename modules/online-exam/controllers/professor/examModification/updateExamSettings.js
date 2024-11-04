@@ -15,6 +15,8 @@ export default async function updateExamSettings(req, res) {
                 view_history: exam.view_history,
                 is_shuffle: exam.is_shuffle,
                 pass_mark: parseInt(exam.pass_mark),
+                pin: exam.pin,
+                is_publish_immediately: exam.is_publish_immediately,
             },
         });
 

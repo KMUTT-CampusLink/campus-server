@@ -11,12 +11,17 @@ export default async function studentGetExamDataById(req, res) {
         id: true,
         title: true,
         description: true,
-      }
+        is_shuffle: true,
+      },
     });
     const queryQuestion = await prisma.exam_question.findMany({
       where: {
         exam_id: examId,
-      }
+      },
+      orderBy: [
+        { id: 'asc' }
+      ]
+      
     });
     const questionIds = queryQuestion.map((question) => question.id);
     const queryChoice = await prisma.exam_choice.findMany({
@@ -28,13 +33,16 @@ export default async function studentGetExamDataById(req, res) {
         choice_text: true,
         choice_img: true,
         question_id: true,
-      }
+      },
+      orderBy: [{ question_id: "asc" }, { id: "asc" }],
     });
-    res.status(200).json({data: {
+    res.status(200).json({
+      data: {
         exam: queryExam,
         questions: queryQuestion,
         choices: queryChoice,
-    }});
+      },
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: error.message });
