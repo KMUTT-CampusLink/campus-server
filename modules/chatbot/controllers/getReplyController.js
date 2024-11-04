@@ -2,15 +2,13 @@ import {SessionsClient} from "@google-cloud/dialogflow-cx";
 import prisma from "../../../core/db/prismaInstance.js";
 
 const client = new SessionsClient({
-    credentials: {
-      client_email: process.env.BOT_CLIENT_EMAIL,
-      private_key: process.env.BOT_PRIVATE_KEY.replace(/\\n/g, '\n')
-    }
+  credentials: {
+    client_email: process.env.BOT_CLIENT_EMAIL,
+    private_key: process.env.BOT_PRIVATE_KEY.replace(/\\n/g, '\n')
+  }
 })
-
 let prevPage = "Start Page";
-let parameters = "";
-
+let parameters = "-";
 const detectIntentText = async(projectId, inputText, sessionId) => {
   const location = process.env.BOT_LOCATION; // or the specific location of your agent
   const agentId = process.env.BOT_AGENT_ID;
@@ -25,7 +23,7 @@ const detectIntentText = async(projectId, inputText, sessionId) => {
       text: {
         text: inputText,
       },
-      languageCode: 'en', 
+      languageCode: 'en',
     },
   };
 
@@ -43,8 +41,8 @@ const detectIntentText = async(projectId, inputText, sessionId) => {
         responseText += message.text.text.join('\n'); // Join multiple parts of the text
       }
     });
-
-    if(response.queryResult.match.matchType !== 'NO_MATCH'){
+    let nextQues = [];
+    if(response.queryResult.match.matchType !== 'NO_MATCH' || response.queryResult.currentPage.displayName === 'Start Page'){
       await prisma.next_question.upsert({
         where: {
           page_name_params_next_question: {
@@ -62,23 +60,42 @@ const detectIntentText = async(projectId, inputText, sessionId) => {
         params.map((p) => {
           parameters = parameters.concat(p.stringValue);
         })
-      }
+      }else parameters = "-";
       await prisma.page_req_count.upsert({
         where: { 
           page_name_params:{
             page_name: prevPage,
             params: parameters
-          } 
+          }
         },
         update: { count: { increment: 1 } },
         create: { page_name: prevPage, params: parameters, count: 1 }, 
       });  
     }
-    // console.log('Agent Response:', responseText);
-    return responseText;
+    if(prevPage !== 'Start Page'){
+      try{
+        nextQues = await prisma.next_question.findMany({
+            where: {
+                page_name: prevPage,
+                params: parameters,
+            },
+            select: {
+              next_question: true,
+            },
+            orderBy: {
+                count: "desc",
+            },
+            take: 3,
+          });
+      }catch(error){
+          console.error("Error fetching next questions: " + error);
+      }
+    }
+    return {replyText: responseText, nextQuestions: nextQues};
   } catch (err) {
     console.error('Error during detectIntent: ', err);
-  }  
+    return {error: "Internal Server Error"};
+  }
 }
 
-export {detectIntentText, prevPage, parameters};
+export {detectIntentText};
