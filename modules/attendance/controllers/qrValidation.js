@@ -10,7 +10,7 @@ const validateQrCodeController = async (req, res) => {
     const studentId = MOCK_STUDENT_ID;
 
     if (!studentId) {
-      return res.status(400).json("Missing StudentId");
+      return res.status(400).json({ success: false, message: "Missing StudentId" });
     }
 
     const student = await prisma.student.findFirst({
@@ -20,7 +20,7 @@ const validateQrCodeController = async (req, res) => {
     });
 
     if (!student) {
-      return res.status(400).json("Student Not Found");
+      return res.status(400).json({ success: false, message: "Student Not Found" });
     }
 
 
@@ -41,14 +41,14 @@ const validateQrCodeController = async (req, res) => {
       },
     });
     if( isStudentExist){
-      return res.status(400).json("You Already Scanned this Qrcode");
+      return res.status(400).json({ success: false, message: "You Already Scanned this QR code" });
     }
     if (!attendances) {
-      return res.status(400).json("Attendence Not Found");
+      return res.status(400).json({ success: false, message: "Attendance Not Found" });
     }
 
     if (attendances.end_at.getTime() < new Date().getTime()) {
-      return res.status(400).json("Time Up");
+      return res.status(400).json({ success: false, message: "Time Up" });
     }
     
 
@@ -61,11 +61,11 @@ const validateQrCodeController = async (req, res) => {
       },
     });
 
-    return res.status(200).json("Attendance Process Sucess");
+    return res.status(200).json({ success: true, message: "Attendance Process Success" });
   } catch (e) {
     console.log(e);
     
-    return res.status(500).json("Internal Server Error " + e);
+    return res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
 
