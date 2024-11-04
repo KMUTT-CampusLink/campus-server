@@ -3,16 +3,18 @@ import { tutionFeeController } from "./webhookReq/programs/tutionFeeController.j
 
 export const webhookReqController = async(req, res) => {
   const pageName = req.body.pageInfo.displayName;
-//   console.log(pageName);
+  // console.log(req.body);
   let result;
   if(pageName === "Fees"){
     const programName = req.body.sessionInfo.parameters.course.trim();
-    const degreeLevel = req.body.sessionInfo.parameters.degree_level.trim();
+    const degreeLevel = req.body.sessionInfo.parameters.degreelevel.trim();
+    params = programName.concat(" ").concat(degreeLevel);
     result = await tutionFeeController(programName, degreeLevel);
   }
-  else if(intentName === "Programs List") {
+  else if(pageName === "Programs List") {
     result = await programsListController();
   }
+
   res.json({
     "fulfillmentResponse": {
       "messages": [

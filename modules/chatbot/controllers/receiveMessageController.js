@@ -1,4 +1,5 @@
 import { detectIntentText } from "./getReplyController.js";
+import prisma from "../../../core/db/prismaInstance.js";
 
 export const receiveMessageController = async(req, res) => {
   const inputText = req.body.message;
