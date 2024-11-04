@@ -96,6 +96,10 @@ export const getClubbyId = async (req, res) => {
       include: {
         student: true, // Fetch the owner (student)
         club_member: true, // Fetch club members
+        building: true,
+        _count: {
+          select: { club_member: true }, // Counts the club members directly
+        }
       },
     });
     return res.status(200).json({ success: true, data: club });
