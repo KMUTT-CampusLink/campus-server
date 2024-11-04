@@ -16,13 +16,17 @@ export default async function createExam(req, res) {
     });
     const examId = queryExamRaw.id;
     for (const [index, question] of exam.questions.entries()) {
+      let score = question.score;
+      if (question.type === "Checklist"){
+          score = question.score / question.answer.length;
+      }
       const queryQuestionRaw = await prisma.$queryRaw`INSERT INTO "exam_question" ("exam_id", "type", "title", "mark") 
-                                                      VALUES (${examId}, ${question.type}::question_type_enum, ${question.questionText}, ${question.score}) 
+                                                      VALUES (${examId}, ${question.type}::question_type_enum, ${question.questionText}, ${score}) 
                                                       RETURNING id`;
       const questionId = queryQuestionRaw[0].id;
-      if ( question.type === "Multiple Choice" ||question.type === "Checklist" ) {
+      if ( question.type === "Multiple Choice" || question.type === "Checklist" ) {
         for (let i = 0;i < question.options.length;i++) {
-          const isCorrect = question.answer.includes(question.options[i]);
+          const isCorrect = (question.answer || []).includes(question.options[i]);
           await prisma.exam_choice.create({
             data: {
               question_id: questionId,

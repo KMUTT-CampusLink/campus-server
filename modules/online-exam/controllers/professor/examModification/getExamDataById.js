@@ -12,11 +12,17 @@ export default async function getExamDataById(req, res) {
       where: {
         exam_id: examId,
       },
+      orderBy: {
+        id: "asc",
+      },
     });
     const questionIds = queryQuestion.map((question) => question.id);
     const queryChoice = await prisma.exam_choice.findMany({
       where: {
         question_id: { in: questionIds },
+      },
+      orderBy: {
+        id: "asc",
       },
     });
     res.status(200).json({data: {
