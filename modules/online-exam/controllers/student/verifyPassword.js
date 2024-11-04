@@ -3,7 +3,7 @@ import prisma from "../../../../core/db/prismaInstance.js"
 export default async function verifyPassword(req, res) {
     const password = req.body.password;
     const examId = parseInt(req.body.examId);
-    const studentId = "66130500850";
+    const studentId = "66130500849";
     try {
         const queryExamRaw = await prisma.$queryRaw`SELECT "pin" FROM "exam" WHERE id = ${examId}`;
         if (queryExamRaw[0].pin === password) {

@@ -3,7 +3,7 @@ import prisma from "../../../../core/db/prismaInstance.js";
 export default async function submitExam(req, res) {
   const examId = parseInt(req.body.examId);
   const studentAnswers = req.body.studentAnswers;
-  const studentId = "66130500850";
+  const studentId = "66130500849";
   const answersArray = Object.values(studentAnswers).flat();
   try {
     await Promise.all(
@@ -39,7 +39,7 @@ export default async function submitExam(req, res) {
       },
     });
     let totalScore = 0;
-    answersArray.map((answer) => {
+    answersArray.map(async (answer) => {
       const questionScore = score.find((s) => s.id === answer.question_id).mark;
       let correct = false;
       for(let i = 0;i < correctChoice.length;i++){
@@ -51,7 +51,6 @@ export default async function submitExam(req, res) {
         totalScore += parseFloat(questionScore);
       }
     });
-    console.log(totalScore);
     await prisma.$queryRaw`UPDATE student_exam SET total_score = ${totalScore} WHERE student_id = ${studentId} AND exam_id = ${examId};`;
     res.status(200).json({ message: "Exam submitted successfully" });
   } catch (error) {

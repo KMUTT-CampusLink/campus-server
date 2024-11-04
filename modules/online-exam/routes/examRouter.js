@@ -29,6 +29,8 @@ import toggleExamStatus from "../controllers/student/toggleExamStatus.js";
 import getExamTitle from "../controllers/student/getExamTitle.js";
 import getInprogressExam from "../controllers/student/getInprogressExam.js";
 import getStudentAnswer from "../controllers/student/getStudentAnswer.js";
+import toggleAnswer from "../controllers/student/toggleAnswer.js";
+import getStudentReview from "../controllers/student/getStudentReview.js";
 import getStudentExamStatus from "../controllers/student/getStudentExamStatus.js";
 import getExamTime from "../controllers/student/getExamTime.js";
 
@@ -44,12 +46,13 @@ examRouter.get("/professor/getExams", getExams);
 examRouter.get("/professor/getExamById", getExamById);
 examRouter.delete("/professor/deleteExamById", deleteExamById);
 examRouter.get("/professor/getExamDataById", getExamDataById);
+examRouter.get("/professor/getDashboardData", dashboard);
 examRouter.put("/professor/updateExam", updateExam);
 examRouter.get("/professor/getFullMark", getFullMark);
 examRouter.put("/professor/updateExamSettings", updateExamSettings);
 examRouter.get("/professor/getExamParticipants", getExamParticipants);
 examRouter.get("/professor/getStudentScore", getStudentScore);
-examRouter.get("/professor/getStudentAnswers",getStudentAnswerById)
+examRouter.get("/professor/getStudentAnswers", getStudentAnswerById);
 examRouter.get("/professor/getStudentData", getStudentData);
 
 //student router
@@ -62,6 +65,8 @@ examRouter.put("/student/toggleExamStatus", toggleExamStatus);
 examRouter.get("/student/getExamTitle", getExamTitle);
 examRouter.get("/student/getInprogressExam", getInprogressExam);
 examRouter.get("/student/getStudentAnswer", getStudentAnswer);
+examRouter.put("/student/getToggleAnswer", toggleAnswer);
+examRouter.get("/student/getStudentReview", getStudentReview);
 examRouter.get("/student/getStudentStatus", getStudentExamStatus);
 examRouter.get("/student/getExamTime", getExamTime);
 
