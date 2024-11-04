@@ -36,12 +36,18 @@ const getBuildingById = async (req, res) => {
                 json_build_object(
                     'floor_id', f.id,
                     'floor_name', f.name,
+                    'floor_capacity', f.parking_capacity,
+                    'floor_reserved_slots', (
+                        SELECT COUNT(*) 
+                        FROM parking_slot AS s
+                        WHERE s.floor_id = f.id AND s.status = false
+                    ),
                     'slots', (
                         SELECT json_agg(
-                        json_build_object(
-                            'slot_id', s.id,
-                            'slot_name', s.name,
-                            'slot_status', s.status
+                            json_build_object(
+                                'slot_id', s.id,
+                                'slot_name', s.name,
+                                'slot_status', s.status
                             )
                         )
                         FROM parking_slot AS s

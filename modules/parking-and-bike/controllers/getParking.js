@@ -10,7 +10,7 @@ const getParking = async (req, res) => {
             -- WHERE b.parking_capacity > 0
             -- GROUP BY b.id
 
-            SELECT b.id, b.name, b.building_img, b.parking_capacity,
+            SELECT b.id, b.name, b.building_img, b.parking_capacity as all,
                 (SELECT CAST(COUNT(*) AS INT)
                 FROM parking_slot AS s 
                 WHERE s.floor_id IN (SELECT id 
@@ -21,7 +21,9 @@ const getParking = async (req, res) => {
             WHERE b.parking_capacity > 0
         `;
 
-        res.json(getParking);
+        res.json({
+            getParking
+        });
     } catch (error) {
         console.error("Error fetching parking:", error);
         res.status(500).json({ error: "Error fetching parking" });
