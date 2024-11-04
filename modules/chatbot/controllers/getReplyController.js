@@ -1,13 +1,13 @@
-import {SessionsClient} from "@google-cloud/dialogflow-cx";
+import { SessionsClient } from "@google-cloud/dialogflow-cx";
 
 const client = new SessionsClient({
-    credentials: {
-      client_email: process.env.BOT_CLIENT_EMAIL,
-      private_key: process.env.BOT_PRIVATE_KEY.replace(/\\n/g, '\n')
-    }
+  credentials: {
+    client_email: process.env.BOT_CLIENT_EMAIL,
+    private_key: process.env.BOT_PRIVATE_KEY.replace(/\\n/g, '\n')
+  }
 })
 
-const detectIntentText = async(projectId, inputText, sessionId) => {
+const detectIntentText = async (projectId, inputText, sessionId) => {
   const location = process.env.BOT_LOCATION; // or the specific location of your agent
   const agentId = process.env.BOT_AGENT_ID;
 
@@ -21,7 +21,7 @@ const detectIntentText = async(projectId, inputText, sessionId) => {
       text: {
         text: inputText,
       },
-      languageCode: 'en', 
+      languageCode: 'en',
     },
   };
 
@@ -43,7 +43,7 @@ const detectIntentText = async(projectId, inputText, sessionId) => {
     return responseText;
   } catch (err) {
     console.error('Error during detectIntent: ', err);
-  }  
+  }
 }
 
-export {detectIntentText};
+export { detectIntentText };
