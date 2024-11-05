@@ -9,11 +9,9 @@ export const clubListController = async (req,res) => {
         `;
     let fulfillment = "Our university has the following clubs for students to join. \n";
     clubs.map((club, index) => {
-      fulfillment += `${index + 1}. ${club.name} 
-        
-      \n`;
+      fulfillment += `${index + 1}. ${club.name}\n`;
     });
-    return res.json({fulfillment});
+    return fulfillment;
   } catch (error) {
     console.error("Error fetching clubs: " + error);
     res.status(500).json( { error: "Failed to fetch clubs" });

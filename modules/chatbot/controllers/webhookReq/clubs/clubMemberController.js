@@ -10,17 +10,13 @@ export const clubMemberController = async (req, res) => {
       Where c1.id=c2.club_id and c1.name = ${clubName}
       Group by c1.name;
     `;
-
-
     let fulfillment = "";
     clubs.map((club) => {
       fulfillment += `The club "${club.name}" has ${club.member_count} members.\n`;
     });
-    
-
-    return res.json({ fulfillment });
+    return fulfillment;
   } catch (error) {
     console.error("Error fetching club members: " + error);
-    res.status(500).json({ error: "Failed to fetch club members" });
+    return "Failed to fetch club members";
   }
 };

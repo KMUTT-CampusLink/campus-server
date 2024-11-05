@@ -13,14 +13,12 @@ export const requirecourseController = async (req, res) => {
     
     let fulfillment = `The required course for  "${progName}" are. \n`;
     courses.map((course, index) => {
-      fulfillment += `${index + 1}. ${course.coursename} 
-        
-      \n`;
+      fulfillment += `${index + 1}. ${course.coursename}\n`;
     });
     
-    return res.json({ fulfillment });
+    return fulfillment;
   } catch (error) {
     console.error("Error fetching required course: " + error);
-    res.status(500).json({ error: "Failed to fetch required courses" });
+    return "Failed to fetch required courses";
   }
 };
