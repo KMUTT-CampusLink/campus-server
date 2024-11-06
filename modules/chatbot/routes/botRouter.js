@@ -11,6 +11,7 @@ import { clubListController } from "../controllers/webhookReq/clubs/clubListCont
 import { clubMemberController } from "../controllers/webhookReq/clubs/clubMemberController.js";
 import { libraryEventController } from "../controllers/webhookReq/library/libraryEventController.js";
 import { requirecourseController } from "../controllers/webhookReq/programs/requiredCourseController.js";
+import { libraryAnnouncementController } from "../controllers/webhookReq/library/libraryAnnouncementController.js";
 
 const botRouter = Router();
 
@@ -22,9 +23,10 @@ botRouter.get("/start",semesterStartController);
 botRouter.get("/end",semesterEndController);
 botRouter.get("/clubslist",clubListController);
 botRouter.get("/clubmember",clubMemberController);
-botRouter.get("/tuitionfee",tutionFeeController);
+botRouter.post("/tuitionfee",tutionFeeController);
 botRouter.get("/libraryevent",libraryEventController);
 botRouter.get("/requiredcourse",requirecourseController);
+botRouter.get("/libraryannouncement",libraryAnnouncementController);
 
 
 
