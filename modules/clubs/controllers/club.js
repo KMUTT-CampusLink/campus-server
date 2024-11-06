@@ -90,9 +90,7 @@ export const getClubbyId = async (req, res) => {
   const { id } = req.params;
   try {
     const club = await prisma.club.findUnique({
-      where: {
-        id: Number(id),
-      },
+      where: { id: Number(id) },
       include: {
         student: {
           select: {
@@ -108,11 +106,10 @@ export const getClubbyId = async (req, res) => {
     return res.status(200).json({ success: true, data: club });
   } catch (error) {
     console.error("Failed to fetch club:", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Failed to fetch club" });
+    return res.status(500).json({ success: false, message: "Failed to fetch club" });
   }
 };
+
 
 // Create a new club
 export const createClub = async (req, res) => {
@@ -296,7 +293,6 @@ export const createPost = async (req, res) => {
 export const requestToJoinClub = async (req, res) => {
   const { clubId } = req.params;
   const studentId = req.user ? req.user.id : "STU00027"; // Replace hardcoded ID with req.user.id once authentication is implemented
-
   console.log("Request to join club with ID:", clubId, "by student:", studentId);
 
   try {

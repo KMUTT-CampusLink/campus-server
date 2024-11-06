@@ -10,9 +10,9 @@ import {
   createPost,
   getAllProfessors,
   updateClubDescription
-} from "../controllers/club.js"; // Import the controller
+} from "../controllers/club.js";
 
-import { getAllPosts } from "../controllers/post.js"; // Import the controller
+import { getAllPosts } from "../controllers/post.js";
 import { getAllAnnouncements, createAnnouncement } from "../controllers/announcement.js";
 import { getAllBuildings } from "../controllers/building.js";
 import { clubLocation } from "../controllers/clubLocation.js";
@@ -27,7 +27,7 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage }); // Configure multer storage
+const upload = multer({ storage }); //Configure multer storage
 
 const router = Router();
 
@@ -48,6 +48,6 @@ router.get("/clubLocation/:buildingId", clubLocation); // Path to get clubs by b
 router.post("/create", upload.single("club_img"), createClub);
 router.post("/admin/post", upload.single("photo"), createPost);
 
-router.get("/", getAllClubs);  
+router.get("/", getAllClubs);
 
 export { router as clubRouter };
