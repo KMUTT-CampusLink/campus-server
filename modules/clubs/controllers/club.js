@@ -292,8 +292,7 @@ export const createPost = async (req, res) => {
 
 export const requestToJoinClub = async (req, res) => {
   const { clubId } = req.params;
-  const studentId = req.user ? req.user.id : "STU00027"; // Replace hardcoded ID with `req.user.id` once authentication is implemented
-
+  const studentId = req.user ? req.user.id : "STU00027"; // Replace hardcoded ID with req.user.id once authentication is implemented
   console.log("Request to join club with ID:", clubId, "by student:", studentId);
 
   try {
