@@ -3,7 +3,7 @@ import prisma from "../../../../core/db/prismaInstance.js";
 export default async function submitExam(req, res) {
   const examId = parseInt(req.body.examId);
   const studentAnswers = req.body.studentAnswers;
-  const studentId = "66130500849";
+  const studentId = "66130500850";
   const answersArray = Object.values(studentAnswers).flat();
   try {
     await Promise.all(
