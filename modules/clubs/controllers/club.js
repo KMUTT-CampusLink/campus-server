@@ -90,26 +90,26 @@ export const getClubbyId = async (req, res) => {
   const { id } = req.params;
   try {
     const club = await prisma.club.findUnique({
-      where: {
-        id: Number(id),
-      },
+      where: { id: Number(id) },
       include: {
-        student: true, // Fetch the owner (student)
-        club_member: true, // Fetch club members
+        student: {
+          select: {
+            id: true,
+            firstname: true,
+            lastname: true,
+          },
+        },
+        club_member: true,
         building: true,
-        _count: {
-          select: { club_member: true }, // Counts the club members directly
-        }
       },
     });
     return res.status(200).json({ success: true, data: club });
   } catch (error) {
     console.error("Failed to fetch club:", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Failed to fetch club" });
+    return res.status(500).json({ success: false, message: "Failed to fetch club" });
   }
 };
+
 
 // Create a new club
 export const createClub = async (req, res) => {
@@ -291,41 +291,61 @@ export const createPost = async (req, res) => {
 };
 
 export const requestToJoinClub = async (req, res) => {
-  const { clubId } = req.params; // This corresponds to the 'club_id' field in the 'club_member' model
-  const studentId = req.user.id; // This corresponds to the 'student_id' field in the 'club_member' model
+  const { clubId } = req.params;
+  const studentId = req.user ? req.user.id : "STU00027"; // Replace hardcoded ID with `req.user.id` once authentication is implemented
+
+  console.log("Request to join club with ID:", clubId, "by student:", studentId);
 
   try {
-    // Check if the student has already requested to join or is a member
     const existingMember = await prisma.club_member.findFirst({
-      where: {
-        club_id: Number(clubId),
-        student_id: studentId, // Matches 'student_id' in the club_member model
-      },
+      where: { club_id: Number(clubId), student_id: studentId },
     });
 
     if (existingMember) {
-      return res.status(400).json({
-        success: false,
-        message: "Already a member or pending request",
-      });
+      return res.status(400).json({ success: false, message: "Already a member or pending request" });
     }
 
-    // Add a new entry to the club_member table (join request)
     await prisma.club_member.create({
       data: {
         club_id: Number(clubId),
-        student_id: studentId, // Refers to 'student_id' in the student table
-        is_admin: false, // Regular join request, not an admin
+        student_id: studentId,
+        is_admin: false,
+        status: "Pending",
       },
     });
 
-    return res
-      .status(200)
-      .json({ success: true, message: "Join request sent" });
+    const student = await prisma.student.findUnique({
+      where: { id: studentId },
+      select: { firstname: true, lastname: true },
+    });
+
+    const club = await prisma.club.findUnique({
+      where: { id: Number(clubId) },
+      select: { name: true, owner_id: true },
+    });
+
+    if (!student || !club) {
+      return res.status(400).json({ success: false, message: "Student or club not found" });
+    }
+
+    const adminId = club.owner_id;
+    const studentName = `${student.firstname} ${student.lastname}`;
+    const clubName = club.name;
+
+    await prisma.club_notification.create({
+      data: {
+        recipient_id: adminId,
+        sender_id: studentId,
+        club_id: Number(clubId),
+        type: "Join Request",
+        message: `${studentName} sent a request to join the club ${clubName}`,
+        is_read: false,
+      },
+    });
+
+    return res.status(200).json({ success: true, message: "Join request sent" });
   } catch (error) {
     console.error("Error requesting to join club:", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Failed to request join" });
+    return res.status(500).json({ success: false, message: "Failed to request join", error: error.message });
   }
 };
