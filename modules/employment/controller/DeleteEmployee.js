@@ -18,14 +18,30 @@ const deleteEmployee = async (req, res) => {
             return res.status(404).json({ error: 'Employee not found' });
         }
 
-        // Delete the employee record
+        // Retrieve the associated user ID
+        const userInfo = await prisma.employee.findUnique({
+            where: { id },
+            select: {
+                user_id: true,
+                user: { select: { id: true } }
+            },
+        });
+
         await prisma.employee.delete({
             where: { id },
         });
 
+        // Delete the associated user record
+        await prisma.user.delete({
+            where: { id: userInfo.user.id }
+        });
+
+        // Delete the employee record
+        
+
         // Respond with a success message
         res.json({
-            message: 'Employee deleted successfully',
+            message: 'Employee and associated user deleted successfully',
         });
     } catch (error) {
         console.error(error); // Log the error for debugging

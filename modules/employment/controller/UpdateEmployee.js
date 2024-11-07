@@ -66,6 +66,28 @@ const updateEmployee = async (req, res) => {
       updatedEmployeeData.salary = salaryToUse;
     }
 
+    const uId = await prisma.employee.findUnique({
+      where: {
+        id: id,  
+      },
+      select: {
+        user_id: true, 
+        user: {
+          select:{
+            id: true,
+          }
+        }, 
+      },
+    });
+    console.log(uId, typeof uId);
+
+    const newUser = await prisma.user.update({
+      where: { id: uId.user.id },
+      data: {
+        role: job_title, 
+      },
+    });
+
     // Update the employee record
     const updatedEmployee = await prisma.employee.update({
       where: { id },
@@ -76,6 +98,7 @@ const updateEmployee = async (req, res) => {
     res.json({
       message: 'Employee updated successfully',
       employee: updatedEmployee,
+      user: newUser,
     });
   } catch (error) {
     console.error(error);

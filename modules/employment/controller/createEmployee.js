@@ -23,11 +23,11 @@ const createEmployee = async (req, res) => {
   } = req.body; // Assume these are provided in the request body.
 
   try {
-    const generatedCampusEmail = `${firstname.toLowerCase()}.${lastname.toLowerCase()}@campus.com`;
+    const generatedCampusEmail = `${firstname.toLowerCase()}.${lastname.toLowerCase()}@campus.edu`;
     const campusEmailToUse = campus_email || generatedCampusEmail;
 
     // Generate a default personal email if not provided
-    const generatedPersonalEmail = `${firstname.toLowerCase()}.${lastname.toLowerCase()}@defaultemail.com`;
+    const generatedPersonalEmail = `${firstname.toLowerCase()}.${lastname.toLowerCase()}@personal.com`;
     const personalEmailToUse = personal_email || generatedPersonalEmail;
 
     // Generate a random password if not provided
@@ -51,7 +51,7 @@ const createEmployee = async (req, res) => {
         campus_email: campusEmailToUse, // Use the provided or generated campus email
         personal_email: personalEmailToUse, // Use the provided or generated personal email
         password: hashedPassword, // Use the hashed password
-        role: 'Staff', // Set the role as 'Employee'
+        role: job_title, 
         is_activated: true,
       },
     });
@@ -64,12 +64,12 @@ const createEmployee = async (req, res) => {
         lastname,
         phone,
         address,
-        date_of_birth: new Date(date_of_birth), // Ensure date format is correct
+        date_of_birth: new Date(date_of_birth),
         gender,
         identification_no,
         passport_no,
-        user_id: newUser.id, // Link with the user record
-        faculty_id, // Optional
+        user_id: newUser.id,
+        faculty_id,
         position,
         job_title,
         salary: salaryToUse,
