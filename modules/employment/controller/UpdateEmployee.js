@@ -73,15 +73,15 @@ const updateEmployee = async (req, res) => {
 
     const uId = await prisma.employee.findUnique({
       where: {
-        id: id,
+        id: id,  
       },
       select: {
-        user_id: true,
+        user_id: true, 
         user: {
-          select: {
+          select:{
             id: true,
-          },
-        },
+          }
+        }, 
       },
     });
     console.log(uId, typeof uId);
@@ -89,39 +89,7 @@ const updateEmployee = async (req, res) => {
     const newUser = await prisma.user.update({
       where: { id: uId.user.id },
       data: {
-        role: job_title,
-      },
-    });
-
-    const updateAddressId = await prisma.employee.findUnique({
-      where: {
-        id: id,
-      },
-      select: {
-        address_id: true,
-        address: {
-          select: {
-            id: true,
-            address: true,
-            sub_district: true,
-            district: true,
-            province: true,
-            postal_code: true,
-          },
-        },
-      },
-    });
-
-    console.log(updateAddressId, typeof updateAddressId);
-
-    const newAddress = await prisma.address.update({
-      where: { id: updateAddressId.address.id },
-      data: {
-        address: address,
-        sub_district: sub_district,
-        district: district,
-        province: province,
-        postal_code: postal_code,
+        role: job_title, 
       },
     });
 
@@ -136,7 +104,6 @@ const updateEmployee = async (req, res) => {
       message: "Employee updated successfully",
       employee: updatedEmployee,
       user: newUser,
-      address: newAddress,
     });
   } catch (error) {
     console.error(error);

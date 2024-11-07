@@ -1,26 +1,24 @@
 import { Router } from "express";
-import getEmployee from "../controller/geEmployees.js";
-import createEmployee from "../controller/createEmployee.js";
-import getEmployeeById from "../controller/getEmployeeId.js";
-import updateEmployee from "../controller/UpdateEmployee.js";
-import deleteEmployee from "../controller/DeleteEmployee.js";
-import getStudents from "../controller/getStudents.js";
-import getStudentsId from "../controller/getStudentId.js";
-import deleteStudent from "../controller/deleteStudent.js";
-import getFaculties from "../controller/getFalcuty.js";
-import getProgramName from "../controller/getProgramName.js";
-import getSemester from "../controller/getSemester.js";
-import createStudent from "../controller/createStudent.js";
-import updateStudent from "../controller/updateStudent.js";
+import getEmployee from '../controller/geEmployees.js';
+import createEmployee from '../controller/createEmployee.js';
+import getEmployeeById from '../controller/getEmployeeId.js';
+import updateEmployee from '../controller/UpdateEmployee.js';
+import deleteEmployee from '../controller/DeleteEmployee.js';
 
 const employRouter = Router();
 
 // create routes here
 employRouter.get("/getEmp", getEmployee);
-employRouter.post("/postEmp", createEmployee);
-employRouter.get("/getEmp/:id", getEmployeeById);
-employRouter.post("/updateEmp/:id", updateEmployee);
-employRouter.delete("/deleteEmp/:id", deleteEmployee);
+employRouter.post("/postEmp",createEmployee);
+employRouter.get("/getEmp/:id",getEmployeeById);
+employRouter.post("/updateEmp/:id",updateEmployee);
+employRouter.delete('/deleteEmp/:id',deleteEmployee);
+
+employRouter.get("/getStu/", getEmployee);
+employRouter.post("/postStu",createEmployee);
+employRouter.get("/getStu/:id",getEmployeeById);
+employRouter.post("/updateStu/:id",updateEmployee);
+employRouter.delete('/deleteStu/:id',deleteEmployee);
 
 employRouter.get("/getStu/", getStudents);
 employRouter.post("/postStu", createStudent);
