@@ -106,10 +106,11 @@ export const getClubbyId = async (req, res) => {
     return res.status(200).json({ success: true, data: club });
   } catch (error) {
     console.error("Failed to fetch club:", error);
-    return res.status(500).json({ success: false, message: "Failed to fetch club" });
+    return res
+      .status(500)
+      .json({ success: false, message: "Failed to fetch club" });
   }
 };
-
 
 // Create a new club
 export const createClub = async (req, res) => {
@@ -144,13 +145,13 @@ export const createClub = async (req, res) => {
         name,
       },
     });
-  
-  if (existingClub) {
-    return res.status(400).json({
-      success: false,
-      message: "A club with this name already exists.",
-    });
-  }
+
+    if (existingClub) {
+      return res.status(400).json({
+        success: false,
+        message: "A club with this name already exists.",
+      });
+    }
 
     // Create the new club with the uploaded image
     const newClub = await prisma.club.create({
@@ -167,25 +168,27 @@ export const createClub = async (req, res) => {
     // Prase the members array as it is sent as a string
     const addedMembers = JSON.parse(members);
     // Optionally, add the owner as a club member with admin rights
-    if(owner_id.startsWith("STU")){
-    await prisma.club_member.create({
-      data: {
-        club_id: newClub.id,
-        student_id: owner_id,
-        is_admin: true,
-      },
-    });
-  } else if(owner_id.startsWith("EMP")){
-    await prisma.club_member.create({
-      data: {
-        club_id: newClub.id,
-        professor_id: owner_id,
-        is_admin: true,
-      },
-    });
-  } else {
-    console.warn(`Unrecognized owner ID format: ${owner_id}`);
-  }
+    if (owner_id.startsWith("STU")) {
+      await prisma.club_member.create({
+        data: {
+          club_id: newClub.id,
+          student_id: owner_id,
+          is_admin: true,
+          status: "Accepted",
+        },
+      });
+    } else if (owner_id.startsWith("EMP")) {
+      await prisma.club_member.create({
+        data: {
+          club_id: newClub.id,
+          professor_id: owner_id,
+          is_admin: true,
+          status: "Accepted",
+        },
+      });
+    } else {
+      console.warn(`Unrecognized owner ID format: ${owner_id}`);
+    }
     console.log("Added club owner as memeber.");
 
     for (const memberId of addedMembers) {
@@ -196,6 +199,7 @@ export const createClub = async (req, res) => {
             club_id: newClub.id,
             student_id: memberId,
             is_admin: false,
+            status: "Accepted",
           },
         });
       } else if (memberId.startsWith("EMP")) {
@@ -204,6 +208,7 @@ export const createClub = async (req, res) => {
             club_id: newClub.id,
             employee_id: memberId,
             is_admin: false,
+            status: "Accepted",
           },
         });
       } else {
@@ -252,16 +257,16 @@ export const updateClubDescription = async (req, res) => {
       message: "An error occurred while updating the club description.",
     });
   }
-}
+};
 
 // Create a new post
 export const createPost = async (req, res) => {
   console.log("Request body:", req.body);
   console.log("File:", req.file); // Check if multer is correctly receiving the file
 
+  const { clubId } = req.params;
   const postTitle = req.body.postTitle;
   const postContent = req.body.postContent;
-  const clubId = 1014; // Hardcoded for now
   const memberId = 1028; // Hardcoded for now
   const post_img = req.file ? req.file.filename : null;
 
@@ -271,7 +276,7 @@ export const createPost = async (req, res) => {
         title: postTitle,
         content: postContent,
         post_img: post_img,
-        club_id: clubId,
+        club_id: parseInt(clubId),
         member_id: memberId,
       },
     });
@@ -293,7 +298,12 @@ export const createPost = async (req, res) => {
 export const requestToJoinClub = async (req, res) => {
   const { clubId } = req.params;
   const studentId = req.user ? req.user.id : "STU00027"; // Replace hardcoded ID with req.user.id once authentication is implemented
-  console.log("Request to join club with ID:", clubId, "by student:", studentId);
+  console.log(
+    "Request to join club with ID:",
+    clubId,
+    "by student:",
+    studentId
+  );
 
   try {
     const existingMember = await prisma.club_member.findFirst({
@@ -301,7 +311,10 @@ export const requestToJoinClub = async (req, res) => {
     });
 
     if (existingMember) {
-      return res.status(400).json({ success: false, message: "Already a member or pending request" });
+      return res.status(400).json({
+        success: false,
+        message: "Already a member or pending request",
+      });
     }
 
     await prisma.club_member.create({
@@ -324,7 +337,9 @@ export const requestToJoinClub = async (req, res) => {
     });
 
     if (!student || !club) {
-      return res.status(400).json({ success: false, message: "Student or club not found" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Student or club not found" });
     }
 
     const adminId = club.owner_id;
@@ -342,9 +357,119 @@ export const requestToJoinClub = async (req, res) => {
       },
     });
 
-    return res.status(200).json({ success: true, message: "Join request sent" });
+    return res
+      .status(200)
+      .json({ success: true, message: "Join request sent" });
   } catch (error) {
     console.error("Error requesting to join club:", error);
-    return res.status(500).json({ success: false, message: "Failed to request join", error: error.message });
+    return res.status(500).json({
+      success: false,
+      message: "Failed to request join",
+      error: error.message,
+    });
+  }
+};
+
+// Fetch all pending requests for a specific club
+export const getPendingRequests = async (req, res) => {
+  const { clubId } = req.params;
+  try {
+    const pendingRequests = await prisma.club_member.findMany({
+      where: {
+        club_id: Number(clubId),
+        status: "Pending",
+        is_admin: false,
+      },
+      select: {
+        id: true,
+        student: {
+          select: {
+            id: true,
+            firstname: true,
+            lastname: true,
+          },
+        },
+      },
+    });
+
+    return res.status(200).json({ success: true, data: pendingRequests });
+  } catch (error) {
+    console.error("Failed to fetch pending requests:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Failed to fetch pending requests" });
+  }
+};
+
+export const updateJoinRequestStatus = async (req, res) => {
+  const { clubId, memberId } = req.params;
+  const { status } = req.body;
+
+  // Validate the provided status to ensure it's either Pending, Accepted, or Rejected
+  if (!["Pending", "Accepted", "Rejected"].includes(status)) {
+    return res.status(400).json({ success: false, message: "Invalid status value" });
+  }
+
+  try {
+    // Find the member's record based on club ID and member ID
+    const member = await prisma.club_member.findFirst({
+      where: {
+        club_id: Number(clubId),
+        id: Number(memberId),
+      },
+      include: {
+        student: true,  // Including student info to access the sender's data
+      },
+    });
+
+    if (!member) {
+      return res.status(404).json({ success: false, message: "Club member not found" });
+    }
+
+    // Update the member's status
+    const updatedMember = await prisma.club_member.update({
+      where: {
+        id: member.id,
+      },
+      data: {
+        status: status,
+      },
+    });
+
+    // Check if the sender exists and get the sender's ID
+    const senderId = member.student ? member.student.id : null;
+
+    if (!senderId) {
+      return res.status(400).json({ success: false, message: "Sender not found" });
+    }
+
+    // Create notification for the request's status update
+    await prisma.club_notification.create({
+      data: {
+        recipient_id: senderId,  // Notification goes to the member who made the request
+        sender_id: senderId,  // Sender is the student who made the original request
+        club_id: Number(clubId),
+        type: status === "Accepted" ? "Request Accepted" : "Request Rejected",
+        message: `Your request to join the club has been ${status.toLowerCase()}.`,
+        is_read: false,
+      },
+    });
+
+    // Optionally, delete the member if the request was declined
+    if (status === "Rejected") {
+      await prisma.club_member.delete({
+        where: {
+          id: member.id,
+        },
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Join request status updated to ${status}`,
+    });
+  } catch (error) {
+    console.error("Error updating join request status:", error);
+    return res.status(500).json({ success: false, message: "Failed to update join request status" });
   }
 };
