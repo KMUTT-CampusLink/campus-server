@@ -5,13 +5,16 @@ const verifyAccessToken = (req, res, next) => {
   const authHeader = req.headers.Authorization || req.headers.authorization;
 
   // request coming from dialogflow cx
-  const sessionId = null;
+  const sessionInfo = req.body?.sessionInfo?.session;
+  const sessionId = sessionInfo && sessionInfo.split("/").pop();
 
   const token =
     req.cookies.token ||
     (authHeader &&
       authHeader?.startsWith("Bearer ") &&
-      authHeader.split(" ")[1]);
+      authHeader.split(" ")[1]) ||
+    sessionId;
+
   if (!token) {
     return res.status(401).send("Unauthorized access");
   }
