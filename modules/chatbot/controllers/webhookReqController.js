@@ -7,6 +7,7 @@ import { semesterEndController } from "./webhookReq/timeTables/semesterEndContro
 import { semesterStartController } from "./webhookReq/timeTables/semesterStartController.js";
 
 export const webhookReqController = async(req, res) => {
+  console.log(req.body)
   const pageName = req.body.pageInfo.displayName;
   let result;
   if(pageName === "Fees"){
