@@ -9,7 +9,7 @@ const client = new SessionsClient({
 })
 let prevPage = "Start Page";
 let parameters = "-";
-const detectIntentText = async(projectId, inputText, sessionId) => {
+const detectIntentText = async(projectId, inputText, sessionId, bearerToken) => {
   const location = process.env.BOT_LOCATION; // or the specific location of your agent
   const agentId = process.env.BOT_AGENT_ID;
 
@@ -28,7 +28,7 @@ const detectIntentText = async(projectId, inputText, sessionId) => {
     queryParams: {
       parameters: {
         fields: {
-          bearerToken: { stringValue: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImRlY2Q4NjUxLTBjNzUtNGQwMC05NDhiLTRmNzYxYTU4YTMxMyIsImNhbXB1c19lbWFpbCI6InNoaW5lLnNhaUBjYW1wdXMuY29tIiwicm9sZSI6IlN0YWZmIiwiaWF0IjoxNzMxMDQ4MzMyLCJleHAiOjE3MzEwNTkxMzJ9.74bLfgqwvmlSah0xNhdRGAAJItrimjWOWlX31qPvL-o" },
+          bearerToken: { stringValue: bearerToken },
         },
       }
     }
@@ -37,7 +37,7 @@ const detectIntentText = async(projectId, inputText, sessionId) => {
   try {
     const [response] = await client.detectIntent(request);
     const params = response.queryResult.parameters?.fields 
-    ? Object.values(response.queryResult.parameters.fields) 
+    ? Object.values(Object.entries(response.queryResult?.parameters?.fields).filter(([key]) => key !== 'bearerToken'))
     : [];
     const responseMessages = response.queryResult.responseMessages;
     let responseText = '';

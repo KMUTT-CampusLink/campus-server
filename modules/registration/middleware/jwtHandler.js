@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 
 const verifyAccessToken = (req, res, next) => {
   // request coming from server
-  const authHeader = req.headers.Authorization || req.headers.authorization;
+  const authHeader = req.headers.Authorization;
 
   // request coming from dialogflow cx
   const sessionId = req.body?.sessionInfo?.parameters?.bearerToken;

@@ -5,14 +5,14 @@ import { programsListController } from "./webhookReq/programs/programsListContro
 import { requirecourseController } from "./webhookReq/programs/requiredCourseController.js";
 import { semesterEndController } from "./webhookReq/timeTables/semesterEndController.js";
 import { semesterStartController } from "./webhookReq/timeTables/semesterStartController.js";
+import { tutionFeeController } from "./webhookReq/programs/tutionFeeController.js";
 
 export const webhookReqController = async(req, res) => {
-  console.log(req.body)
   const pageName = req.body.pageInfo.displayName;
   let result;
   if(pageName === "Fees"){
-    const programName = req.body.sessionInfo.parameters.course.trim();
-    const degreeLevel = req.body.sessionInfo.parameters.degreelevel.trim();
+    const programName = req.body.sessionInfo.parameters.program.trim();
+    const degreeLevel = req.body.sessionInfo.parameters.degreelevel.trim() + " Degree";
     result = await tutionFeeController(programName, degreeLevel);
   }
   else if(pageName === "Programs List") {

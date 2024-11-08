@@ -1,7 +1,6 @@
 import prisma from "../../../../../core/db/prismaInstance.js";
 
 export const clubListController = async (req,res) => {
-    //const { name: clubsName } = req.query;  
   try {
     const clubs = await prisma.$queryRaw`
             SELECT name
@@ -11,10 +10,10 @@ export const clubListController = async (req,res) => {
     clubs.map((club, index) => {
       fulfillment += `${index + 1}. ${club.name}\n`;
     });
-    res.status(200).json({ message: fulfillment });
-    //return fulfillment;
+    return fulfillment;
   } catch (error) {
     console.error("Error fetching clubs: " + error);
-    res.status(500).json( { error: "Failed to fetch clubs" });
+    // res.status(500).json( { error: "Failed to fetch clubs" });
+    return "Failed to fetch clubs";
   }
 };
