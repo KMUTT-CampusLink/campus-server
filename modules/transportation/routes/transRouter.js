@@ -2,16 +2,12 @@ import { Router } from "express";
 // import your logics from controllers here
 import { populateDatabaseWithTestData } from "../utils/populateDatabaseWithTestData.js";
 import { queryAllData } from "../utils/queryAllData.js";
-import { queryBookingsForTripByID } from "../controllers/driver/dataQueries.js";
 import {
-  queryAllStops,
-  queryTripsByRouteID,
-  queryRoutesConnectingStops,
-  queryUserBookings,
-  queryAllTripData,
-  isBooked,
-} from "../controllers/user/dataQueries.js";
-import { bookForTrip } from "../controllers/user/book.js";
+  queryBookingsForTripByID,
+  queryDriverTrips,
+} from "../controllers/driver/dataQueries.js";
+
+import userRouter from "./userRouter.js";
 
 const transRouter = Router();
 
@@ -21,19 +17,12 @@ transRouter.get("/", (req, res) => {
 });
 
 transRouter.get("/driver/tripBookings/:tripID", queryBookingsForTripByID);
+transRouter.get("/driver/trips", queryDriverTrips);
+
+// dangerous for db, deletes all used tables first
 transRouter.get("/populate", populateDatabaseWithTestData);
 transRouter.get("/queryAllData", queryAllData);
-transRouter.get("/user/isBooked/:tripID", isBooked);
 
-// routes for booking db operations
-transRouter.get("/user/queryAllStops", queryAllStops); //done on frontend api
-transRouter.get(
-  "/user/routesConnectingStops/:startStopID/:endStopID",
-  queryRoutesConnectingStops
-); //done on frontend api
-transRouter.get("/user/tripsByRouteID/:routeID", queryTripsByRouteID); //done on frontend api
-transRouter.get("/user/bookings", queryUserBookings); //done on frontend api
-transRouter.get("/user/tripData/:tripID", queryAllTripData); //done on frontend api
-transRouter.post("/user/book", bookForTrip); //done on frontend api
+transRouter.use("/user", userRouter);
 
 export { transRouter };

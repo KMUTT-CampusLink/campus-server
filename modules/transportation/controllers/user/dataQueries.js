@@ -6,9 +6,6 @@ import {
 } from "../../utils/customErrors.js";
 
 export const isBooked = errorHandler(async (req, res) => {
-  if (!req.user) {
-    throw new UnauthorizedError();
-  }
   if (!req.params.tripID) {
     throw new BadRequestError("Trip ID is missing");
   }
@@ -35,9 +32,9 @@ export const isBooked = errorHandler(async (req, res) => {
 });
 
 export const queryUserBookings = errorHandler(async (req, res) => {
-  if (!req.user) {
-    throw new UnauthorizedError();
-  }
+  // if (!req.user) {
+  //   throw new UnauthorizedError();
+  // }
 
   const bookings = await prisma.trip_booking.findMany({
     include: { trip: { include: { trip_schedule: true } }, user: true },

@@ -6,9 +6,6 @@ import {
 } from "../../utils/customErrors.js";
 
 export const bookForTrip = errorHandler(async (req, res) => {
-  if (!req.user) {
-    throw new UnauthorizedError("Unauthorized");
-  }
   if (!req.body.tripID) {
     throw new BadRequestError("Trip ID is missing");
   }
