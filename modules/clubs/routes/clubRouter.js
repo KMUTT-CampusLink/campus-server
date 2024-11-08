@@ -6,20 +6,17 @@ import {
   getAllClubs,
   createClub,
   getClubbyId,
-  requestToJoinClub,
-  createPost,
   getAllProfessors,
   updateClubDescription,
-  getPendingRequests,
-  updateJoinRequestStatus
 } from "../controllers/club.js";
 
-import { getAllPosts, getPostByClubId } from "../controllers/post.js";
+import { getAllPosts, getPostByClubId, createPost } from "../controllers/post.js";
 import { getAllAnnouncements, createAnnouncement, getAnnouncementsByClubId } from "../controllers/announcement.js";
 import { getAllBuildings } from "../controllers/building.js";
 import { clubLocation } from "../controllers/clubLocation.js";
 import { getMemberByClubId } from "../controllers/clubMember.js";
 import { getNotifications } from "../controllers/clubNotifications.js";
+import { requestToJoinClub, getPendingRequests, updateJoinRequestStatus } from "../controllers/request.js";
 
 // Multer configuration for file uploads
 const storage = multer.diskStorage({
