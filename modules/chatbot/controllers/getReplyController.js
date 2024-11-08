@@ -29,7 +29,6 @@ const detectIntentText = async(projectId, inputText, sessionId) => {
 
   try {
     const [response] = await client.detectIntent(request);
-    // console.log(response);
     const params = response.queryResult.parameters?.fields 
     ? Object.values(response.queryResult.parameters.fields) 
     : [];
@@ -42,18 +41,20 @@ const detectIntentText = async(projectId, inputText, sessionId) => {
       }
     });
     let nextQues = [];
-    if(response.queryResult.match.matchType !== 'NO_MATCH' || response.queryResult.currentPage.displayName === 'Start Page'){
-      await prisma.next_question.upsert({
-        where: {
-          page_name_params_next_question: {
-            page_name: prevPage,
-            params: parameters,
-            next_question: inputText
-          }
-        },
-        update: { count : {increment: 1}},
-        create: {page_name: prevPage, params: parameters, next_question: inputText, count: 1},
-      })
+    if(response.queryResult.match.matchType !== 'NO_MATCH' && response.queryResult.currentPage.displayName !== 'Start Page'){
+      if(prevPage != response.queryResult.currentPage.displayName){
+        await prisma.next_question.upsert({
+          where: {
+            page_name_params_next_question: {
+              page_name: prevPage,
+              params: parameters,
+              next_question: inputText
+            }
+          },
+          update: { count : {increment: 1}},
+          create: {page_name: prevPage, params: parameters, next_question: inputText, count: 1},
+        })
+      }
       prevPage = response.queryResult.currentPage.displayName;
       parameters = "";
       if(params.length > 0){

@@ -2,7 +2,6 @@ import prisma from "../../../../../core/db/prismaInstance.js";
 
 export const libraryEventController = async (req, res) => {
   try {
-
     const events = await prisma.$queryRaw`
       SELECT title, location, event_date 
       FROM "library_event" 
