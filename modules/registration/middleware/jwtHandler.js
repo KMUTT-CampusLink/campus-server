@@ -5,8 +5,7 @@ const verifyAccessToken = (req, res, next) => {
   const authHeader = req.headers.Authorization || req.headers.authorization;
 
   // request coming from dialogflow cx
-  const sessionInfo = req.body?.sessionInfo?.session;
-  const sessionId = sessionInfo && sessionInfo.split("/").pop();
+  const sessionId = req.body?.sessionInfo?.parameters?.bearerToken;
 
   const token =
     req.cookies.token ||
