@@ -1,7 +1,7 @@
 import prisma from "../../../../core/db/prismaInstance.js";
 
 export default async function getStudentAnswer(req, res) {
-    const studentId = "66130500849";
+    const studentId = "66130500850";
     const examId = parseInt(req.query.examId);
     try {
         const queryAnswer = await prisma.student_answer.findMany({

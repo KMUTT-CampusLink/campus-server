@@ -4,7 +4,7 @@ export default async function getStudentReview(req, res) {
   try {
     const examId = parseInt(req.query.examId);
     if (isNaN(examId)) throw "Missing Required Parameters";
-    const studentId = "66130500849";
+    const studentId = "66130500850";
     const studentAns = await prisma.exam_question.findMany({
       where: {
         exam_id: examId,
