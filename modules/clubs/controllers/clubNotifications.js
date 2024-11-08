@@ -37,3 +37,4 @@ export const getNotifications = async (req, res) => {
       .json({ success: false, message: "Failed to fetch notifications" });
   }
 };
+
