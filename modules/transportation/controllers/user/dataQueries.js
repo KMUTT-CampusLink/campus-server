@@ -23,6 +23,7 @@ export const isBooked = errorHandler(async (req, res) => {
     return res.status(200).json({
       isBooked: true,
       message: "Booking already exists",
+      booking: existingBooking,
     });
   } else {
     return res
