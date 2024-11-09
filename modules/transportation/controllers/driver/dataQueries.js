@@ -13,9 +13,19 @@ export const queryBookingsForTripByID = errorHandler(async (req, res) => {
 });
 
 export const queryDriverTrips = errorHandler(async (req, res) => {
-  const trips = await prisma.trip.findMany({
+  const driver = await prisma.driver.findFirst({
     where: {
-      driver_id: req.user.id,
+      employee: {
+        user: {
+          id: req.user.id,
+        },
+      },
+    },
+  });
+  const trips = await prisma.trip.findMany({
+    include: { trip_schedule: true },
+    where: {
+      driver_id: driver.id,
     },
   });
 
