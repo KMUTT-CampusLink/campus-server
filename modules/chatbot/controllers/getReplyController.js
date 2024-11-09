@@ -9,7 +9,7 @@ const client = new SessionsClient({
 })
 let prevPage = "Start Page";
 let parameters = "-";
-const detectIntentText = async(projectId, inputText, sessionId) => {
+const detectIntentText = async(projectId, inputText, sessionId, bearerToken) => {
   const location = process.env.BOT_LOCATION; // or the specific location of your agent
   const agentId = process.env.BOT_AGENT_ID;
 
@@ -25,13 +25,19 @@ const detectIntentText = async(projectId, inputText, sessionId) => {
       },
       languageCode: 'en',
     },
+    queryParams: {
+      parameters: {
+        fields: {
+          bearerToken: { stringValue: bearerToken },
+        },
+      }
+    }
   };
 
   try {
     const [response] = await client.detectIntent(request);
-    // console.log(response);
     const params = response.queryResult.parameters?.fields 
-    ? Object.values(response.queryResult.parameters.fields) 
+    ? Object.values(Object.entries(response.queryResult?.parameters?.fields).filter(([key]) => key !== 'bearerToken'))
     : [];
     const responseMessages = response.queryResult.responseMessages;
     let responseText = '';
@@ -42,18 +48,20 @@ const detectIntentText = async(projectId, inputText, sessionId) => {
       }
     });
     let nextQues = [];
-    if(response.queryResult.match.matchType !== 'NO_MATCH' || response.queryResult.currentPage.displayName === 'Start Page'){
-      await prisma.next_question.upsert({
-        where: {
-          page_name_params_next_question: {
-            page_name: prevPage,
-            params: parameters,
-            next_question: inputText
-          }
-        },
-        update: { count : {increment: 1}},
-        create: {page_name: prevPage, params: parameters, next_question: inputText, count: 1},
-      })
+    if(response.queryResult.match.matchType !== 'NO_MATCH' && response.queryResult.currentPage.displayName !== 'Start Page'){
+      if(prevPage != response.queryResult.currentPage.displayName){
+        await prisma.next_question.upsert({
+          where: {
+            page_name_params_next_question: {
+              page_name: prevPage,
+              params: parameters,
+              next_question: inputText
+            }
+          },
+          update: { count : {increment: 1}},
+          create: {page_name: prevPage, params: parameters, next_question: inputText, count: 1},
+        })
+      }
       prevPage = response.queryResult.currentPage.displayName;
       parameters = "";
       if(params.length > 0){
