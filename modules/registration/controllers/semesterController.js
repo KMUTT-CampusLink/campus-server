@@ -3,9 +3,10 @@ import prisma from "../../../core/db/prismaInstance.js";
 export const getAllSemesters = async (req, res) => {
     try {
         const semesters = await prisma.semester.findMany({
-            orderBy: {
-                name: 'asc', 
-            },
+            orderBy: [
+                { academic_year: 'asc' },
+                { name: 'asc' }, //secondary sort by name
+            ]
         });
 
         if (semesters.length === 0) {
@@ -37,7 +38,6 @@ export const getSemesterByStudentId = async (req, res) => {
         semester sem ON eh.semester_id = sem.id
       WHERE 
         eh.student_id = ${studentId}
-        AND eh.status = 'Paid'
       ORDER BY 
         eh.semester_id;
     `;
