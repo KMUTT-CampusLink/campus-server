@@ -42,8 +42,7 @@ app.use(express.json());
 // all routing
 app.use("/api/users", userRouter);
 
-// app.use(verifyAccessToken);
-app.get("/api/authorize", (req, res) => {
+app.get("/api/authorize", verifyAccessToken, (req, res) => {
   return res.status(200).json({
     condition: "success",
     data: {
@@ -53,8 +52,7 @@ app.get("/api/authorize", (req, res) => {
     message: "User is authorized",
   });
 });
-
-app.use("/api/regis", regisRouter);
+app.use("/api/regis", verifyAccessToken, regisRouter);
 app.use("/api/attend", attendRouter);
 app.use("/api/security", secureRouter);
 app.use("/api/botastra", botRouter);
@@ -62,7 +60,7 @@ app.use("/api/clubs", clubRouter);
 app.use("/api/employ", employRouter);
 app.use("/api/library", libRouter);
 app.use("/api/map", mapRouter);
-app.use("/api/courses", courseRouter);
+app.use("/api/courses", verifyAccessToken, courseRouter);
 app.use("/api/exams", examRouter);
 app.use("/api/parking", parkRouter);
 app.use("/api/payment", paymentRouter);

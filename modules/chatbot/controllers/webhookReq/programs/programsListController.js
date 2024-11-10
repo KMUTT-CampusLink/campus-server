@@ -1,11 +1,6 @@
-import prisma from "../../../core/db/prismaInstance.js";
+import prisma from "../../../../../core/db/prismaInstance.js";
 
 export const programsListController = async() => {
-    const result = await fetchProgramsList();
-    return result;
-}
-
-const fetchProgramsList = async() => {
     try{
         const programs = await prisma.$queryRaw`
             SELECT name, degree_level
