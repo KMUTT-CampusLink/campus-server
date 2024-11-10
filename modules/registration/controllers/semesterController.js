@@ -31,7 +31,8 @@ export const getSemesterByStudentId = async (req, res) => {
         eh.semester_id,
         sem.name AS semester_name,
         sem.start_date,
-        sem.end_date
+        sem.end_date,
+        sem.academic_year
       FROM 
         enrollment_head eh
       LEFT JOIN 
@@ -39,7 +40,7 @@ export const getSemesterByStudentId = async (req, res) => {
       WHERE 
         eh.student_id = ${studentId}
       ORDER BY 
-        eh.semester_id;
+        sem.academic_year, sem.name;
     `;
 
         if (semesters.length === 0) {
