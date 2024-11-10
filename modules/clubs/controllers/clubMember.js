@@ -14,6 +14,7 @@ export const getMemberByClubId = async (req, res) => {
                     select: {
                         id: true,
                         firstname: true,
+                        midname: true,
                         lastname: true,
                     },
                 },
@@ -26,6 +27,7 @@ export const getMemberByClubId = async (req, res) => {
                     },
                 },
                 is_admin: true,
+                status: true,
             }
     });
     return res.status(200).json({ success: true, data: members });

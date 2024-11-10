@@ -35,7 +35,7 @@ export const createPost = async (req, res) => {
       });
     }
   };
-  
+
 export const getAllPosts = async (req, res) => {
   try {
     const posts = await prisma.club_post.findMany({
@@ -65,14 +65,14 @@ export const getPostByClubId = async (req, res) => {
 
   try {
     const posts = await prisma.club_post.findMany({
-      where: {
-        club_id: parseInt(clubId),
-      },
+      where: {club_id: parseInt(clubId)},
+      orderBy: { is_pinned: "desc" },
       select: {
         id: true,
         title: true,
         content: true,
         post_img: true,
+        is_pinned: true,
         club: {
           select: {
             name: true,
@@ -87,4 +87,34 @@ export const getPostByClubId = async (req, res) => {
       .status(500)
       .json({ success: false, message: "Failed to fetch posts" });
   }
+};
+
+// Toggle pin status for a post
+export const togglePostPin = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const post = await prisma.club_post.findUnique({
+            where: { id: parseInt(id) },
+        });
+
+        if (!post) {
+            return res.status(404).json({ success: false, message: "Post not found" });
+        }
+
+        // Toggle the `is_pinned` status and update
+        const updatedPost = await prisma.club_post.update({
+            where: { id: parseInt(id) },
+            data: { is_pinned: !post.is_pinned },
+        });
+
+        return res.status(200).json({ success: true, data: updatedPost });
+    } catch (error) {
+        console.error("Error toggling post pin status:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Failed to toggle post pin status",
+            error: error.message,
+        });
+    }
 };
