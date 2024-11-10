@@ -49,10 +49,14 @@ export const studentProfileController = async (req, res) => {
         midname,
         lastname,
         phone,
-        address,
         date_of_birth,
         identification_no,
-        degree_level
+        degree_level,
+        a.address,
+        a.sub_district,
+        a.district,
+        a.province,
+        a.postal_code
       FROM 
         student s
       JOIN 
@@ -63,6 +67,8 @@ export const studentProfileController = async (req, res) => {
         program p ON d.program_id = p.id
       JOIN 
         faculty f ON p.faculty_id = f.id
+      JOIN
+        "address" a ON s.address_id = a.id
       JOIN
         "user" u ON u.id = s.user_id
       WHERE 
