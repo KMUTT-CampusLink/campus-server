@@ -2,18 +2,20 @@ import prisma from "../../../core/db/prismaInstance.js";
 
 export const requestToJoinClub = async (req, res) => {
     const { clubId } = req.params;
-    const studentId = req.user ? req.user.id : "STU00027"; // Replace hardcoded ID with req.user.id once authentication is implemented
-    console.log(
-      "Request to join club with ID:",
-      clubId,
-      "by student:",
-      studentId
-    );
+    const memberId = req.user ? req.user.id : "EMP00027"; // Replace hardcoded ID with req.user.id once authentication is implemented
+    const isStudent = memberId.startsWith("STU");
+    console.log("Request to join club with ID:", clubId, "by user:", memberId);
   
     try {
+      
       const existingMember = await prisma.club_member.findFirst({
-        where: { club_id: Number(clubId), student_id: studentId },
+        where: isStudent 
+        ? { club_id: Number(clubId), student_id: memberId } 
+        : { club_id: Number(clubId), employee_id: memberId },
       });
+
+      console.log("isStudent:", isStudent);
+      console.log("existingMember:", memberId);
   
       if (existingMember) {
         return res.status(400).json({
@@ -25,43 +27,53 @@ export const requestToJoinClub = async (req, res) => {
       await prisma.club_member.create({
         data: {
           club_id: Number(clubId),
-          student_id: studentId,
+          [isStudent ? 'student_id' : 'employee_id']: memberId,
           is_admin: false,
           status: "Pending",
         },
       });
+      console.log("Member created successfully");
   
-      const student = await prisma.student.findUnique({
-        where: { id: studentId },
-        select: { firstname: true, lastname: true },
-      });
-  
+      const user = isStudent
+        ? await prisma.student.findUnique({where: { id: memberId}, select: { firstname: true, midname: true, lastname: true }})
+        : await prisma.employee.findUnique({where: { id: memberId}, select: { firstname: true, midname: true, lastname: true }});
+      
       const club = await prisma.club.findUnique({
         where: { id: Number(clubId) },
         select: { name: true, owner_id: true },
       });
   
-      if (!student || !club) {
+      if (!user || !club) {
         return res
           .status(400)
-          .json({ success: false, message: "Student or club not found" });
+          .json({ success: false, message: "Member or club not found" });
       }
   
       const adminId = club.owner_id;
-      const studentName = `${student.firstname} ${student.lastname}`;
+      const memberName = isStudent 
+      ? `${user.firstname} ${user.midname || ""} ${user.lastname}` 
+      : `Prof. ${user.firstname} ${user.midname || ""} ${user.lastname}`;
       const clubName = club.name;
-  
-      await prisma.club_notification.create({
-        data: {
-          recipient_id: adminId,
-          sender_id: studentId,
-          club_id: Number(clubId),
-          type: "Join Request",
-          message: `${studentName} sent a request to join the club ${clubName}`,
-          is_read: false,
-        },
-      });
-  
+      
+      // Check that sender_id exists before creating notification
+  //   const senderExists = isStudent
+  //   ? await prisma.student.findUnique({ where: { id: memberId } })
+  //   : await prisma.employee.findUnique({ where: { id: memberId } });
+
+  // if (!senderExists) {
+  //   return res.status(400).json({ success: false, message: "Sender not found in database" });
+  // }
+
+      // await prisma.club_notification.create({
+      //   data: {
+      //     recipient_id: adminId,
+      //     sender_id: memberId,
+      //     club_id: Number(clubId),
+      //     type: "Join Request",
+      //     message: `${memberName} sent a request to join the club ${clubName}`,
+      //     is_read: false,
+      //   },
+      // });
       return res
         .status(200)
         .json({ success: true, message: "Join request sent" });
@@ -91,6 +103,15 @@ export const requestToJoinClub = async (req, res) => {
             select: {
               id: true,
               firstname: true,
+              midname: true,
+              lastname: true,
+            },
+          },
+          employee: {
+            select: {
+              id: true,
+              firstname: true,
+              midname: true,
               lastname: true,
             },
           },
@@ -124,6 +145,7 @@ export const requestToJoinClub = async (req, res) => {
         },
         include: {
           student: true,  // Including student info to access the sender's data
+          employee: true,
         },
       });
   
@@ -132,7 +154,8 @@ export const requestToJoinClub = async (req, res) => {
       }
   
       // Update the member's status
-      const updatedMember = await prisma.club_member.update({
+      // const updatedMember = await prisma.club_member.update({
+      await prisma.club_member.update({
         where: {
           id: member.id,
         },
@@ -142,23 +165,23 @@ export const requestToJoinClub = async (req, res) => {
       });
   
       // Check if the sender exists and get the sender's ID
-      const senderId = member.student ? member.student.id : null;
+      // const senderId = member.student ? member.student.id : null;
   
-      if (!senderId) {
-        return res.status(400).json({ success: false, message: "Sender not found" });
-      }
+      // if (!senderId) {
+      //   return res.status(400).json({ success: false, message: "Sender not found" });
+      // }
   
       // Create notification for the request's status update
-      await prisma.club_notification.create({
-        data: {
-          recipient_id: senderId,  // Notification goes to the member who made the request
-          sender_id: senderId,  // Sender is the student who made the original request
-          club_id: Number(clubId),
-          type: status === "Accepted" ? "Request Accepted" : "Request Rejected",
-          message: `Your request to join the club has been ${status.toLowerCase()}.`,
-          is_read: false,
-        },
-      });
+      // await prisma.club_notification.create({
+      //   data: {
+      //     recipient_id: senderId,  // Notification goes to the member who made the request
+      //     sender_id: senderId,  // Sender is the student who made the original request
+      //     club_id: Number(clubId),
+      //     type: status === "Accepted" ? "Request Accepted" : "Request Rejected",
+      //     message: `Your request to join the club has been ${status.toLowerCase()}.`,
+      //     is_read: false,
+      //   },
+      // });
   
       // Optionally, delete the member if the request was declined
       if (status === "Rejected") {
