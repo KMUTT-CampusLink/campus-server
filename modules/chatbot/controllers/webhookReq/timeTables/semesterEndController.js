@@ -11,12 +11,12 @@ export const semesterEndController = async (req, res) => {
         `;
 
         if (!semester) {
-            return res.json( `Sorry, we could not find any information for the semester "${semesterName}".` );
+            return `Sorry, we could not find any information for the semester "${semesterName}".`;
         }
 
-        res.json( `The end date for the semester ${semester[0].name} is ${semester[0].end_date}.` );
+        return `The end date for the semester ${semester[0].name} is ${semester[0].end_date}.`;
     } catch (error) {
         console.error("Error fetching semester end date: " + error);
-        res.status(500).json({ error: "Failed to fetch semester end date" });
+        return "Failed to fetch semester end date";
     }
 };

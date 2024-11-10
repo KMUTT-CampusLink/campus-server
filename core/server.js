@@ -41,7 +41,6 @@ app.use(express.json());
 
 // all routing
 app.use("/api/users", userRouter);
-
 app.get("/api/authorize", verifyAccessToken, (req, res) => {
   return res.status(200).json({
     condition: "success",
@@ -55,7 +54,7 @@ app.get("/api/authorize", verifyAccessToken, (req, res) => {
 app.use("/api/regis", verifyAccessToken, regisRouter);
 app.use("/api/attend", attendRouter);
 app.use("/api/security", secureRouter);
-app.use("/api/botastra", botRouter);
+app.use("/api/botastra", verifyAccessToken, botRouter);
 app.use("/api/clubs", clubRouter);
 app.use("/api/employ", employRouter);
 app.use("/api/library", libRouter);
@@ -64,7 +63,7 @@ app.use("/api/courses", verifyAccessToken, courseRouter);
 app.use("/api/exams", examRouter);
 app.use("/api/parking", parkRouter);
 app.use("/api/payment", paymentRouter);
-app.use("/api/transport", transRouter);
+app.use("/api/transport", verifyAccessToken, transRouter);
 
 app.listen(port, () =>
   console.log(`Application started on port ${process.env.HOSTNAME}:${port}`)

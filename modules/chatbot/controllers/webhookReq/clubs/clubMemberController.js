@@ -1,7 +1,6 @@
 import prisma from "../../../../../core/db/prismaInstance.js";
 
-export const clubMemberController = async (req, res) => {
-    const { name: clubName } = req.query;
+export const clubMemberController = async (clubName) => {
   try {
     
     const clubs = await prisma.$queryRaw`
@@ -11,6 +10,9 @@ export const clubMemberController = async (req, res) => {
       Group by c1.name;
     `;
     let fulfillment = "";
+    if(clubs.length == 0){
+      return `There is no ${clubName} at the school.`;
+    }
     clubs.map((club) => {
       fulfillment += `The club "${club.name}" has ${club.member_count} members.\n`;
     });
