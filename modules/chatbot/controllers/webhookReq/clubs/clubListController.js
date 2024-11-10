@@ -1,7 +1,7 @@
 import prisma from "../../../../../core/db/prismaInstance.js";
 
 export const clubListController = async (req,res) => {
-    //const { name: clubsName } = req.query;  
+    //const { name: clubsName } = req.query;
   try {
     const clubs = await prisma.$queryRaw`
             SELECT name

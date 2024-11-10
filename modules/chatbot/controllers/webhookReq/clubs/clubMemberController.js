@@ -1,9 +1,8 @@
 import prisma from "../../../../../core/db/prismaInstance.js";
 
-export const clubMemberController = async (req, res) => {
-    const { name: clubName } = req.query;
+export const clubMemberController = async (clubName) => {
+  console.log(true);
   try {
-    
     const clubs = await prisma.$queryRaw`
       Select count(*) as member_count,c1.name
       From club as c1,club_member as c2

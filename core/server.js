@@ -1,9 +1,9 @@
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
+import { verifyAccessToken } from "../modules/registration/middleware/jwtHandler.js";
 import { corsConfig } from "./config/corsConfig.js";
 import { logger } from "./middleware/logger.js";
-// import { verifyAccessToken } from "../modules/registration/middleware/jwtHandler.js";
 
 // routes
 import { attendRouter } from "../modules/attendance/routes/attendRouter.js";

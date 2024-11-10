@@ -8,7 +8,6 @@ export const requirecourseController = async (req, res) => {
       Select c.name as coursename--p.name as programname
       From course as c,program as p
       Where c.program_id=p.id and p.name = ${progName}
-     
     `;
     
     let fulfillment = `The required course for  "${progName}" are. \n`;

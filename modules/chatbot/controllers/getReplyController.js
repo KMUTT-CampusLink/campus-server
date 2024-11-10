@@ -1,4 +1,4 @@
-import {SessionsClient} from "@google-cloud/dialogflow-cx";
+import { SessionsClient } from "@google-cloud/dialogflow-cx";
 import prisma from "../../../core/db/prismaInstance.js";
 
 const client = new SessionsClient({
@@ -29,9 +29,8 @@ const detectIntentText = async(projectId, inputText, sessionId) => {
 
   try {
     const [response] = await client.detectIntent(request);
-    // console.log(response);
-    const params = response.queryResult.parameters?.fields 
-    ? Object.values(response.queryResult.parameters.fields) 
+    const params = response.queryResult.parameters?.fields
+    ? Object.values(response.queryResult.parameters.fields)
     : [];
     const responseMessages = response.queryResult.responseMessages;
     let responseText = '';
@@ -42,7 +41,7 @@ const detectIntentText = async(projectId, inputText, sessionId) => {
       }
     });
     let nextQues = [];
-    if(response.queryResult.match.matchType !== 'NO_MATCH' || response.queryResult.currentPage.displayName === 'Start Page'){
+    if(response.queryResult.match.matchType !== 'NO_MATCH' && response.queryResult.currentPage.displayName !== 'Start Page'){
       await prisma.next_question.upsert({
         where: {
           page_name_params_next_question: {
@@ -62,7 +61,7 @@ const detectIntentText = async(projectId, inputText, sessionId) => {
         })
       }else parameters = "-";
       await prisma.page_req_count.upsert({
-        where: { 
+        where: {
           page_name_params:{
             page_name: prevPage,
             params: parameters
@@ -98,4 +97,5 @@ const detectIntentText = async(projectId, inputText, sessionId) => {
   }
 }
 
-export {detectIntentText};
+export { detectIntentText };
+
