@@ -1,12 +1,11 @@
-export default function errorHandler(fn) {
-  return async function (req, res, next) {
-    try {
-      await fn(req, res, next);
-    } catch (error) {
-      console.error(error);
-      res
-        .status(500)
-        .json({ error: `Internal server error: ${error.message}` });
+const errorHandler = (fn) => (req, res, next) => {
+  Promise.resolve(fn(req, res, next)).catch((err) => {
+    if (err.code) {
+      res.status(err.code).json({ error: err.message });
+    } else {
+      res.status(500).json({ error: "Internal Server Error:" + err.message });
     }
-  };
-}
+  });
+};
+
+export default errorHandler;
