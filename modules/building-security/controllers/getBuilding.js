@@ -1,13 +1,13 @@
 import prisma from "../../../core/db/prismaInstance.js";
 
-const getReservation = async (req, res) => {
+const getBuilding = async (req, res) => {
   try {
     const queryAllBuildings = await prisma.$queryRaw`
     SELECT *
-    FROM "parking_building"
+    FROM parking_floor
     `;
 
-    const events = await prisma.parking_reservation.findMany();
+    const events = await prisma.building.findMany();
     res.json(events);
   } catch (error) {
     console.error("Error fetching parking events:", error);
@@ -15,4 +15,4 @@ const getReservation = async (req, res) => {
   }
 };
 
-export { getReservation };
+export { getBuilding };
