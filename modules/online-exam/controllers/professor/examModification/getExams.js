@@ -9,7 +9,8 @@ export default async function getExams(req, res) {
               description: true
             }
           });          
-        return res.json(exams);
+          console.log(exams);
+          return res.json(exams);
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: error.message });
