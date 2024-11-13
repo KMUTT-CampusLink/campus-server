@@ -26,6 +26,8 @@ const verifyAccessToken = (req, res, next) => {
       id: decoded.id,
       campus_email: decoded.campus_email,
       role: decoded.role,
+      studentId: decoded.studentId,
+      empId: decoded.empId
     };
     next();
   } catch (error) {
