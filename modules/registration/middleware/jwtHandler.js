@@ -20,11 +20,14 @@ const verifyAccessToken = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.cookies.token = token;
     req.token = token;
     req.user = {
       id: decoded.id,
       campus_email: decoded.campus_email,
       role: decoded.role,
+      studentId: decoded.studentId,
+      empId: decoded.empId
     };
     next();
   } catch (error) {
