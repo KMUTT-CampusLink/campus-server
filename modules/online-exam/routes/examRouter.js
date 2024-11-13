@@ -18,6 +18,7 @@ import getStudentData from "../controllers/professor/studentScoring/getStudentDa
 import getQuestionScore from "../controllers/professor/studentScoring/getQuestionScore.js";
 import getStudentScoreById from "../controllers/professor/studentScoring/getStudentScoreById.js";
 import updateStudentScore from "../controllers/professor/studentScoring/updateStudentScore.js";
+import updateExamAnnouncement from "../controllers/professor/examModification/updateExamAnnoucement.js";
 
 import announceScore from "../controllers/professor/studentScoring/announceScore.js";
 import dashboard from "../controllers/professor/studentScoring/dashboard.js";
@@ -64,7 +65,7 @@ examRouter.get("/professor/getStudentData", getStudentData);
 examRouter.get("/professor/getQuestionScore", getQuestionScore);
 examRouter.get("/professor/getStudentScoreById", getStudentScoreById);
 examRouter.put("/professor/updateStudentScore", updateStudentScore);
-
+examRouter.put("/professor/updateExamAnnouncement", updateExamAnnouncement);
 //student router
 examRouter.get("/student/getAllExam", getAllExam);
 examRouter.get("/student/getHistoryExams", getHistoryExams);
