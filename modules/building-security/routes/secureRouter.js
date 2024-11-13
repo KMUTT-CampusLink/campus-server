@@ -8,7 +8,7 @@ import { getMaintenanceList } from "../controllers/getMaintenanceList.js";
 import { addMaintenanceRequest } from "../controllers/addMaintenanceList.js";
 import { addLostAndFoundList } from "../controllers/addLostAndFoundList.js";
 import { updateLostAndFoundList } from "../controllers/updateLostAndFoundList.js";
-import { deleteReturned } from "../controllers/deleteReturned.js";
+// import { deleteReturned } from "../controllers/deleteReturned.js";
 const secureRouter = Router();
 
 // create routes here
@@ -24,6 +24,6 @@ secureRouter.get("/MaintenanceList", getMaintenanceList);
 secureRouter.post("/addMaintenanceList", addMaintenanceRequest);
 secureRouter.post("/addLostAndFoundList", addLostAndFoundList);
 secureRouter.patch("/updateStatus/:id", updateLostAndFoundList);
-secureRouter.delete("/deleteReturned", deleteReturned);
+// secureRouter.delete("/deleteReturned", deleteReturned);
 
 export { secureRouter };
