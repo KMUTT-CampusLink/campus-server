@@ -1,5 +1,7 @@
 import { Router } from "express";
 
+import validateRoles from "../middleware/validateRoles.js";
+
 // professor import
 import createExam from "../controllers/professor/examModification/createExam.js";
 import getExamById from "../controllers/professor/examModification/getExamById.js";
@@ -43,6 +45,8 @@ const examRouter = Router();
 examRouter.get("/", (req, res) => {
   return res.send("Online Exam");
 });
+
+examRouter.get("/validateRoles", validateRoles);
 
 //professor router
 examRouter.post("/professor/createExam", createExam);
