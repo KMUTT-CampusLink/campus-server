@@ -10,7 +10,7 @@ export const studentInfoController = async (req, res) => {
         s.firstname AS firstName,
         s.lastname AS lastName,
         p.name AS programName,
-        p.price AS programPrice,
+        d.price AS programPrice,
         f.name AS facultyName
       FROM 
         student s
