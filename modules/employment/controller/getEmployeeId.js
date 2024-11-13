@@ -9,9 +9,11 @@ const getEmployeeById = async (req, res) => {
       include: {
         faculty: {
           select: {
+            id: true,
             name: true,
           },
         },
+        address: true,
       },
     });
 

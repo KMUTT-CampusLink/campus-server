@@ -22,6 +22,7 @@ const getStudentsId = async (req, res) => {
             name: true,
           },
         },
+        address: true ,
       },
     });
 
