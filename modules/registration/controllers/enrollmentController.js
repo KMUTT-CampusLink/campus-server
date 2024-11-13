@@ -109,6 +109,17 @@ export const deleteEnrollmentDetail = async (req, res) => {
       });
     }
 
+    // Update seats left in the sections table
+    await prisma.$queryRaw`
+    UPDATE section
+    SET seat_left = seat_left + 1
+    WHERE id = (
+        SELECT section_id 
+        FROM enrollment_detail 
+        WHERE id = ${Number(selectedEnrollmentId)}
+    );
+    `;
+
     // Proceed to delete the enrollment detail if the student has more than one section
     await prisma.$executeRaw`
     DELETE FROM enrollment_detail 
