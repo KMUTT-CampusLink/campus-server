@@ -6,6 +6,6 @@ const devAttendRouter = Router();
 
 devAttendRouter
   .get("/setting/:section_id", getSetting)
-  .post("/setting/:section_id", updateSetting);
+  .post("/setting/:attend_id", updateSetting);
 
 export { devAttendRouter };

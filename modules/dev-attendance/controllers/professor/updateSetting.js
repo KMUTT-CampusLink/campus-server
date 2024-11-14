@@ -3,13 +3,13 @@ import moment from "moment-timezone";
 
 const updateSetting = async (req, res) => {
   try {
-    const { section_id } = req.params;
+    const { attend_id } = req.params;
     const data = req.body;
 
     // update the record for the given section id
     await prisma.dev_attendance.update({
       where: {
-        section_id: parseInt(section_id),
+        id: attend_id,
       },
       data: {
         due_at: new Date(moment.utc() + parseInt(data.expire) * 60 * 1000),

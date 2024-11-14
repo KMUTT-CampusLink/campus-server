@@ -10,16 +10,6 @@ const getSetting = async (req, res) => {
       where: {
         section_id: parseInt(section_id),
       },
-      select: {
-        due_at: true,
-        expired_at: true,
-        late_after: true,
-        absent_after: true,
-        latitude: true,
-        longitude: true,
-        use_location: true,
-        id: true,
-      },
     });
 
     if (!data) {
