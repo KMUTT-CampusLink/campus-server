@@ -1,6 +1,6 @@
 import prisma from "../../../core/db/prismaInstance.js";
-import bcrypt from "bcrypt"; // Import bcrypt for password hashing
-import crypto from "crypto"; // Import crypto for generating random passwords
+import bcrypt from "bcrypt"; 
+import crypto from "crypto";
 
 const createEmployee = async (req, res) => {
   const {
@@ -46,7 +46,6 @@ const createEmployee = async (req, res) => {
         .json({ error: "Invalid salary format. Expected a number or null." });
     }
 
-    // Use a transaction to ensure all operations are executed together
     const result = await prisma.$transaction(async (prisma) => {
       const newAddress = await prisma.address.create({
         data: {
@@ -78,7 +77,6 @@ const createEmployee = async (req, res) => {
           date_of_birth: new Date(date_of_birth),
           gender,
           identification_no,
-          passport_no,
           user_id: newUser.id,
           faculty_id: parseInt(faculty_id, 10),
           position,

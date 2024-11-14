@@ -1,8 +1,8 @@
 import prisma from "../../../core/db/prismaInstance.js";
 
-const getFaculties = async (req, res) => {
+const getProgramName = async (req, res) => {
   try {
-    const faculties = await prisma.faculty.findMany({
+    const program = await prisma.degree.findMany({
       select: {
         id: true,
         name: true,
@@ -11,11 +11,11 @@ const getFaculties = async (req, res) => {
         id: "asc",
       },
     });
-    res.json(faculties);
+    res.json(program);
   } catch (error) {
-    console.error("Error fetching faculties:", error);
+    console.error("Error fetching programs:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
-export default getFaculties;
+export default getProgramName;

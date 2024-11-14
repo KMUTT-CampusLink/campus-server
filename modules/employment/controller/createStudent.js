@@ -1,8 +1,9 @@
 import prisma from "../../../core/db/prismaInstance.js";
-import bcrypt from "bcrypt"; // Import bcrypt for password hashing
-import crypto from "crypto"; // Import crypto for generating random passwords
+import bcrypt from "bcrypt";
+import crypto from "crypto";
+import { connect } from "http2";
 
-const createEmployee = async (req, res) => {
+const createStudent = async (req, res) => {
   const {
     campus_email,
     personal_email,
@@ -15,17 +16,51 @@ const createEmployee = async (req, res) => {
     date_of_birth,
     gender,
     identification_no,
-    program,
-    degree,
-    job_title,
-    salary,
+    degree_id,
+    semester_id,
     sub_district,
     district,
     province,
     postal_code,
   } = req.body;
 
+  const degree_Id = parseInt(degree_id, 10);
+
   try {
+    const semester = await prisma.semester.findUnique({
+      where: { id: parseInt(semester_id) },
+    });
+
+    if (!semester) {
+      return res.status(400).json({ error: "Semester not found." });
+    }
+
+    const uniBatch = await prisma.uni_batch.findFirst({
+      where: {
+        academic_year: semester.academic_year,
+      },
+      select: { id: true },
+    });
+
+    if (!uniBatch) {
+      return res.status(400).json({ error: "University batch not found." });
+    }
+
+    const programBatch = await prisma.program_batch.findFirst({
+      where: {
+        degree_id: degree_Id,
+        uni_batch_id: uniBatch.id,
+      },
+      select: { id: true },
+    });
+
+    if (!programBatch) {
+      return res.status(400).json({
+        error:
+          "Program batch not found for the specified degree and university batch.",
+      });
+    }
+
     const generatedCampusEmail = `${firstname.toLowerCase()}.${lastname.toLowerCase()}@campus.edu`;
     const campusEmailToUse = campus_email || generatedCampusEmail;
 
@@ -37,23 +72,14 @@ const createEmployee = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(passwordToUse, 10);
 
-    const salaryToUse = salary ? parseInt(salary, 10) : null;
-
-    if (salary && isNaN(salaryToUse)) {
-      return res
-        .status(400)
-        .json({ error: "Invalid salary format. Expected a number or null." });
-    }
-
-    // Use a transaction to ensure all operations are executed together
     const result = await prisma.$transaction(async (prisma) => {
       const newAddress = await prisma.address.create({
         data: {
-          address: address,
-          sub_district: sub_district,
-          district: district,
-          province: province,
-          postal_code: postal_code,
+          address,
+          sub_district,
+          district,
+          province,
+          postal_code,
         },
       });
 
@@ -62,36 +88,59 @@ const createEmployee = async (req, res) => {
           campus_email: campusEmailToUse,
           personal_email: personalEmailToUse,
           password: hashedPassword,
-          role: job_title,
+          role: "Student",
           is_activated: true,
         },
       });
 
-      const newEmployee = await prisma.employee.create({
+      const newStudent = await prisma.student.create({
         data: {
           firstname,
           midname,
           lastname,
           phone,
-          address_id: newAddress.id,
+          address: {
+            connect: {
+              id: newAddress.id,
+            },
+          },
           date_of_birth: new Date(date_of_birth),
           gender,
           identification_no,
-          passport_no,
-          user_id: newUser.id,
-          faculty_id,
-          position,
-          job_title,
-          salary: salaryToUse,
+          user: {
+            connect: {
+              id: newUser.id,
+            },
+          },
+          degree: {
+            connect: {
+              id: degree_Id,
+            },
+          },
+          semester: {
+            connect: {
+              id: parseInt(semester_id, 10),
+            },
+          },
+          uni_batch: {
+            connect: {
+              id: uniBatch.id,
+            },
+          },
+          program_batch: {
+            connect: {
+              id: programBatch.id,
+            },
+          },
         },
       });
 
-      return { newEmployee, newUser, newAddress };
+      return { newStudent, newUser, newAddress };
     });
 
     res.json({
-      message: "Employee created successfully",
-      employee: result.newEmployee,
+      message: "Student created successfully",
+      student: result.newStudent,
       user: result.newUser,
       address: result.newAddress,
     });
@@ -101,4 +150,4 @@ const createEmployee = async (req, res) => {
   }
 };
 
-export default createEmployee;
+export default createStudent;

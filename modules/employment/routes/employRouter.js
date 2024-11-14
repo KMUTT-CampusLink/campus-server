@@ -8,6 +8,10 @@ import getStudents from "../controller/getStudents.js";
 import getStudentsId from "../controller/getStudentId.js";
 import deleteStudent from "../controller/deleteStudent.js";
 import getFaculties from "../controller/getFalcuty.js";
+import getProgramName from "../controller/getProgramName.js";
+import getSemester from "../controller/getSemester.js";
+import createStudent from "../controller/createStudent.js";
+import updateStudent from "../controller/updateStudent.js";
 
 const employRouter = Router();
 
@@ -19,11 +23,13 @@ employRouter.post("/updateEmp/:id", updateEmployee);
 employRouter.delete("/deleteEmp/:id", deleteEmployee);
 
 employRouter.get("/getStu/", getStudents);
-employRouter.post("/postStu", createEmployee);
+employRouter.post("/postStu", createStudent);
 employRouter.get("/getStu/:id", getStudentsId);
-employRouter.post("/updateStu/:id", updateEmployee);
+employRouter.post("/updateStu/:id", updateStudent);
 employRouter.delete("/deleteStu/:id", deleteStudent);
 
 employRouter.get("/getFaculty", getFaculties);
+employRouter.get("/getProgramName", getProgramName);
+employRouter.get("/getSemester", getSemester);
 
 export { employRouter };

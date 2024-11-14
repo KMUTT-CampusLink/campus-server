@@ -35,7 +35,7 @@ const deleteStudent = async (req, res) => {
       message: "Student and associated user deleted successfully",
     });
   } catch (error) {
-    console.error(error); // Log the error for debugging
+    console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
