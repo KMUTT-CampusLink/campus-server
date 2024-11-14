@@ -58,29 +58,28 @@ export const getAnnouncementsByClubId = async (req, res) => {
 };
 
 export const createAnnouncement = async (req, res) => {
-  const { announcementTitle, announcementContent, eventDateTime, eventPlace } = req.body;
+  const { announcementTitle, announcementContent, eventDate, eventTimeFrom, eventTimeTo, eventPlace } = req.body;
   const { clubId } = req.params;
   const memberId = 1028;
 
+  const startDateTime = `${eventDate} ${eventTimeFrom}:00`;
+  const endDateTime = `${eventDate} ${eventTimeTo}:00`;
+
   // Debugging logs
+  console.log("Inserting DateTime as:", { startDateTime, endDateTime });
+
   console.log("Received data:", {
     announcementTitle,
     announcementContent,
-    eventDateTime,
+    eventDate,
     eventPlace,
   });
 
   try {
-    const newAnnouncement = await prisma.club_announcement.create({
-      data: {
-        title: announcementTitle,
-        content: announcementContent,
-        date: new Date(eventDateTime), // Ensure date parsing here
-        location: eventPlace,
-        club_id: parseInt(clubId),
-        member_id: memberId,
-      },
-    });
+    const newAnnouncement = await prisma.$executeRaw`
+      INSERT INTO club_announcement (title, content, date, start_time, end_time, location, club_id, member_id)
+      VALUES (${announcementTitle}, ${announcementContent}, ${eventDate}::date, ${startDateTime}::timestamp, ${endDateTime}::timestamp, ${eventPlace}, ${parseInt(clubId)}, ${memberId});
+    `;
     return res.status(201).json({
       success: true,
       message: "Announcement created successfully.",
@@ -118,5 +117,33 @@ export const toggleAnnouncementPin = async (req, res) => {
   } catch (error) {
       console.error("Error toggling announcement pin status:", error);
       return res.status(500).json({ success: false, message: "Failed to toggle announcement pin status" });
+  }
+};
+
+// Delete an announcement
+export const deleteAnnouncement = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const announcement = await prisma.club_announcement.findUnique({
+      where: { id: parseInt(id) },
+    });
+
+    if (!announcement) {
+      return res.status(404).json({ success: false, message: "Announcement not found" });
+    }
+
+    await prisma.club_announcement.delete({
+      where: { id: parseInt(id) },
+    });
+
+    return res.status(200).json({ success: true, message: "Announcement deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting announcement:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to delete announcement",
+      error: error.message,
+    });
   }
 };

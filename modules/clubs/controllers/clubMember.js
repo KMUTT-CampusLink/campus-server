@@ -104,49 +104,6 @@ export const getClubByMemberId = async (req, res) => {
   }
 };
 
-// export const updateLineID = async (req, res) => {
-//   const { memberId } = req.params;
-//   const { lineID } = req.body;
-
-//   // Validate lineID input
-//   if (!lineID || lineID.trim() === "") {
-//     console.log("Validation failed: Line ID cannot be empty.");
-//     return res.status(400).json({ message: "Line ID cannot be empty." });
-//   }
-
-//   try {
-//     // Log the search criteria
-//     console.log("Searching for member with student_id or employee_id:", memberId);
-
-//     // Look for a club_member entry with either student_id or employee_id matching memberId
-//     const existingMember = await prisma.club_member.findFirst({
-//       where: {
-//         OR: [{ student_id: memberId }, { employee_id: memberId }],
-//       },
-//     });
-
-//     // Log the result of the search
-//     if (!existingMember) {
-//       console.log("Member not found with ID:", memberId);
-//       return res.status(404).json({ message: "Member not found." });
-//     }
-
-//     console.log("Found member:", existingMember);
-
-//     // Update the line_id if the member exists
-//     const updatedMember = await prisma.club_member.updateMany({
-//       where: { id: existingMember.id },
-//       data: { line_id: lineID },
-//     });
-
-//     console.log("Line ID updated successfully for member:", updatedMember);
-//     return res.json({ message: "Line ID updated successfully.", updatedMember });
-//   } catch (error) {
-//     console.error("Error updating line ID:", error);
-//     return res.status(500).json({ error: "Failed to update line ID." });
-//   }
-// };
-
 export const updateLineID = async (req, res) => {
   const { memberId } = req.params;
   const { lineID } = req.body;
