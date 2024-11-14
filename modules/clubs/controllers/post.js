@@ -118,3 +118,30 @@ export const togglePostPin = async (req, res) => {
         });
     }
 };
+
+export const deletePost = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const post = await prisma.club_post.findUnique({
+      where: { id: parseInt(id) },
+    });
+
+    if (!post) {
+      return res.status(404).json({ success: false, message: "Post not found" });
+    }
+
+    await prisma.club_post.delete({
+      where: { id: parseInt(id) },
+    });
+
+    return res.status(200).json({ success: true, message: "Post deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting post:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to delete post",
+      error: error.message,
+    });
+  }
+};
