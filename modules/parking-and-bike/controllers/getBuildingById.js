@@ -21,7 +21,7 @@
 
 // export { getBuildingById };
 
-//เผื่อไอบัสมันกระจอกทำไม่ได้
+//เผื่อ
 
 
 import prisma from "../../../core/db/prismaInstance.js";
@@ -49,11 +49,12 @@ const getBuildingById = async (req, res) => {
                                 'slot_name', s.name,
                                 'slot_status', s.status
                             )
+                            ORDER BY s.id
                         )
                         FROM parking_slot AS s
                         WHERE s.floor_id = f.id
                     )
-                )
+                ) ORDER BY f.id
             ) as floors
             FROM building AS b
             JOIN floor AS f ON f.building_id = b.id

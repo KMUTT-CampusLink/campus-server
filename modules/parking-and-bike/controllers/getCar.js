@@ -4,21 +4,12 @@ const getCar = async (req, res) => {
     const { license_no } = req.params;
 
     try {
-        const car = await prisma.$queryRaw`
-            SELECT id
-            FROM verified_car
-            WHERE ${license_no} = license_no
-        `;
-        console.log(car);
-        
-        if (!car) {
-            return res.status(400).json({ error: `Parking slot with ID ${license_no} does not exist.` });
-        }
-
-        res.json({
-            message: "Verified!",
-            car
+        const car = await prisma.verified_car.findUnique({
+            where: { license_no }
         });
+
+         // if there is -true if there isn't -false
+         res.json({ verified: !!car });
 
     } catch (error) {
         console.error("Error fetching car:", error);

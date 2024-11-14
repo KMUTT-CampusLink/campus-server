@@ -7,7 +7,7 @@ const deleteReservation = async (req, res) => {
         //find id and to get parking_slot_id
         const reservation = await prisma.parking_reservation.findUnique({
             where: {
-                id: parseInt(reservation_id),
+                id: parseInt(reservation_id)
             },
         });
 
@@ -15,7 +15,7 @@ const deleteReservation = async (req, res) => {
             return res.status(404).json({ error: `Reservation with ID ${reservation_id} does not exist.` });
         }
 
-        const { parking_slot_id } = reservation;
+        const { parking_slot_id } = reservation; // to connect parking_reservation and parking_slot
         
         const deletedReservation = await prisma.parking_reservation.delete({
             where: {
