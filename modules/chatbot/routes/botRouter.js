@@ -7,11 +7,13 @@ import { programsListController } from "../controllers/webhookReq/programs/progr
 import { clubListController } from "../controllers/webhookReq/clubs/clubListController.js";
 import { tutionFeeController } from "../controllers/webhookReq/programs/tutionFeeController.js";
 import { requirecourseController } from "../controllers/webhookReq/programs/requiredCourseController.js";
+import { professorController } from "../controllers/webhookReq/programs/professorController.js";
 
 const botRouter = Router();
 
 botRouter.post("/webhook", webhookReqController);
 
+botRouter.get("/professorname", professorController);
 botRouter.post("/message", receiveMessageController);
 botRouter.get("/faqs", faqController);
 botRouter.get("/clublist",clubListController);

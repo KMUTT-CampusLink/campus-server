@@ -14,10 +14,10 @@ export const tutionFeeController = async(programName, degreeLevel)=>{
             // res.status(404).json({ message: `Sorry, we could not find any information for the program ${programName}.` });
            return `Sorry, we could not find any information for the program ${programName}.`;
         }
-        return `You can study ${tutionfee[0].programname} program. The tuition fee for ${tutionfee[0].programname} (${tutionfee[0].degree_level}) is $${tutionfee[0].price}.`;
         // res.status(200).json({
         //     message: `You can study the ${tutionfee[0].programname} program. The tuition fee for ${tutionfee[0].programname} (${tutionfee[0].degree_level}) is $${tutionfee[0].price}.`
         // });
+        return `You can study ${tutionfee[0].programname} program. The tuition fee for ${tutionfee[0].programname} (${tutionfee[0].degree_level}) is $${tutionfee[0].price}.`;
     }
 
     catch(error){

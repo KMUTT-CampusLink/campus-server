@@ -10,7 +10,7 @@ export const requirecourseController = async (req, res) => {
       Where c.program_id=p.id 
       AND   p.id=d.program_id
       And p.name = ${progName}
-      And d.degree_level=${degreeLevel}::education_level_enum;   
+      And d.degree_level=${degreeLevel}::education_level_enum;
     `;
     
     let fulfillment = `The required course for  "${progName}" (${degreeLevel}) are. \n`;
@@ -19,11 +19,11 @@ export const requirecourseController = async (req, res) => {
     });
     
     //console.log(fulfillment);
-    //return fulfillment;
     res.status(200).json({fulfillment});
+    return fulfillment;
   } catch (error) {
     console.error("Error fetching required course: " + error);
    // return "Failed to fetch required courses";
-   res.status(500).json({message:"Failed to fetch required course"});
+  res.status(500).json({message:"Failed to fetch required course"});
   }
 };

@@ -6,6 +6,7 @@ import { requirecourseController } from "./webhookReq/programs/requiredCourseCon
 import { semesterEndController } from "./webhookReq/timeTables/semesterEndController.js";
 import { semesterStartController } from "./webhookReq/timeTables/semesterStartController.js";
 import { tutionFeeController } from "./webhookReq/programs/tutionFeeController.js";
+import { professorController } from "./webhookReq/programs/professorController.js";
 
 export const webhookReqController = async(req, res) => {
   const pageName = req.body.pageInfo.displayName;
@@ -32,6 +33,8 @@ export const webhookReqController = async(req, res) => {
   }else if(pageName === "Member"){
     const clubName = req.body.sessionInfo.parameters.clubs.trim();
     result = await clubMemberController(clubName);
+  }else if(PageName === "Course Professor"){
+    result = await professorController();
   }
 
   res.json({

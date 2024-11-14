@@ -12,7 +12,7 @@ let parameters = "-";
 const detectIntentText = async(projectId, inputText, sessionId, bearerToken) => {
   const location = process.env.BOT_LOCATION; // or the specific location of your agent
   const agentId = process.env.BOT_AGENT_ID;
-
+  
   const sessionPath = client.projectLocationAgentSessionPath(
     projectId, location, agentId, sessionId
   );
