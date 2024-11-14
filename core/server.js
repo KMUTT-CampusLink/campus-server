@@ -20,6 +20,7 @@ import { parkRouter } from "../modules/parking-and-bike/routes/parkRouter.js";
 import { paymentRouter } from "../modules/payment/routes/paymentRouter.js";
 import { regisRouter } from "../modules/registration/routes/regisRouter.js";
 import { transRouter } from "../modules/transportation/routes/transRouter.js";
+import { devAttendRouter } from "../modules/dev-attendance/routes/devAttendRouter.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -64,7 +65,8 @@ app.use("/api/exams", examRouter);
 app.use("/api/parking", parkRouter);
 app.use("/api/payment", paymentRouter);
 app.use("/api/transport", verifyAccessToken, transRouter);
+app.use("/api/dev-attend", devAttendRouter);
 
 app.listen(port, () =>
-  console.log(`Application started on port ${process.env.HOSTNAME}:${port}`)
+  console.log(`[server] running on port ${process.env.HOSTNAME}:${port}`)
 );
