@@ -50,30 +50,29 @@ export const requestToJoinClub = async (req, res) => {
       }
   
       const adminId = club.owner_id;
+      const adminIsStudent = adminId.startsWith("STU");
       const memberName = isStudent 
-      ? `${user.firstname} ${user.midname || ""} ${user.lastname}` 
-      : `Prof. ${user.firstname} ${user.midname || ""} ${user.lastname}`;
+      ? `${user.firstname || ""} ${user.midname || ""} ${user.lastname || ""}` 
+      : `Prof. ${user.firstname || ""} ${user.midname || ""} ${user.lastname || ""}`;
       const clubName = club.name;
       
       // Check that sender_id exists before creating notification
-  //   const senderExists = isStudent
-  //   ? await prisma.student.findUnique({ where: { id: memberId } })
-  //   : await prisma.employee.findUnique({ where: { id: memberId } });
+    const senderExists = isStudent
+    ? await prisma.student.findUnique({ where: { id: memberId } })
+    : await prisma.employee.findUnique({ where: { id: memberId } });
 
-  // if (!senderExists) {
-  //   return res.status(400).json({ success: false, message: "Sender not found in database" });
-  // }
-
-      // await prisma.club_notification.create({
-      //   data: {
-      //     recipient_id: adminId,
-      //     sender_id: memberId,
-      //     club_id: Number(clubId),
-      //     type: "Join Request",
-      //     message: `${memberName} sent a request to join the club ${clubName}`,
-      //     is_read: false,
-      //   },
-      // });
+  if (!senderExists) {
+    return res.status(400).json({ success: false, message: "Sender not found in database" });
+  }
+      const notificationData = {
+        club_id: Number(clubId),
+        type: "Join Request",
+        message: `${memberName} sent a request to join the club ${clubName}`,
+        is_read: false,
+        ...(isStudent ? { stu_sender: memberId } : { emp_sender: memberId }),
+        ...(adminIsStudent ? { stu_recipient: adminId } : { emp_recipient: adminId }),
+      };
+        await prisma.club_notification.create({ data: notificationData });
       return res
         .status(200)
         .json({ success: true, message: "Join request sent" });
@@ -152,6 +151,18 @@ export const requestToJoinClub = async (req, res) => {
       if (!member) {
         return res.status(404).json({ success: false, message: "Club member not found" });
       }
+
+      const club = await prisma.club.findUnique({
+        where: { id: Number(clubId) },
+        select: { owner_id: true },
+      });
+
+      if (!club || !club.owner_id) {
+        return res.status(404).json({ success: false, message: "Club admin not found" });
+      }
+
+      const adminId = club.owner_id;
+      const adminIsStudent = adminId.startsWith("STU");
   
       // Update the member's status
       // const updatedMember = await prisma.club_member.update({
@@ -165,11 +176,8 @@ export const requestToJoinClub = async (req, res) => {
       });
   
       // Check if the sender exists and get the sender's ID
-      // const senderId = member.student ? member.student.id : null;
-  
-      // if (!senderId) {
-      //   return res.status(400).json({ success: false, message: "Sender not found" });
-      // }
+      const recipientId = member.student ? member.student.id : member.employee.id;
+      const recipientIsStudent = !!member.student;
   
       // Create notification for the request's status update
       // await prisma.club_notification.create({
@@ -182,6 +190,17 @@ export const requestToJoinClub = async (req, res) => {
       //     is_read: false,
       //   },
       // });
+      const notificationData = {
+        club_id: Number(clubId),
+        type: status === "Accepted" ? "Request Accepted" : "Request Rejected",
+        message: `Your request to join the club has been ${status.toLowerCase()}.`,
+        is_read: false,
+        ...(recipientIsStudent ? { stu_recipient: recipientId } : { emp_recipient: recipientId }),
+        ...(adminIsStudent ? { stu_sender: adminId } : { emp_sender: adminId }),
+      };
+
+        await prisma.club_notification.create({ data: notificationData });
+
   
       // Optionally, delete the member if the request was declined
       if (status === "Rejected") {
