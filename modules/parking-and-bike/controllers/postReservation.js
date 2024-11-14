@@ -121,6 +121,7 @@ const postReservation = async (req, res) => {
         console.log( "Reserve at: " + new_reserve_time + " Expire at: " + expire_time);
 
         const responseData = {
+            reservation_id: postReservation.id,
             car_id: car_id,
             slot_id: parking_slot_id
         };

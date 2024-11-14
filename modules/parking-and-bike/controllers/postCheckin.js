@@ -63,6 +63,7 @@ const postCheckin = async (req, res) => {
         });
 
         const responseData = {
+            reservation_id: reservation_id,
             car_id: reservation.car_id,
             slot_id: reservation.parking_slot_id
         };
