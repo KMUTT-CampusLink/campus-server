@@ -29,7 +29,6 @@ export default async function getStudentReview(req, res) {
         },
       },
     });
-    console.log(studentAns);
     return res.status(200).json(studentAns);
   } catch (error) {
     console.log(error);
