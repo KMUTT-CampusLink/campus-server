@@ -258,3 +258,39 @@ export const updateClubDescription = async (req, res) => {
     });
   }
 };
+
+// Delete a club by ID
+export const deleteClub = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Check if the club exists
+    const club = await prisma.club.findUnique({
+      where: { id: parseInt(id) },
+    });
+
+    if (!club) {
+      return res.status(404).json({ success: false, message: "Club not found" });
+    }
+
+    // Delete related records first (posts, announcements, members)
+    await prisma.club_notification.deleteMany({ where: { club_id: parseInt(id) } });
+    await prisma.club_post.deleteMany({ where: { club_id: parseInt(id) } });
+    await prisma.club_announcement.deleteMany({ where: { club_id: parseInt(id) } });
+    await prisma.club_member.deleteMany({ where: { club_id: parseInt(id) } });
+
+    // Delete the club
+    await prisma.club.delete({
+      where: { id: parseInt(id) },
+    });
+
+    return res.status(200).json({ success: true, message: "Club deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting club:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to delete club",
+      error: error.message,
+    });
+  }
+};
