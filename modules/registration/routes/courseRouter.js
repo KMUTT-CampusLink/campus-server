@@ -14,7 +14,7 @@ courseRouter.get("/", (req, res) => {
 
 courseRouter.get("/search", searchCourses);
 courseRouter.get("/all", getAllCourses);
-courseRouter.get("/:code/section", getSectionByCode);
+courseRouter.get("/:code/section/:semesterId", getSectionByCode);
 courseRouter.get("/:code", getCourseByCode);
 courseRouter.get("/:studentId/active", getActiveCoursesByStudentId);
 
