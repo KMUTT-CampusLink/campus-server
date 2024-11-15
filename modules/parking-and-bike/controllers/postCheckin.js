@@ -1,6 +1,7 @@
 import prisma from "../../../core/db/prismaInstance.js";
 import crypto from "crypto";
 import zlib from "zlib";
+import jwt from "jsonwebtoken";
 
 const ENCRYPTION_KEY = crypto.randomBytes(32);
 const IV_LENGTH = 16;
@@ -17,9 +18,23 @@ function encrypt(data) {
 }
 
 const postCheckin = async (req, res) => {
+    // Extract and verify token
+    const token = req.cookies.token;
+    if (!token) {
+        return res.status(401).json({ error: "Unauthorized access. Token is missing." });
+    }
+
+    let decoded;
+    try {
+        decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (error) {
+        return res.status(401).json({ error: "Unauthorized access. Invalid token." });
+    }
+
     const { reservation_id, checkin_time } = req.body;
 
     try {
+
         const reservation = await prisma.parking_reservation.findUnique({
             where: { id: reservation_id },
             include: {
@@ -38,23 +53,25 @@ const postCheckin = async (req, res) => {
 
         if (!reservation) {
             return res.status(400).json({ error: `Reservation with ID ${reservation_id} does not exist.` });
-        } else  if (reservation.status !== 'Reserved') {
+        } else if (reservation.verified_car.user_id !== decoded.id) {
+            return res.status(403).json({ error: "Unauthorized access. You do not own this reservation." });
+        } else if (reservation.status !== 'Reserved') {
             return res.status(400).json({ error: "Cannot check in. The reservation status must be 'Reserved'." });
         }
 
         const reserve_time = new Date(reservation.reserve_time);
-        const parking_until = new Date(reservation.reserve_time.getTime() + 4 * 60 * 60 * 1000); // 4 hours
-        const expire_time = new Date(reserve_time.getTime() + 30 * 60000); // 10000 = 10 sec, 30 * 60000 = 30 min
+        const parking_until = new Date(reservation.reserve_time.getTime() + 4 * 60 * 60 * 1000); // 4 hours from reserve time
+        const expire_time = new Date(reserve_time.getTime() + 30 * 60000); // 30 minutes from reserve time
 
         const today = new Date();
         const [hours, minutes] = checkin_time.split(":").map(Number);
         today.setHours(hours, minutes, 0, 0);
-        const checkinTime = today; // change format from "21:00" to Date
+        const checkinTime = today;
 
         if (checkinTime < reserve_time) {
             return res.status(400).json({ error: "Cannot check in before the reserved time." });
-        } else if(checkinTime > expire_time) {
-            return res.status(400).json({ error: "Cannot check in after 30 minute from reserve time." });
+        } else if (checkinTime > expire_time) {
+            return res.status(400).json({ error: "Cannot check in after 30 minutes from the reserve time." });
         }
 
         await prisma.parking_reservation.update({
@@ -71,8 +88,10 @@ const postCheckin = async (req, res) => {
 
         res.json({
             message: 'QR Checkout created successfully!',
-            QRCode: encryptedData ,
+            QRCode: encryptedData,
             reservation_id: reservation_id,
+            user_id: decoded.id,
+            car_id: reservation.car_id,
             license_no: reservation.verified_car.license_no,
             building_name: reservation.parking_slot.floor.building.name,
             floor_name: reservation.parking_slot.floor.name,

@@ -1,6 +1,7 @@
 import prisma from "../../../core/db/prismaInstance.js";
 import crypto from "crypto";
 import zlib from "zlib";
+import jwt from "jsonwebtoken";
 
 const ENCRYPTION_KEY = crypto.randomBytes(32);
 const IV_LENGTH = 16;
@@ -17,12 +18,33 @@ function encrypt(data) {
 }
 
 const postReservation = async (req, res) => {
-    const { car_id, parking_slot_id, reserve_time } = req.body;
+    const token = req.cookies.token;
+    if (!token) {
+        return res.status(401).json({ error: "Unauthorized access. Token is missing." });
+    }
+
+    let decoded;
+    try {
+        decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (error) {
+        return res.status(401).json({ error: "Unauthorized access. Invalid token." });
+    }
+
+    const { parking_slot_id, reserve_time } = req.body;
 
     try {
+
+        const verifiedCar = await prisma.verified_car.findFirst({
+            where: { user_id: decoded.id }
+        }); // Is there car id in verified_car
+        
+        if (!verifiedCar) {
+            return res.status(400).json({ error: "Car with the given user ID is not verified." });
+        }
+
         const existingReservation = await prisma.parking_reservation.findFirst({
             where: {
-                car_id: car_id,
+                car_id: verifiedCar.id,
                 status: {
                     in: ['Reserved', 'Occupied']
                 }
@@ -40,11 +62,6 @@ const postReservation = async (req, res) => {
             }
         }); // Is there slot id in parking_slot
 
-        const verifiedCar = await prisma.verified_car.findUnique({
-            where: { id: car_id },
-            select: { license_no: true }
-        }); // Is there car id in verified_car
-
         const today = new Date();
         const [hours, minutes] = reserve_time.split(":").map(Number);
         today.setHours(hours, minutes, 0, 0); //set time hour and min from reserve_time
@@ -61,9 +78,9 @@ const postReservation = async (req, res) => {
         if (new_reserve_time < current_time) {
             return res.status(400).json({ error: "Cannot make a reservation in the past." });
         // }else if (existingReservation) {
-        //     return res.status(400).json({ error: `Car with ID ${car_id} already has an active reservation.` }); // 1 car 1 slot
+        //     return res.status(400).json({ error: `Car with ID ${verifiedCar.id} already has an active reservation.` }); // 1 car 1 slot
         }else if (!verifiedCar) {
-            return res.status(400).json({ error: `Car with ID ${car_id} is not verified.` });
+            return res.status(400).json({ error: `Car with ID ${verifiedCar.id} is not verified.` });
         }else if (!slot) {
             return res.status(400).json({ error: `Parking slot with ID ${parking_slot_id} does not exist.` });
         } else if (!slot.status) {
@@ -72,7 +89,7 @@ const postReservation = async (req, res) => {
 
         const postReservation = await prisma.parking_reservation.create({
             data: {
-                car_id,
+                car_id: verifiedCar.id,
                 parking_slot_id,
                 reserve_time: new_reserve_time
             },
@@ -122,7 +139,7 @@ const postReservation = async (req, res) => {
 
         const responseData = {
             reservation_id: postReservation.id,
-            car_id: car_id,
+            car_id: verifiedCar.id,
             slot_id: parking_slot_id
         };
 
@@ -132,6 +149,8 @@ const postReservation = async (req, res) => {
             message: 'Reservation created successfully!',
             QRCode: encryptedData ,
             reservation_id: postReservation.id,
+            user_id: decoded.id,
+            car_id: verifiedCar.id,
             license_no: verifiedCar.license_no,
             building_name: slot.floor.building.name,
             floor_name: slot.floor.name,
@@ -147,12 +166,3 @@ const postReservation = async (req, res) => {
 };
 
 export { postReservation };
-
-
-// reserve and delete expired reservation
-
-// {
-//     "car_id": 1,
-//     "parking_slot_id": 1006,
-//     "reserve_time": "2024-11-21T23:03:00"
-// }
