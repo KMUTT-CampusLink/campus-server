@@ -193,22 +193,38 @@ export const createClub = async (req, res) => {
 
     for (const memberId of addedMembers) {
       console.log(`Adding member: ${memberId}`);
+      let existingMember = null;
+
       if (memberId.startsWith("STU")) {
+        existingMember = await prisma.club_member.findFirst({
+          where: {
+            student_id: memberId,
+            NOT: { line_id: null }, // Ensure line_id is not null
+          },
+        });
         await prisma.club_member.create({
           data: {
             club_id: newClub.id,
             student_id: memberId,
             is_admin: false,
             status: "Accepted",
+            line_id: existingMember ? existingMember.line_id : null, // Add line_id if it exists
           },
         });
       } else if (memberId.startsWith("EMP")) {
+        existingMember = await prisma.club_member.findFirst({
+          where: {
+            employee_id: memberId,
+            NOT: { line_id: null }, // Ensure line_id is not null
+          },
+        });    
         await prisma.club_member.create({
           data: {
             club_id: newClub.id,
             employee_id: memberId,
             is_admin: false,
             status: "Accepted",
+            line_id: existingMember ? existingMember.line_id : null, // Add line_id if it exists
           },
         });
       } else {
