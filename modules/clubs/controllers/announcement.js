@@ -39,6 +39,8 @@ export const getAnnouncementsByClubId = async (req, res) => {
         title: true,
         content: true,
         date: true,
+        start_time: true,
+        end_time: true,
         location: true,
         is_pinned: true,
         club: {
@@ -145,5 +147,54 @@ export const deleteAnnouncement = async (req, res) => {
       message: "Failed to delete announcement",
       error: error.message,
     });
+  }
+};
+
+// Update an announcement
+export const updateAnnouncement = async (req, res) => {
+  const {id} = req.params;
+  const {
+    title,
+    content,
+    date,
+    start_time = "00:00",
+    end_time = "00:00",
+    location,
+  } = req.body;
+  
+  console.log("Received Data:", { title, content, date, start_time, end_time, location });
+
+  const startDateTime = `${date} ${start_time}:00`;
+  const endDateTime = `${date} ${end_time}:00`;
+
+  try {
+    const existingAnnouncement = await prisma.$queryRaw`
+      SELECT id FROM club_announcement WHERE id = ${parseInt(id)};
+    `;
+
+    if(!existingAnnouncement.length) {
+      return res.status(404).json({ success: false, message: "Announcement not found" });
+    }
+
+    await prisma.$executeRaw`
+      UPDATE club_announcement
+      SET 
+        title = ${title},
+        content = ${content},
+        date = ${date}::date,
+        start_time = ${startDateTime}::timestamp,
+        end_time = ${endDateTime}::timestamp,
+        location = ${location}
+      WHERE id = ${parseInt(id)}
+    `;
+
+    const updatedAnnouncement = await prisma.$queryRaw`
+      SELECT * FROM club_announcement WHERE id = ${parseInt(id)};
+    `;
+
+    return res.status(200).json({ success: true, message: "Event updated successfully", data: updatedAnnouncement[0] });
+  } catch (error) {
+    console.error("Error updating announcement:", error);
+    return res.status(500).json({ success: false, message: "Failed to update event", error: error.message });
   }
 };
