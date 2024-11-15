@@ -7,6 +7,7 @@ import { deleteReservation } from "../controllers/deleteReservation.js";
 import { getCar } from "../controllers/getCar.js";
 import { postCheckout } from "../controllers/postCheckout.js";
 import { postCheckin } from "../controllers/postCheckIn.js";
+import { postRegisterCar } from "../controllers/postRegisterCar.js";
 
 const parkRouter = Router();
 
@@ -22,5 +23,6 @@ parkRouter.post("/postReservation", postReservation)
 parkRouter.delete("/deleteReservation/:reservation_id", deleteReservation)
 parkRouter.post("/postCheckin", postCheckin)
 parkRouter.post("/postCheckout", postCheckout)
+parkRouter.post("/postRegisterCar", postRegisterCar)
 
 export { parkRouter };
