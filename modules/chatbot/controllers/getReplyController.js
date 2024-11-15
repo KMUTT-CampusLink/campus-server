@@ -1,4 +1,4 @@
-import {SessionsClient} from "@google-cloud/dialogflow-cx";
+import { SessionsClient } from "@google-cloud/dialogflow-cx";
 import prisma from "../../../core/db/prismaInstance.js";
 
 const client = new SessionsClient({
@@ -12,7 +12,7 @@ let parameters = "-";
 const detectIntentText = async(projectId, inputText, sessionId, bearerToken) => {
   const location = process.env.BOT_LOCATION; // or the specific location of your agent
   const agentId = process.env.BOT_AGENT_ID;
-
+  
   const sessionPath = client.projectLocationAgentSessionPath(
     projectId, location, agentId, sessionId
   );
@@ -70,7 +70,7 @@ const detectIntentText = async(projectId, inputText, sessionId, bearerToken) => 
         })
       }else parameters = "-";
       await prisma.page_req_count.upsert({
-        where: { 
+        where: {
           page_name_params:{
             page_name: prevPage,
             params: parameters
@@ -106,4 +106,5 @@ const detectIntentText = async(projectId, inputText, sessionId, bearerToken) => 
   }
 }
 
-export {detectIntentText};
+export { detectIntentText };
+

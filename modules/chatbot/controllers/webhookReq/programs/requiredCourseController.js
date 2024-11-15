@@ -9,7 +9,7 @@ export const requirecourseController = async (progName, degreeLevel) => {
       Where c.program_id=p.id 
       AND   p.id=d.program_id
       And p.name = ${progName}
-      And d.degree_level=${degreeLevel}::education_level_enum;   
+      And d.degree_level=${degreeLevel}::education_level_enum;
     `;
     if(courses.length === 0){
       return `There is no information about the program ${progName} (${degreeLevel})`;

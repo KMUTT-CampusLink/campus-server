@@ -6,12 +6,14 @@ import { requirecourseController } from "./webhookReq/programs/requiredCourseCon
 import { semesterEndController } from "./webhookReq/timeTables/semesterEndController.js";
 import { semesterStartController } from "./webhookReq/timeTables/semesterStartController.js";
 import { tutionFeeController } from "./webhookReq/programs/tutionFeeController.js";
+import { professorController } from "./webhookReq/programs/professorController.js";
 
 export const webhookReqController = async(req, res) => {
   const pageName = req.body.pageInfo.displayName;
+  console.log(pageName);
   let result;
   let paramsList = {};
-  console.log(req.body.sessionInfo.parameters);
+  console.log(req.body.sessionInfo);
   if(pageName === "Fees"){
     const programName = req.body.sessionInfo.parameters.program.trim();
     const degreeLevel = req.body.sessionInfo.parameters.degreelevel.trim() + " Degree";
@@ -47,8 +49,19 @@ export const webhookReqController = async(req, res) => {
     paramsList = {
       "clubs": null,
     }
+  }else if(pageName === "Professor"){
+    console.log("lee professor");
+    const courseName = req.body.sessionInfo.parameters.course.trim();
+    result = await professorController(courseName);
+    paramsList = {
+      "course" : null,
+    }
+  }else if(pageName === "Search Book"){
+    paramsList = {
+      "books": null,
+    }
   }
-
+  console.log(result);
   res.json({
     "fulfillmentResponse": {
       "messages": [
@@ -60,7 +73,7 @@ export const webhookReqController = async(req, res) => {
       ]
     },
     "sessionInfo": {
-      "parameters": paramsList
+      "parameters": null
     }
   });
 }
