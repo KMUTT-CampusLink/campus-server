@@ -7,6 +7,9 @@ import { programsListController } from "../controllers/webhookReq/programs/progr
 import { clubListController } from "../controllers/webhookReq/clubs/clubListController.js";
 import { tutionFeeController } from "../controllers/webhookReq/programs/tutionFeeController.js";
 import { requirecourseController } from "../controllers/webhookReq/programs/requiredCourseController.js";
+import { checkBookController } from "../controllers/webhookReq/library/checkBookController.js";
+import { examScoreController } from "../controllers/webhookReq/student/examScoreController.js";
+import { futureExamController } from "../controllers/webhookReq/student/futureExamController.js";
 
 const botRouter = Router();
 
@@ -18,6 +21,9 @@ botRouter.get("/clublist",clubListController);
 botRouter.get("/tutionfee",tutionFeeController);
 botRouter.get("/programlist",programsListController);
 botRouter.get("/requiredcourse",requirecourseController);
+botRouter.get("/checkbook",checkBookController);
+botRouter.get("/examscore",examScoreController);
+botRouter.get("/future",futureExamController);
 
 export { botRouter };
 
