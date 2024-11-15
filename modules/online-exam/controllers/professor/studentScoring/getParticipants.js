@@ -3,17 +3,6 @@ import prisma from "../../../../../core/db/prismaInstance.js";
 export default async function getParticipants(req, res) {
   const examId = parseInt(req.query.examId);
   try {
-    // const queryStudentExam = await prisma.student_exam.findMany({
-    //     where: {
-    //         exam_id: examId,
-    //     },
-    //     select: {
-    //         id: true,
-    //         student_id: true,
-    //         total_score: true,
-    //         is_checked: true,
-    //     },
-    // });
     const queryStudentExam = await prisma.$queryRaw`SELECT se.id, se.student_id, se.total_score, se.is_checked, s.firstname, s.lastname FROM student_exam AS se, student AS s WHERE se.exam_id = ${examId} AND se.student_id = s.id`;
     const queryExam = await prisma.exam.findUnique({
         where: {

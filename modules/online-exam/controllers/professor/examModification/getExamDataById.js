@@ -1,5 +1,7 @@
 import prisma from "../../../../../core/db/prismaInstance.js";
 
+import { decryptPin } from "../../../utils/crypto.js";
+
 export default async function getExamDataById(req, res) {
   const examId = parseInt(req.query.examId);
   try {
@@ -25,7 +27,9 @@ export default async function getExamDataById(req, res) {
         id: "asc",
       },
     });
+    const pin = decryptPin(queryExam.pin, queryExam.vi)
     res.status(200).json({data: {
+        pin: pin,
         exam: queryExam,
         questions: queryQuestion,
         choices: queryChoice,
