@@ -33,13 +33,8 @@ const deleteEmployee = async (req, res) => {
         await prisma.user.delete({
             where: { id: userInfo.user.id }
         });
-
-        // Delete the employee record
-        
-
         // Respond with a success message
         res.json({
-            message: 'Employee and associated user deleted successfully',
             message: 'Employee and associated user deleted successfully',
         });
     } catch (error) {
