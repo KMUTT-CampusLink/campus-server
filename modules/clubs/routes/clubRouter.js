@@ -12,7 +12,7 @@ import {
 } from "../controllers/club.js";
 
 import { getAllPosts, getPostByClubId, createPost, togglePostPin, deletePost } from "../controllers/post.js";
-import { getAllAnnouncements, createAnnouncement, getAnnouncementsByClubId, toggleAnnouncementPin, deleteAnnouncement } from "../controllers/announcement.js";
+import { getAllAnnouncements, createAnnouncement, getAnnouncementsByClubId, toggleAnnouncementPin, deleteAnnouncement, updateAnnouncement } from "../controllers/announcement.js";
 import { getAllBuildings } from "../controllers/building.js";
 import { clubLocation } from "../controllers/clubLocation.js";
 import { getMemberByClubId, getClubByMemberId, updateLineID} from "../controllers/clubMember.js";
@@ -53,6 +53,7 @@ router.get("/announcements", getAllAnnouncements);
 router.get("/announcements/:clubId", getAnnouncementsByClubId);
 router.delete("/announcements/:id", deleteAnnouncement);
 router.patch("/announcements/:id/pin", toggleAnnouncementPin);
+router.put("/announcements/:id", updateAnnouncement); 
 
 // Member and join request routes
 router.get("/members/:clubId", getMemberByClubId);
