@@ -18,11 +18,7 @@ import getStudentData from "../controllers/professor/studentScoring/getStudentDa
 import getQuestionScore from "../controllers/professor/studentScoring/getQuestionScore.js";
 import getStudentScoreById from "../controllers/professor/studentScoring/getStudentScoreById.js";
 import updateStudentScore from "../controllers/professor/studentScoring/updateStudentScore.js";
-
-import announceScore from "../controllers/professor/studentScoring/announceScore.js";
 import dashboard from "../controllers/professor/studentScoring/dashboard.js";
-import examScoring from "../controllers/professor/studentScoring/examScoring.js";
-import finishScoringById from "../controllers/professor/studentScoring/finishScoringById.js";
 
 // student import
 import getAllExam from "../controllers/student/getAllExam.js";
@@ -75,7 +71,7 @@ examRouter.put("/student/toggleExamStatus", toggleExamStatus);
 examRouter.get("/student/getExamTitle", getExamTitle);
 examRouter.get("/student/getInprogressExam", getInprogressExam);
 examRouter.get("/student/getStudentAnswer", getStudentAnswer);
-examRouter.put("/student/getToggleAnswer", toggleAnswer);
+examRouter.put("/student/toggleAnswer", toggleAnswer);
 examRouter.get("/student/getStudentReview", getStudentReview);
 examRouter.get("/student/getStudentStatus", getStudentExamStatus);
 examRouter.get("/student/getExamTime", getExamTime);
