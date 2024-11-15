@@ -27,13 +27,18 @@ export default async function getExamDataById(req, res) {
         id: "asc",
       },
     });
-    const pin = decryptPin(queryExam.pin, queryExam.vi)
-    res.status(200).json({data: {
+    let pin = null;
+    if (queryExam.pin !== null) {
+      pin = decryptPin(queryExam.pin, queryExam.vi);
+    }
+    res.status(200).json({
+      data: {
         pin: pin,
         exam: queryExam,
         questions: queryQuestion,
         choices: queryChoice,
-    }});
+      },
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: error.message });

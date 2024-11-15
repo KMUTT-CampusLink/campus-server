@@ -21,6 +21,7 @@ export default async function updateExamSettings(req, res) {
                 pin: pin.encryptedData,
                 vi: pin.iv,
                 is_publish_immediately: exam.is_publish_immediately,
+                publish_score_status: exam.publish_score_status,
             },
             select: {
                 section_id: true,
