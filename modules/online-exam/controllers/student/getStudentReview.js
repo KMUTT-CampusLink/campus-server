@@ -4,11 +4,20 @@ import { decodeToken } from "../../middleware/jwt.js";
 export default async function getStudentReview(req, res) {
   const examId = parseInt(req.query.examId);
   const token = req.cookies.token;
+
   try {
     if (isNaN(examId)) throw "Missing Required Parameters";
+
     const decoded = decodeToken(token);
     const userId = decoded.id;
-    const studentQuery = await prisma.$queryRaw`SELECT id FROM student WHERE user_id = ${userId}`;
+
+    // Get student ID with explicit type casting
+    const studentQuery = await prisma.$queryRaw`SELECT id FROM student WHERE user_id = ${userId}::uuid`;
+    if (!studentQuery.length) throw new Error("Student not found");
+
+    const studentId = studentQuery[0].id;
+
+    // Fetch student answers
     const studentAns = await prisma.exam_question.findMany({
       where: {
         exam_id: examId,
@@ -25,7 +34,7 @@ export default async function getStudentReview(req, res) {
         },
         student_answer: {
           where: {
-            student_id: studentQuery.id,
+            student_id: studentId,
           },
           select: {
             answer: true,
@@ -33,6 +42,7 @@ export default async function getStudentReview(req, res) {
         },
       },
     });
+
     return res.status(200).json(studentAns);
   } catch (error) {
     console.log(error);
