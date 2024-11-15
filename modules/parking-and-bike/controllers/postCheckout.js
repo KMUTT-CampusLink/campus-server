@@ -1,21 +1,10 @@
 import prisma from "../../../core/db/prismaInstance.js";
-import crypto from "crypto";
 import jwt from "jsonwebtoken";
 
 const postCheckout = async (req, res) => {
-
     const token = req.cookies.token;
-    if (!token) {
-        return res.status(401).json({ error: "Unauthorized access. Token is missing." });
-    }
-
-    let decoded;
-    try {
-        decoded = jwt.verify(token, process.env.JWT_SECRET);
-    } catch (error) {
-        return res.status(401).json({ error: "Unauthorized access. Invalid token." });
-    }
-
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // const user_id = decoded.id
     const { reservation_id, checkout_time } = req.body;
 
     try {
@@ -27,7 +16,6 @@ const postCheckout = async (req, res) => {
             }
         });
 
-        // Check if reservation exists and belongs to the user
         if (!reservation) {
             return res.status(400).json({ error: `Reservation with ID ${reservation_id} does not exist.` });
         } else if (reservation.verified_car.user_id !== decoded.id) {
@@ -44,9 +32,8 @@ const postCheckout = async (req, res) => {
         today.setHours(hours, minutes, 0, 0);
         const checkoutTime = today;
 
-        const pay_due_date = new Date(checkoutTime.getTime() + 24 * 60 * 60 * 1000); // Due date 24 hours from checkout
+        const pay_due_time = new Date(checkoutTime.getTime() + 5 * 60000); // Due date 24 hours from checkout
 
-        // Calculate overstay fees if applicable
         let over_hour = 0;
         let over_amount = 0;
         let totalAmount = 40; // Base amount when reserving
@@ -66,19 +53,17 @@ const postCheckout = async (req, res) => {
             };
         }
 
-        // Create an invoice for the parking
         await prisma.invoice.create({
             data: {
                 user_id: reservation.verified_car.user_id,
                 issued_by: "parking-and-bike",
                 issued_date: checkoutTime,
-                due_date: pay_due_date,
+                due_date: pay_due_time,
                 amount: totalAmount,
                 title: `Reservation 40 Baht + Over time ${over_hour} hours ${over_amount} Baht Total: ${totalAmount} Baht`
             }
         });
 
-        // Update reservation and slot status
         await prisma.parking_reservation.update({
             where: { id: reservation_id },
             data: { status: 'Completed' }
@@ -89,7 +74,6 @@ const postCheckout = async (req, res) => {
             data: { status: true }
         });
 
-        // Send response
         res.json({
             message: 'Checkout and Invoice completed successfully!',
             reservation_id: reservation_id,
@@ -101,7 +85,7 @@ const postCheckout = async (req, res) => {
             checkout_at: checkoutTime,
             overtimeDetails,
             totalAmount,
-            pay_due_date
+            pay_due_time
         });
 
     } catch (error) {

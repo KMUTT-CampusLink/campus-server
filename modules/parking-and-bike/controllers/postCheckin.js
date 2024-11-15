@@ -18,18 +18,9 @@ function encrypt(data) {
 }
 
 const postCheckin = async (req, res) => {
-    // Extract and verify token
     const token = req.cookies.token;
-    if (!token) {
-        return res.status(401).json({ error: "Unauthorized access. Token is missing." });
-    }
-
-    let decoded;
-    try {
-        decoded = jwt.verify(token, process.env.JWT_SECRET);
-    } catch (error) {
-        return res.status(401).json({ error: "Unauthorized access. Invalid token." });
-    }
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // const user_id = decoded.id
 
     const { reservation_id, checkin_time } = req.body;
 
