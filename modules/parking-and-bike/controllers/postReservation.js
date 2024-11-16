@@ -26,14 +26,21 @@ const postReservation = async (req, res) => {
 
     try {
 
+        const unpaidInvoice = await prisma.invoice.findFirst({
+            where: {
+                user_id: decoded.id,
+                status: "Unpaid",
+            },
+        });
+
+        if (unpaidInvoice) {
+            return res.status(403).json({ error: "Cannot make a new reservation due to unpaid invoices." });
+        }
+
         const verifiedCar = await prisma.verified_car.findFirst({
             where: { user_id: decoded.id }
         }); // Is there car id in verified_car
         
-        if (!verifiedCar) {
-            return res.status(400).json({ error: "Car with the given user ID is not verified." });
-        }
-
         const existingReservation = await prisma.parking_reservation.findFirst({
             where: {
                 car_id: verifiedCar.id,

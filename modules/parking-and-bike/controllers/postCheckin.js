@@ -26,6 +26,17 @@ const postCheckin = async (req, res) => {
 
     try {
 
+        const unpaidInvoice = await prisma.invoice.findFirst({
+            where: {
+                user_id: decoded.id,
+                status: "Unpaid",
+            },
+        });
+
+        if (unpaidInvoice) {
+            return res.status(403).json({ error: "Cannot make a new reservation due to unpaid invoices." });
+        }
+        
         const reservation = await prisma.parking_reservation.findUnique({
             where: { id: reservation_id },
             include: {

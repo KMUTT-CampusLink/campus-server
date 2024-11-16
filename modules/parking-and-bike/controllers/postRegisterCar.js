@@ -21,8 +21,7 @@ const postRegisterCar = async (req, res) => {
         if (existingCar) {
             if (existingCar.user_id === decoded.id) {
                 return res.status(400).json({ error: "Each user can only register one car." });
-            }
-            if (existingCar.license_no === license_no) {
+            }else if (existingCar.license_no === license_no) {
                 return res.status(400).json({ error: "This license number is already registered." });
             }
         }

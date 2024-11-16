@@ -8,6 +8,18 @@ const postCheckout = async (req, res) => {
     const { reservation_id, checkout_time } = req.body;
 
     try {
+
+        const unpaidInvoice = await prisma.invoice.findFirst({
+            where: {
+                user_id: decoded.id,
+                status: "Unpaid",
+            },
+        });
+
+        if (unpaidInvoice) {
+            return res.status(403).json({ error: "Cannot make a new reservation due to unpaid invoices." });
+        }
+
         const reservation = await prisma.parking_reservation.findUnique({
             where: { id: reservation_id },
             include: {
@@ -32,7 +44,8 @@ const postCheckout = async (req, res) => {
         today.setHours(hours, minutes, 0, 0);
         const checkoutTime = today;
 
-        const pay_due_time = new Date(checkoutTime.getTime() + 5 * 60000); // Due date 24 hours from checkout
+        const due_date = new Date(checkoutTime);
+        due_date.setFullYear(due_date.getFullYear() + 1); // เพิ่ม 1 ปีจาก checkoutTime
 
         let over_hour = 0;
         let over_amount = 0;
@@ -41,7 +54,9 @@ const postCheckout = async (req, res) => {
 
         if (checkoutTime < reserve_time) {
             return res.status(400).json({ error: "Cannot check out before the reserved time." });
-        } else if (checkoutTime > parking_until) {
+        }
+
+        else if (checkoutTime > parking_until) {
             const over_time = checkoutTime - parking_until;
             over_hour = Math.ceil(over_time / (60 * 60 * 1000)); // Round up to the nearest hour
             over_amount = over_hour * 20; // 20 baht per hour
@@ -58,7 +73,7 @@ const postCheckout = async (req, res) => {
                 user_id: reservation.verified_car.user_id,
                 issued_by: "parking-and-bike",
                 issued_date: checkoutTime,
-                due_date: pay_due_time,
+                due_date: due_date,
                 amount: totalAmount,
                 title: `Reservation 40 Baht + Over time ${over_hour} hours ${over_amount} Baht Total: ${totalAmount} Baht`
             }
@@ -84,8 +99,7 @@ const postCheckout = async (req, res) => {
             parking_until: parking_until,
             checkout_at: checkoutTime,
             overtimeDetails,
-            totalAmount,
-            pay_due_time
+            totalAmount
         });
 
     } catch (error) {
