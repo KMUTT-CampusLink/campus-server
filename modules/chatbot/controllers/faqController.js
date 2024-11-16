@@ -6,7 +6,7 @@ export const faqController = async (req, res) => {
         SELECT question
         FROM "FAQ"
         ORDER BY RANDOM()
-        LIMIT 8;`
+        LIMIT 5;`
         res.json(faqs);
     }
     catch(error){
