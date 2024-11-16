@@ -38,7 +38,7 @@ export const getAllCourses = async (req, res) => {
 };
 
 export const getSectionByCode = async (req, res) => {
-  const { code } = req.params;
+  const { code, semesterId } = req.params;
 
   try {
     const sections = await prisma.$queryRaw`
@@ -65,6 +65,7 @@ export const getSectionByCode = async (req, res) => {
       employee e ON p.emp_id = e.id 
     WHERE 
       s.course_code ILIKE ${`%${code}%`}
+      AND s.semester_id = ${Number(semesterId)}
     GROUP BY
       s.id, c.code, r.name;
   `;

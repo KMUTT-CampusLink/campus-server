@@ -39,6 +39,17 @@ export async function getGPAXByStudentId(req, res) {
     if (!enrollmentDetails) {
       return res.status(200).json([]);
     }
+    const degreeCredits = await prisma.$queryRaw`
+      SELECT 
+        d.credits_prescribed
+      FROM 
+        student st
+      LEFT JOIN 
+        degree d ON st.degree_id = d.id
+      WHERE 
+        st.id = ${studentId};  -- Use studentId to filter for the specific student
+    `;
+    const creditsPrescribed = degreeCredits[0]?.credits_prescribed;
 
     const {
       gpa,
@@ -58,12 +69,13 @@ export async function getGPAXByStudentId(req, res) {
     );
 
     res.json({
+      creditsPrescribed,
       gpa,
       totalPoints,
       totalCredits,
       totalCoursesRegistered,
       totalCreditsRegistered,
-      courses,
+      courses
     });
   } catch (error) {
     console.error("Error fetching student data:", error);
