@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export const encryptPin = (pin) => {
-  const key = crypto.scryptSync(process.env.ExamPINSecretKey, "salt", 32);
+  const key = crypto.scryptSync(process.env.EXAM_PIN_SECRET_KEY, "salt", 32);
   const iv = crypto.randomBytes(16);
   const cipher = crypto.createCipheriv("aes-256-cbc", key, iv);
   const encrypted =
@@ -15,7 +15,7 @@ export const encryptPin = (pin) => {
 };
 
 export const decryptPin = (cipherData, iv) => {
-  const key = crypto.scryptSync(process.env.ExamPINSecretKey, "salt", 32);
+  const key = crypto.scryptSync(process.env.EXAM_PIN_SECRET_KEY, "salt", 32);
   const decipher = crypto.createDecipheriv(
     "aes-256-cbc",
     key,
