@@ -12,12 +12,13 @@ import {
 } from "../controllers/club.js";
 
 import { getAllPosts, getPostByClubId, createPost, togglePostPin, deletePost } from "../controllers/post.js";
-import { getAllAnnouncements, createAnnouncement, getAnnouncementsByClubId, toggleAnnouncementPin, deleteAnnouncement, updateAnnouncement } from "../controllers/announcement.js";
+import { getAllAnnouncements, createAnnouncement, getAnnouncementsByClubId, toggleAnnouncementPin, deleteAnnouncement, updateAnnouncement, getAnnouncementPriceById } from "../controllers/announcement.js";
 import { getAllBuildings } from "../controllers/building.js";
 import { clubLocation } from "../controllers/clubLocation.js";
 import { getMemberByClubId, getClubByMemberId, updateLineID} from "../controllers/clubMember.js";
 import { getNotifications } from "../controllers/clubNotifications.js";
 import { requestToJoinClub, getPendingRequests, updateJoinRequestStatus } from "../controllers/request.js";
+import { reserveSeat } from "../controllers/reservation.js";
 
 // Multer configuration for file uploads
 const storage = multer.diskStorage({
@@ -54,6 +55,10 @@ router.get("/announcements/:clubId", getAnnouncementsByClubId);
 router.delete("/announcements/:id", deleteAnnouncement);
 router.patch("/announcements/:id/pin", toggleAnnouncementPin);
 router.put("/announcements/:id", updateAnnouncement); 
+
+router.get("/announcements/:announcementId/price", getAnnouncementPriceById);
+
+router.post("/events/reserve", reserveSeat); // Add the reserveSeat route
 
 // Member and join request routes
 router.get("/members/:clubId", getMemberByClubId);

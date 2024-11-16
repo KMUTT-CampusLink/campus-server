@@ -43,6 +43,9 @@ export const getAnnouncementsByClubId = async (req, res) => {
         end_time: true,
         location: true,
         is_pinned: true,
+        max_seats: true,
+        reserved_seats: true,
+        price: true,
         club: {
           select: {
             name: true,
@@ -59,8 +62,43 @@ export const getAnnouncementsByClubId = async (req, res) => {
   }
 };
 
+export const getAnnouncementPriceById = async (req, res) => {
+  const { announcementId } = req.params;
+
+  try {
+    // Fetch the announcement with the specific ID
+    const announcement = await prisma.club_announcement.findUnique({
+      where: { id: parseInt(announcementId) },
+      select: {
+        id: true,
+        price: true,
+      },
+    });
+
+    // Handle case where announcement is not found
+    if (!announcement) {
+      return res.status(404).json({
+        success: false,
+        message: "Announcement not found",
+      });
+    }
+
+    // Return the price of the announcement
+    return res.status(200).json({
+      success: true,
+      data: { price: announcement.price },
+    });
+  } catch (error) {
+    console.error("Failed to fetch announcement price:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch announcement price",
+    });
+  }
+};
+
 export const createAnnouncement = async (req, res) => {
-  const { announcementTitle, announcementContent, eventDate, eventTimeFrom, eventTimeTo, eventPlace } = req.body;
+  const { announcementTitle, announcementContent, eventDate, eventTimeFrom, eventTimeTo, eventPlace, seats, ticketAmount } = req.body;
   const { clubId } = req.params;
   const memberId = 1028;
 
@@ -75,12 +113,14 @@ export const createAnnouncement = async (req, res) => {
     announcementContent,
     eventDate,
     eventPlace,
+    seats,
+    ticketAmount,
   });
 
   try {
     const newAnnouncement = await prisma.$executeRaw`
-      INSERT INTO club_announcement (title, content, date, start_time, end_time, location, club_id, member_id)
-      VALUES (${announcementTitle}, ${announcementContent}, ${eventDate}::date, ${startDateTime}::timestamp, ${endDateTime}::timestamp, ${eventPlace}, ${parseInt(clubId)}, ${memberId});
+      INSERT INTO club_announcement (title, content, date, start_time, end_time, location, max_seats, price, club_id, member_id)
+      VALUES (${announcementTitle}, ${announcementContent}, ${eventDate}::date, ${startDateTime}::timestamp, ${endDateTime}::timestamp, ${eventPlace}, ${parseInt(seats)}, ${parseFloat(ticketAmount)}, ${parseInt(clubId)}, ${memberId});
     `;
     return res.status(201).json({
       success: true,
