@@ -1,10 +1,11 @@
 import { Router } from "express";
-import studentController from "../controllers/studentController.js";
+import { studentInfoController, studentProfileController } from "../controllers/studentController.js";
 const studentRouter = Router();
 
 studentRouter.get("/", (req, res) => {
   return res.send("Student");
 });
-studentRouter.get("/:studentId", studentController);
+studentRouter.get("/:studentId", studentInfoController);
+studentRouter.get("/:studentId/profile", studentProfileController);
 
 export { studentRouter };

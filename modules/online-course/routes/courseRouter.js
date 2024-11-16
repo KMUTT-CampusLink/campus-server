@@ -1,11 +1,13 @@
 import { Router } from "express";
-// import your logics from controllers here
-
+import { getAllCourses, getCourseByStudentID } from "../controllers/courseController.js";
 const courseRouter = Router();
 
 // create routes here
 courseRouter.get("/", (req, res) => {
   return res.send("Online Course");
 });
+
+courseRouter.get("/all", getAllCourses);
+courseRouter.get("/:studentID", getCourseByStudentID);
 
 export { courseRouter };
