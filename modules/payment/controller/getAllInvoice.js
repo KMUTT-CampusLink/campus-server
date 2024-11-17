@@ -1,13 +1,17 @@
 import prisma from '../../../core/db/prismaInstance.js';
 import dayjs from 'dayjs';
+import { decodeToken } from '../../online-exam/middleware/jwt.js';
+
 
 const getAllInvoice = async (req, res) => {
   try {
-    const { id } = "bed7f568-03fa-4a3a-9b37-037bed188aba"; //req.query; // รับค่า id จาก URL parameter
-    // ตรวจสอบว่ามีการส่งค่า id มาหรือไม่
-    // if (!id) {
-    //   return res.status(400).json({ error: 'User ID is required' });
-    // }
+    const token = req.cookies.token;
+    const decoded = decodeToken(token);
+    const id = decoded.id; 
+    //ตรวจสอบว่ามีการส่งค่า id มาหรือไม่
+    if (!id) {
+      return res.status(400).json({ error: 'User ID is required' });
+    }
 
     // ดึงข้อมูล invoice โดยใช้ user_id ที่ได้รับจาก query
     const showAllInvoice = await prisma.invoice.findMany({
