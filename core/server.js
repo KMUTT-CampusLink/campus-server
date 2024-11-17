@@ -41,8 +41,6 @@ app.use(express.json());
 
 // all routing
 app.use("/api/users", userRouter);
-
-// app.use(verifyAccessToken);
 app.get("/api/authorize", verifyAccessToken, (req, res) => {
   return res.status(200).json({
     condition: "success",
@@ -63,8 +61,8 @@ app.use("/api/library", libRouter);
 app.use("/api/map", mapRouter);
 app.use("/api/courses", verifyAccessToken, courseRouter);
 app.use("/api/exams", examRouter);
-app.use("/api/parking", parkRouter);
-app.use("/api/payment", paymentRouter);
+app.use("/api/parking", verifyAccessToken, parkRouter);
+app.use("/api/payment", verifyAccessToken, paymentRouter);
 app.use("/api/transport", verifyAccessToken, transRouter);
 
 app.listen(port, () =>
