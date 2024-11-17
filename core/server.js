@@ -61,7 +61,7 @@ app.use("/api/library", libRouter);
 app.use("/api/map", mapRouter);
 app.use("/api/courses", verifyAccessToken, courseRouter);
 app.use("/api/exams", examRouter);
-app.use("/api/parking", parkRouter);
+app.use("/api/parking", verifyAccessToken, parkRouter);
 app.use("/api/payment", paymentRouter);
 app.use("/api/transport", verifyAccessToken, transRouter);
 
