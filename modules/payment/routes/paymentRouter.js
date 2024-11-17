@@ -30,18 +30,6 @@ paymentRouter.get("/invoice", async (req, res) => {
   // }
 });
 
-// paymentRouter.post("/pay", (req, res) => {
-//   const { inv } = req.body;
-//   if (inv) {
-//     try {
-//       connectPaymentGateway(req, res);
-//     } catch (error) {
-//       res.status(500).json({ message: error.message });
-//     }
-//   } else {
-//     res.status(400).json({ message: "Invoice ID is required" });
-//   }
-// });
 
 paymentRouter.post("/pay", (req, res) => {
   const { inv, ins } = req.body;
