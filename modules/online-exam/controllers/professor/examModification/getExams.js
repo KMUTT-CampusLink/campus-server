@@ -3,11 +3,12 @@ import { decodeToken } from "../../../middleware/jwt.js";
 
 export default async function getExams(req, res) {
     const token = req.cookies.token;
+    const sectionid = parseInt(req.query.sectionid);
     try {
         const decoded = decodeToken(token);
         const userId = decoded.id;
-        const queryProfessorData = await prisma.$queryRaw`SELECT p.section_id, p.id FROM professor AS p, employee AS e WHERE e.id = p.emp_id AND e.user_id = ${userId}::uuid`;
-        const exams = await prisma.$queryRaw`SELECT id, title, description FROM exam WHERE professor_id = ${queryProfessorData[0].id} AND section_id = ${parseInt(queryProfessorData[0].section_id)}`;      
+        const queryProfessorData = await prisma.$queryRaw`SELECT p.id FROM professor AS p, employee AS e WHERE e.id = p.emp_id AND e.user_id = ${userId}::uuid AND p.section_id = ${sectionid}`;
+        const exams = await prisma.$queryRaw`SELECT id, title, description FROM exam WHERE professor_id = ${queryProfessorData[0].id} AND section_id = ${sectionid}`;      
         return res.json(exams);
     } catch (error) {
         console.error(error);
