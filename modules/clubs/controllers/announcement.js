@@ -100,7 +100,7 @@ export const getAnnouncementPriceById = async (req, res) => {
 export const createAnnouncement = async (req, res) => {
   const { announcementTitle, announcementContent, eventDate, eventTimeFrom, eventTimeTo, eventPlace, seats, ticketAmount } = req.body;
   const { clubId } = req.params;
-  const memberId = 1028;
+  const memberId = 1003;
 
   const startDateTime = `${eventDate} ${eventTimeFrom}:00`;
   const endDateTime = `${eventDate} ${eventTimeTo}:00`;
