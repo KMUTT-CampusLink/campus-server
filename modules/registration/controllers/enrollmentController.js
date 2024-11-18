@@ -1,39 +1,5 @@
 import prisma from "../../../core/db/prismaInstance.js";
 
-export const getSemesterByStudentId = async (req, res) => {
-  const { studentId } = req.params;
-  try {
-    const semesters = await prisma.$queryRaw`
-      SELECT 
-        eh.id,
-        eh.student_id,             
-        eh.semester_id,
-        sem.name AS semester_name,
-        sem.start_date,
-        sem.end_date
-      FROM 
-        enrollment_head eh
-      LEFT JOIN 
-        semester sem ON eh.semester_id = sem.id
-      WHERE 
-        eh.student_id = ${studentId}
-        AND eh.status = 'Paid'
-      ORDER BY 
-        eh.semester_id;
-    `;
-
-    if (semesters.length === 0) {
-      return res.status(200).json([]);
-    }
-    semesters.pop();
-
-    res.json(semesters);
-  } catch (error) {
-    console.error("Error fetching student data:", error);
-    res.status(500).json({ error: "Failed to fetch student data" });
-  }
-};
-
 export const addEnrollmentDetail = async (req, res) => {
   const { head_id, student_id, section_id } = req.body;
 
@@ -143,6 +109,17 @@ export const deleteEnrollmentDetail = async (req, res) => {
       });
     }
 
+    // Update seats left in the sections table
+    await prisma.$queryRaw`
+    UPDATE section
+    SET seat_left = seat_left + 1
+    WHERE id = (
+        SELECT section_id 
+        FROM enrollment_detail 
+        WHERE id = ${Number(selectedEnrollmentId)}
+    );
+    `;
+
     // Proceed to delete the enrollment detail if the student has more than one section
     await prisma.$executeRaw`
     DELETE FROM enrollment_detail 
@@ -182,14 +159,19 @@ export const getOrCreateEnrollmentHead = async (req, res) => {
         .status(200)
         .json({ head_id: existingHead[0].id, message: "enroll head found" });
     }
+    const newHead = await prisma.enrollment_head.create({
+      data: {
+        student_id: studentId,
+        semester_id: Number(currentSemesterId),
+        status: 'Unpaid',
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
+      select: {
+        id: true,
+      },
+    });
 
-    // If not, create a new enrollment_head record
-    const newHead = await prisma.$queryRaw`
-      INSERT INTO enrollment_head (student_id, semester_id, status, created_at, updated_at)
-      VALUES (${studentId}, ${Number(
-      currentSemesterId
-    )}, 'Unpaid', NOW(), NOW())
-      RETURNING id;`;
 
     // Return the new head_id
     return res

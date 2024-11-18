@@ -193,22 +193,38 @@ export const createClub = async (req, res) => {
 
     for (const memberId of addedMembers) {
       console.log(`Adding member: ${memberId}`);
+      let existingMember = null;
+
       if (memberId.startsWith("STU")) {
+        existingMember = await prisma.club_member.findFirst({
+          where: {
+            student_id: memberId,
+            NOT: { line_id: null }, // Ensure line_id is not null
+          },
+        });
         await prisma.club_member.create({
           data: {
             club_id: newClub.id,
             student_id: memberId,
             is_admin: false,
             status: "Accepted",
+            line_id: existingMember ? existingMember.line_id : null, // Add line_id if it exists
           },
         });
       } else if (memberId.startsWith("EMP")) {
+        existingMember = await prisma.club_member.findFirst({
+          where: {
+            employee_id: memberId,
+            NOT: { line_id: null }, // Ensure line_id is not null
+          },
+        });    
         await prisma.club_member.create({
           data: {
             club_id: newClub.id,
             employee_id: memberId,
             is_admin: false,
             status: "Accepted",
+            line_id: existingMember ? existingMember.line_id : null, // Add line_id if it exists
           },
         });
       } else {
@@ -255,6 +271,42 @@ export const updateClubDescription = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "An error occurred while updating the club description.",
+    });
+  }
+};
+
+// Delete a club by ID
+export const deleteClub = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Check if the club exists
+    const club = await prisma.club.findUnique({
+      where: { id: parseInt(id) },
+    });
+
+    if (!club) {
+      return res.status(404).json({ success: false, message: "Club not found" });
+    }
+
+    // Delete related records first (posts, announcements, members)
+    await prisma.club_notification.deleteMany({ where: { club_id: parseInt(id) } });
+    await prisma.club_post.deleteMany({ where: { club_id: parseInt(id) } });
+    await prisma.club_announcement.deleteMany({ where: { club_id: parseInt(id) } });
+    await prisma.club_member.deleteMany({ where: { club_id: parseInt(id) } });
+
+    // Delete the club
+    await prisma.club.delete({
+      where: { id: parseInt(id) },
+    });
+
+    return res.status(200).json({ success: true, message: "Club deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting club:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to delete club",
+      error: error.message,
     });
   }
 };

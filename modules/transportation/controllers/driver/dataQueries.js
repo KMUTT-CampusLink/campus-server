@@ -15,7 +15,7 @@ export const queryBookingsForTripByID = errorHandler(async (req, res) => {
 export const queryDriverTrips = errorHandler(async (req, res) => {
   const trips = await prisma.trip.findMany({
     where: {
-      driver_id: req.body.driver_id,
+      driver_id: req.user.id,
     },
   });
 

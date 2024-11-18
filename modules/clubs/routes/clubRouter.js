@@ -8,15 +8,17 @@ import {
   getClubbyId,
   getAllProfessors,
   updateClubDescription,
+  deleteClub
 } from "../controllers/club.js";
 
 import { getAllPosts, getPostByClubId, createPost, togglePostPin, deletePost } from "../controllers/post.js";
-import { getAllAnnouncements, createAnnouncement, getAnnouncementsByClubId, toggleAnnouncementPin, deleteAnnouncement } from "../controllers/announcement.js";
+import { getAllAnnouncements, createAnnouncement, getAnnouncementsByClubId, toggleAnnouncementPin, deleteAnnouncement, updateAnnouncement, getAnnouncementPriceById } from "../controllers/announcement.js";
 import { getAllBuildings } from "../controllers/building.js";
 import { clubLocation } from "../controllers/clubLocation.js";
 import { getMemberByClubId, getClubByMemberId, updateLineID} from "../controllers/clubMember.js";
 import { getNotifications } from "../controllers/clubNotifications.js";
 import { requestToJoinClub, getPendingRequests, updateJoinRequestStatus } from "../controllers/request.js";
+import { reserveSeat } from "../controllers/reservation.js";
 
 // Multer configuration for file uploads
 const storage = multer.diskStorage({
@@ -32,8 +34,9 @@ const upload = multer({ storage }); //Configure multer storage
 
 const router = Router();
 
-router.put("/member/:memberId/lineID", updateLineID); // Update lineID in club_member table
-router.get("/member/:memberId/clubs", getClubByMemberId); // Fetch clubs by member ID
+// Update lineID in club_member table
+router.put("/member/:memberId/lineID", updateLineID);
+router.get("/member/:memberId/clubs", getClubByMemberId);
 
 // Fetch all students and professors
 router.get("/students", getAllStudents);
@@ -41,23 +44,21 @@ router.get("/students/:id", getStudentbyId);
 router.get("/professors", getAllProfessors);
 router.get("/buildings", getAllBuildings);
 
-// Fetch all clubs and specific club details
-router.get("/", getAllClubs);
-router.get("/:id", getClubbyId);
-router.put("/:id", updateClubDescription);
-router.post("/create", upload.single("club_img"), createClub);
-
-// Fetch posts and announcements
+// Fetch posts and announcements, and pin/unpin or delete them
 router.get("/posts", getAllPosts);
 router.get("/posts/:clubId", getPostByClubId);
 router.delete("/posts/:id", deletePost);
+router.patch("/post/:id/pin", togglePostPin);
+
 router.get("/announcements", getAllAnnouncements);
 router.get("/announcements/:clubId", getAnnouncementsByClubId);
-router.delete("/announcements/:id", deleteAnnouncement); 
+router.delete("/announcements/:id", deleteAnnouncement);
+router.patch("/announcements/:id/pin", toggleAnnouncementPin);
+router.put("/announcements/:id", updateAnnouncement); 
 
-// Pin post and announcement routes
-router.patch("/post/:id/pin", togglePostPin); // Pin/Unpin a post
-router.patch("/announcements/:id/pin", toggleAnnouncementPin); // Pin/Unpin an announcement
+router.get("/announcements/:announcementId/price", getAnnouncementPriceById);
+
+router.post("/events/reserve", reserveSeat); // Add the reserveSeat route
 
 // Member and join request routes
 router.get("/members/:clubId", getMemberByClubId);
@@ -67,6 +68,13 @@ router.put("/:clubId/members/:memberId/status", updateJoinRequestStatus);
 // Admin-specific routes (e.g., creating posts and announcements)
 router.post("/admin/post/:clubId", upload.single("photo"), createPost);
 router.post("/admin/announcements/:clubId", upload.none(), createAnnouncement); 
+
+// Club-specific routes
+router.get("/", getAllClubs);
+router.get("/:id", getClubbyId);
+router.put("/:id", updateClubDescription);
+router.post("/create", upload.single("club_img"), createClub);
+router.delete("/:id", deleteClub); // Placed last to avoid conflicts with other `/:id` routes
 
 // Notifications and pending requests
 router.get("/notifications", getNotifications);
