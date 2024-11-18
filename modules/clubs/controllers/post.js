@@ -8,7 +8,7 @@ export const createPost = async (req, res) => {
     const { clubId } = req.params;
     const postTitle = req.body.postTitle;
     const postContent = req.body.postContent;
-    const memberId = 1028; // Hardcoded for now
+    const memberId = 1005; // Hardcoded for now
     const post_img = req.file ? req.file.filename : null;
   
     try {

@@ -39,8 +39,13 @@ export const getAnnouncementsByClubId = async (req, res) => {
         title: true,
         content: true,
         date: true,
+        start_time: true,
+        end_time: true,
         location: true,
         is_pinned: true,
+        max_seats: true,
+        reserved_seats: true,
+        price: true,
         club: {
           select: {
             name: true,
@@ -57,10 +62,45 @@ export const getAnnouncementsByClubId = async (req, res) => {
   }
 };
 
+export const getAnnouncementPriceById = async (req, res) => {
+  const { announcementId } = req.params;
+
+  try {
+    // Fetch the announcement with the specific ID
+    const announcement = await prisma.club_announcement.findUnique({
+      where: { id: parseInt(announcementId) },
+      select: {
+        id: true,
+        price: true,
+      },
+    });
+
+    // Handle case where announcement is not found
+    if (!announcement) {
+      return res.status(404).json({
+        success: false,
+        message: "Announcement not found",
+      });
+    }
+
+    // Return the price of the announcement
+    return res.status(200).json({
+      success: true,
+      data: { price: announcement.price },
+    });
+  } catch (error) {
+    console.error("Failed to fetch announcement price:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch announcement price",
+    });
+  }
+};
+
 export const createAnnouncement = async (req, res) => {
-  const { announcementTitle, announcementContent, eventDate, eventTimeFrom, eventTimeTo, eventPlace } = req.body;
+  const { announcementTitle, announcementContent, eventDate, eventTimeFrom, eventTimeTo, eventPlace, seats, ticketAmount } = req.body;
   const { clubId } = req.params;
-  const memberId = 1028;
+  const memberId = 1003;
 
   const startDateTime = `${eventDate} ${eventTimeFrom}:00`;
   const endDateTime = `${eventDate} ${eventTimeTo}:00`;
@@ -73,12 +113,14 @@ export const createAnnouncement = async (req, res) => {
     announcementContent,
     eventDate,
     eventPlace,
+    seats,
+    ticketAmount,
   });
 
   try {
     const newAnnouncement = await prisma.$executeRaw`
-      INSERT INTO club_announcement (title, content, date, start_time, end_time, location, club_id, member_id)
-      VALUES (${announcementTitle}, ${announcementContent}, ${eventDate}::date, ${startDateTime}::timestamp, ${endDateTime}::timestamp, ${eventPlace}, ${parseInt(clubId)}, ${memberId});
+      INSERT INTO club_announcement (title, content, date, start_time, end_time, location, max_seats, price, club_id, member_id)
+      VALUES (${announcementTitle}, ${announcementContent}, ${eventDate}::date, ${startDateTime}::timestamp, ${endDateTime}::timestamp, ${eventPlace}, ${parseInt(seats)}, ${parseFloat(ticketAmount)}, ${parseInt(clubId)}, ${memberId});
     `;
     return res.status(201).json({
       success: true,
@@ -145,5 +187,54 @@ export const deleteAnnouncement = async (req, res) => {
       message: "Failed to delete announcement",
       error: error.message,
     });
+  }
+};
+
+// Update an announcement
+export const updateAnnouncement = async (req, res) => {
+  const {id} = req.params;
+  const {
+    title,
+    content,
+    date,
+    start_time = "00:00",
+    end_time = "00:00",
+    location,
+  } = req.body;
+  
+  console.log("Received Data:", { title, content, date, start_time, end_time, location });
+
+  const startDateTime = `${date} ${start_time}:00`;
+  const endDateTime = `${date} ${end_time}:00`;
+
+  try {
+    const existingAnnouncement = await prisma.$queryRaw`
+      SELECT id FROM club_announcement WHERE id = ${parseInt(id)};
+    `;
+
+    if(!existingAnnouncement.length) {
+      return res.status(404).json({ success: false, message: "Announcement not found" });
+    }
+
+    await prisma.$executeRaw`
+      UPDATE club_announcement
+      SET 
+        title = ${title},
+        content = ${content},
+        date = ${date}::date,
+        start_time = ${startDateTime}::timestamp,
+        end_time = ${endDateTime}::timestamp,
+        location = ${location}
+      WHERE id = ${parseInt(id)}
+    `;
+
+    const updatedAnnouncement = await prisma.$queryRaw`
+      SELECT * FROM club_announcement WHERE id = ${parseInt(id)};
+    `;
+
+    return res.status(200).json({ success: true, message: "Event updated successfully", data: updatedAnnouncement[0] });
+  } catch (error) {
+    console.error("Error updating announcement:", error);
+    return res.status(500).json({ success: false, message: "Failed to update event", error: error.message });
   }
 };
