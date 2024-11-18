@@ -1,7 +1,7 @@
-import prisma from '../../../campus-server/core/db/prismaInstance.js';
+import prisma from "../../../campus-server/core/db/prismaInstance.js";
 
 const parseTime = (date, time) => {
-  const [hours, minutes] = time.split(':').map(Number);
+  const [hours, minutes] = time.split(":").map(Number);
   const parsedDate = new Date(date);
   parsedDate.setHours(hours, minutes, 0, 0);
   return parsedDate;
@@ -51,7 +51,12 @@ export const getRoomsByFloorId = async (floorId) => {
   }
 };
 
-export const isTimeAvailable = async (roomId, date, newStartTime, newEndTime) => {
+export const isTimeAvailable = async (
+  roomId,
+  date,
+  newStartTime,
+  newEndTime
+) => {
   const parsedStartTime = parseTimeString(date, newStartTime.split("T")[1]);
   const parsedEndTime = parseTimeString(date, newEndTime.split("T")[1]);
 
@@ -65,7 +70,7 @@ export const isTimeAvailable = async (roomId, date, newStartTime, newEndTime) =>
         { end_time: { gt: parsedStartTime } },
       ],
     },
-    orderBy: { end_time: 'desc' },
+    orderBy: { end_time: "desc" },
   });
 
   if (existingBookings.length > 0) {
@@ -76,9 +81,6 @@ export const isTimeAvailable = async (roomId, date, newStartTime, newEndTime) =>
 
   return { available: true };
 };
-
-
-
 
 const parseTimeString = (date, time) => {
   const [timePart, period] = time.split(" ");
@@ -91,11 +93,19 @@ const parseTimeString = (date, time) => {
     hours = 0; // Midnight case
   }
 
-  const formattedDate = `${date} ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00.0000000`;
+  // Adjust the time to UTC+7
+  hours += 7;
+
+  // Format the date with the adjusted hours and minutes
+  const formattedDate = `${date} ${String(hours).padStart(2, "0")}:${String(
+    minutes
+  ).padStart(2, "0")}:00.0000000`;
   const timestamp = new Date(formattedDate);
 
   if (isNaN(timestamp.getTime())) {
-    throw new Error(`Invalid date format for start or end time: ${formattedDate}`);
+    throw new Error(
+      `Invalid date format for start or end time: ${formattedDate}`
+    );
   }
 
   return timestamp;
@@ -103,44 +113,44 @@ const parseTimeString = (date, time) => {
 
 export const createNewBooking = async (userId, roomId, date, startTime, endTime) => {
   try {
-    // Fetch the latest booking ID
     const latestBooking = await prisma.room_booking.findFirst({
-      orderBy: { id: 'desc' },
+      orderBy: { id: "desc" },
     });
 
-    // Determine the new ID
     const latestId = latestBooking ? latestBooking.id : 0;
     const newId = latestId + 1;
 
-    // Parse start and end times to correct format
-    const startTimestamp = parseTimeString(date, startTime.split("T")[1]);
-    const endTimestamp = parseTimeString(date, endTime.split("T")[1]);
+    const startTimestamp = parseTimeString(date, startTime.split("T")[1]); // Parses correctly for UTC
+    const endTimestamp = parseTimeString(date, endTime.split("T")[1]); // Parses correctly for UTC
 
     if (isNaN(startTimestamp.getTime()) || isNaN(endTimestamp.getTime())) {
       throw new Error("Invalid date format for start or end time");
     }
 
-    // Create a new booking with correctly formatted start and end times
+    const now = new Date();
+    now.setHours(now.getHours() + 7); // Adjust current time to UTC+7
+
     const newBooking = await prisma.room_booking.create({
       data: {
         id: newId,
         user_id: userId,
         room_id: parseInt(roomId, 10),
         booking_date: new Date(date),
-        start_time: startTimestamp, // Correctly formatted start time
-        end_time: endTimestamp,      // Correctly formatted end time
-        created_at: new Date(),
-        updated_at: new Date(),
+        start_time: startTimestamp,
+        end_time: endTimestamp,
+        created_at: now, // Adjusted to UTC+7
+        updated_at: now, // Adjusted to UTC+7
       },
     });
 
     console.log("New booking created with ID:", newBooking.id);
     return newBooking;
   } catch (error) {
-    console.error("Error creating booking:", error); // Log the exact error for debugging
+    console.error("Error creating booking:", error);
     throw new Error("An error occurred while creating the booking.");
   }
 };
+
 
 export const getBooked = async () => {
   try {
@@ -151,16 +161,17 @@ export const getBooked = async () => {
         booking_date: true,
         start_time: true,
         end_time: true,
-        room: {           // This assumes a relation exists between room_booking and room in Prisma schema
+        room: {
+          // This assumes a relation exists between room_booking and room in Prisma schema
           select: {
             name: true,
           },
         },
       },
       orderBy: [
-        { room_id: 'asc' },
-        { booking_date: 'asc' },
-        { start_time: 'asc' },
+        { room_id: "asc" },
+        { booking_date: "asc" },
+        { start_time: "asc" },
       ],
     });
   } catch (error) {
@@ -168,7 +179,6 @@ export const getBooked = async () => {
     throw new Error("Could not retrieve bookings");
   }
 };
-
 
 export const deleteBooking = async (id) => {
   try {
@@ -195,14 +205,17 @@ export const getAvailableTimes = async (roomId, date) => {
         booking_date: new Date(date),
       },
       orderBy: {
-        start_time: 'asc',
+        start_time: "asc",
       },
     });
 
     // Check if existingBookings is an array; if not, initialize it as an empty array
     if (!Array.isArray(existingBookings)) {
       console.error("Warning: existingBookings is not an array.");
-      return { availableTimes: [], message: "No bookings available for this room and date" };
+      return {
+        availableTimes: [],
+        message: "No bookings available for this room and date",
+      };
     }
 
     // Calculate available times based on existing bookings
@@ -214,7 +227,6 @@ export const getAvailableTimes = async (roomId, date) => {
   }
 };
 
-
 // Helper function to generate all time slots for the day (e.g., 8:30 AM to 7:00 PM in 30-minute intervals)
 const generateAllDaySlots = () => {
   const slots = [];
@@ -222,7 +234,9 @@ const generateAllDaySlots = () => {
   const endTime = new Date(0, 0, 0, 19, 0);
 
   while (startTime < endTime) {
-    slots.push(startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+    slots.push(
+      startTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+    );
     startTime.setMinutes(startTime.getMinutes() + 30);
   }
   return slots;
@@ -237,7 +251,9 @@ const calculateAvailableTimes = (existingBookings) => {
   // If there are no existing bookings, fill the entire day with time slots
   if (existingBookings.length === 0) {
     while (startTime < endTime) {
-      availableTimes.push(startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+      availableTimes.push(
+        startTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+      );
       startTime.setMinutes(startTime.getMinutes() + 30);
     }
     return availableTimes;
@@ -250,7 +266,9 @@ const calculateAvailableTimes = (existingBookings) => {
 
     // Fill available times up to the start of the current booking
     while (startTime < bookingStartTime && startTime < endTime) {
-      availableTimes.push(startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+      availableTimes.push(
+        startTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+      );
       startTime.setMinutes(startTime.getMinutes() + 30);
     }
 
@@ -262,24 +280,28 @@ const calculateAvailableTimes = (existingBookings) => {
 
   // Fill in remaining slots after the last booking, up to the end of the day
   while (startTime < endTime) {
-    availableTimes.push(startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+    availableTimes.push(
+      startTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+    );
     startTime.setMinutes(startTime.getMinutes() + 30);
   }
 
   return availableTimes;
 };
 
-
 const generateTimeSlots = () => {
   const startSlots = [];
   const endSlots = [];
   let current = new Date(0, 0, 0, 8, 30); // Start at 8:30 AM
+  current.setHours(current.getHours() + 7); // Adjust to UTC+7
   const endStart = new Date(0, 0, 0, 19, 0); // Last start time is 7:00 PM
   const endEnd = new Date(0, 0, 0, 19, 30); // Last end time is 7:30 PM
 
   // Generate start time slots up to 7:00 PM
   while (current <= endStart) {
-    startSlots.push(current.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+    startSlots.push(
+      current.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+    );
     current.setMinutes(current.getMinutes() + 30);
   }
 
@@ -288,7 +310,9 @@ const generateTimeSlots = () => {
 
   // Generate end time slots up to 7:30 PM
   while (current <= endEnd) {
-    endSlots.push(current.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+    endSlots.push(
+      current.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+    );
     current.setMinutes(current.getMinutes() + 30);
   }
 

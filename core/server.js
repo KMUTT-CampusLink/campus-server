@@ -59,12 +59,12 @@ app.use("/api/clubs", clubRouter);
 app.use("/api/employ", employRouter);
 app.use("/api/library", libRouter);
 app.use("/api/map", mapRouter);
-app.use("/api/courses", verifyAccessToken, courseRouter);
+app.use("/api/courses", courseRouter);
 app.use("/api/exams", examRouter);
-app.use("/api/parking", parkRouter);
-app.use("/api/payment", paymentRouter);
+app.use("/api/parking", verifyAccessToken, parkRouter);
+app.use("/api/payment", verifyAccessToken, paymentRouter);
 app.use("/api/transport", verifyAccessToken, transRouter);
 
 app.listen(port, () =>
-  console.log(`Application started on port ${process.env.HOSTNAME}:${port}`)
+  console.log(`[server] running on port ${process.env.HOSTNAME}:${port}`)
 );
