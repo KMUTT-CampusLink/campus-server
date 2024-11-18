@@ -139,3 +139,44 @@ export const updateLineID = async (req, res) => {
     return res.status(500).json({ error: "Failed to update line ID." });
   }
 };
+
+export const getMembershipStatus = async (req, res) => {
+  const { clubId } = req.params;
+  const { id, studentId, empId } = req.user;
+  //const { empId } = req.user.empId;
+  console.log("User ID:", id);
+  console.log("Student ID:", studentId);
+  console.log("Employee ID:", empId);
+
+  try {
+    // Determine membership status using studentId or empId
+    const membership = await prisma.club_member.findFirst({
+      where: {
+        club_id: parseInt(clubId),
+        OR: [
+          { student_id: studentId },
+          { employee_id: empId },
+        ],
+      },
+      select: {
+        is_admin: true,
+        status: true,
+      },
+    });
+
+    if (!membership) {
+      // User is not a member of the club
+      return res.status(200).json({ isAdmin: false, isMember: false });
+    }
+
+    // Determine if the user is an admin or member
+    const isAdmin = membership.is_admin;
+    const isMember = membership.status === "Accepted";
+    const memberId = membership.student_id || membership.employee_id;
+
+    return res.status(200).json({ isAdmin, isMember, memberId });
+  } catch (error) {
+    console.error("Error fetching membership status:", error);
+    return res.status(500).json({ success: false, message: "Failed to fetch membership status" });
+  }
+};
