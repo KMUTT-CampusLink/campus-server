@@ -1,5 +1,4 @@
 import { Router } from "express";
-import multer from "multer";
 import {
   getAllStudents,
   getStudentbyId,
@@ -8,29 +7,42 @@ import {
   getClubbyId,
   getAllProfessors,
   updateClubDescription,
-  deleteClub
+  deleteClub,
 } from "../controllers/club.js";
 
-import { getAllPosts, getPostByClubId, createPost, togglePostPin, deletePost } from "../controllers/post.js";
-import { getAllAnnouncements, createAnnouncement, getAnnouncementsByClubId, toggleAnnouncementPin, deleteAnnouncement, updateAnnouncement, getAnnouncementPriceById } from "../controllers/announcement.js";
+import {
+  getAllPosts,
+  getPostByClubId,
+  createPost,
+  togglePostPin,
+  deletePost,
+} from "../controllers/post.js";
+import {
+  getAllAnnouncements,
+  createAnnouncement,
+  getAnnouncementsByClubId,
+  toggleAnnouncementPin,
+  deleteAnnouncement,
+  updateAnnouncement,
+  getAnnouncementPriceById,
+} from "../controllers/announcement.js";
 import { getAllBuildings } from "../controllers/building.js";
 import { clubLocation } from "../controllers/clubLocation.js";
-import { getMemberByClubId, getClubByMemberId, updateLineID} from "../controllers/clubMember.js";
+import {
+  getMemberByClubId,
+  getClubByMemberId,
+  updateLineID,
+  getMembershipStatus,
+} from "../controllers/clubMember.js";
 import { getNotifications } from "../controllers/clubNotifications.js";
-import { requestToJoinClub, getPendingRequests, updateJoinRequestStatus } from "../controllers/request.js";
+import {
+  requestToJoinClub,
+  getPendingRequests,
+  updateJoinRequestStatus,
+} from "../controllers/request.js";
 import { reserveSeat } from "../controllers/reservation.js";
-
-// Multer configuration for file uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/");
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
-  },
-});
-
-const upload = multer({ storage }); //Configure multer storage
+import multerErrorHandler from "../../../core/middleware/multerErrorHandler.js";
+import file_uploader from "../../../core/middleware/multerUploader.js";
 
 const router = Router();
 
@@ -54,7 +66,7 @@ router.get("/announcements", getAllAnnouncements);
 router.get("/announcements/:clubId", getAnnouncementsByClubId);
 router.delete("/announcements/:id", deleteAnnouncement);
 router.patch("/announcements/:id/pin", toggleAnnouncementPin);
-router.put("/announcements/:id", updateAnnouncement); 
+router.put("/announcements/:id", updateAnnouncement);
 
 router.get("/announcements/:announcementId/price", getAnnouncementPriceById);
 
@@ -62,19 +74,25 @@ router.post("/events/reserve", reserveSeat); // Add the reserveSeat route
 
 // Member and join request routes
 router.get("/members/:clubId", getMemberByClubId);
+router.get("/membership/:clubId", getMembershipStatus);
 router.post("/:clubId/join-request", requestToJoinClub);
 router.put("/:clubId/members/:memberId/status", updateJoinRequestStatus);
 
 // Admin-specific routes (e.g., creating posts and announcements)
-router.post("/admin/post/:clubId", upload.single("photo"), createPost);
-router.post("/admin/announcements/:clubId", upload.none(), createAnnouncement); 
+router.post("/admin/post/:clubId", createPost);
+router.post("/admin/announcements/:clubId", createAnnouncement);
 
 // Club-specific routes
 router.get("/", getAllClubs);
 router.get("/:id", getClubbyId);
 router.put("/:id", updateClubDescription);
-router.post("/create", upload.single("club_img"), createClub);
-router.delete("/:id", deleteClub); // Placed last to avoid conflicts with other `/:id` routes
+router.post(
+  "/create",
+  file_uploader.single("clubImage"),
+  multerErrorHandler,
+  createClub
+);
+router.delete("/:id", deleteClub); // Placed last to avoid conflicts with other /:id routes
 
 // Notifications and pending requests
 router.get("/notifications", getNotifications);

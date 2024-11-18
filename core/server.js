@@ -55,7 +55,7 @@ app.use("/api/regis", verifyAccessToken, regisRouter);
 app.use("/api/attend", attendRouter);
 app.use("/api/security", secureRouter);
 app.use("/api/botastra", verifyAccessToken, botRouter);
-app.use("/api/clubs", clubRouter);
+app.use("/api/clubs", verifyAccessToken, clubRouter);
 app.use("/api/employ", employRouter);
 app.use("/api/library", libRouter);
 app.use("/api/map", mapRouter);
