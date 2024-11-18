@@ -66,5 +66,5 @@ app.use("/api/payment", verifyAccessToken, paymentRouter);
 app.use("/api/transport", verifyAccessToken, transRouter);
 
 app.listen(port, () =>
-  console.log(`Application started on port ${process.env.HOSTNAME}:${port}`)
+  console.log(`[server] running on port ${process.env.HOSTNAME}:${port}`)
 );
