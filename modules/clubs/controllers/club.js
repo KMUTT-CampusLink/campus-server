@@ -117,7 +117,7 @@ export const createClub = async (req, res) => {
   const name = req.body.clubName;
   const description = req.body.clubDescription;
   const content = req.body.clubDetails;
-  const owner_id = "STU00023";
+  const owner_id = req.user.studentId || req.user.empId || "STU00023";
   const members = req.body.members;
   const building_id = req.body.buildingId;
 
@@ -127,10 +127,6 @@ export const createClub = async (req, res) => {
   console.log(owner_id);
   console.log(members);
   console.log(building_id);
-
-  const club_img = req.file
-    ? req.file.filename
-    : "https://img.freepik.com/premium-vector/badminton-vintage-logo-design-perfect-team-badminton-club-badminton-championship_297778-707.jpg"; // Get the uploaded file's name
 
   // Validate required fields
   if (!name || !owner_id) {
@@ -159,7 +155,7 @@ export const createClub = async (req, res) => {
         name: name,
         description: description,
         content: content,
-        club_img: club_img,
+        club_img: req.file.objName,
         owner_id: owner_id, // Links to the 'student' model
         building_id: parseInt(building_id),
       },
@@ -217,7 +213,7 @@ export const createClub = async (req, res) => {
             employee_id: memberId,
             NOT: { line_id: null }, // Ensure line_id is not null
           },
-        });    
+        });
         await prisma.club_member.create({
           data: {
             club_id: newClub.id,
@@ -286,13 +282,28 @@ export const deleteClub = async (req, res) => {
     });
 
     if (!club) {
-      return res.status(404).json({ success: false, message: "Club not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Club not found" });
+    }
+
+    if (
+      club.owner_id !== req.user.studentId &&
+      club.owner_id !== req.user.empId
+    ) {
+      return res
+        .status(403)
+        .json({ success: false, message: "Unauthorized to delete this club" });
     }
 
     // Delete related records first (posts, announcements, members)
-    await prisma.club_notification.deleteMany({ where: { club_id: parseInt(id) } });
+    await prisma.club_notification.deleteMany({
+      where: { club_id: parseInt(id) },
+    });
     await prisma.club_post.deleteMany({ where: { club_id: parseInt(id) } });
-    await prisma.club_announcement.deleteMany({ where: { club_id: parseInt(id) } });
+    await prisma.club_announcement.deleteMany({
+      where: { club_id: parseInt(id) },
+    });
     await prisma.club_member.deleteMany({ where: { club_id: parseInt(id) } });
 
     // Delete the club
@@ -300,7 +311,9 @@ export const deleteClub = async (req, res) => {
       where: { id: parseInt(id) },
     });
 
-    return res.status(200).json({ success: true, message: "Club deleted successfully" });
+    return res
+      .status(200)
+      .json({ success: true, message: "Club deleted successfully" });
   } catch (error) {
     console.error("Error deleting club:", error);
     return res.status(500).json({
