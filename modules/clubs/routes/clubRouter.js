@@ -92,7 +92,7 @@ router.post(
   multerErrorHandler,
   createClub
 );
-router.delete("/:id", deleteClub); // Placed last to avoid conflicts with other /:id routes
+router.delete("/:id", deleteClub); // Placed last to avoid conflicts with other `/:id` routes
 
 // Notifications and pending requests
 router.get("/notifications", getNotifications);
