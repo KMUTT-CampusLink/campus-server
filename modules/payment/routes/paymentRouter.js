@@ -12,22 +12,10 @@ const paymentRouter = Router();
 
 paymentRouter.get("/invoice", async (req, res) => {
   try {
-    // Calling the getAllInvoice function and passing req, res
     await getAllInvoice(req, res);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-  // const { id } = req.query; // Extracting 'id' from the query parameters for testing purpose
-  // if (id) {
-  //   try {
-  //     // Calling the getAllInvoice function and passing req, res
-  //     await getAllInvoice(req, res);
-  //   } catch (error) {
-  //     res.status(500).json({ message: error.message });
-  //   }
-  // } else {
-  //   res.status(400).json({ message: "User ID is required" });
-  // }
 });
 
 
