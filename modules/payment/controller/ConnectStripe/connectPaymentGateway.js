@@ -9,6 +9,8 @@ const connectPaymentGateway = async (req, res) => {
   try {
     const { inv, ins } = req.body; // รับค่า inv หรือ ins จาก req.body
 
+    console.log(req.body);
+
     let invoice;
 
     if (inv) {
