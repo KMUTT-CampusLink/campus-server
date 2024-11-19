@@ -1,12 +1,14 @@
 import { Router } from "express";
 import {
   getAllCourses,
-  getAllCoursesByProfessorID,
-  getAllCoursesByStudentID,
-  getCourseByStudentID,
   getCourseHeaderBySectionID,
-  getCourseHeaderBySectionIDForStudent
+  getAllCoursesByProfessorID,
 } from "../controllers/courseController.js";
+
+import { studentRouter } from "./studentRouter.js";
+import { discussionRouter } from "./discussionRouter.js";
+// import { professorRouter } from "./professorRouter.js";
+
 const courseRouter = Router();
 
 // create routes here
@@ -15,10 +17,9 @@ courseRouter.get("/", (req, res) => {
 });
 
 courseRouter.get("/all", getAllCourses);
-courseRouter.get("/:studentID", getCourseByStudentID);
-courseRouter.get("/:studentID/all", getAllCoursesByStudentID);
+courseRouter.get("/:sectionID", getCourseHeaderBySectionID);
+courseRouter.use("/student", studentRouter);
 courseRouter.get("/:professorID/teach", getAllCoursesByProfessorID);
 courseRouter.get("/course/:sectionID", getCourseHeaderBySectionID);
-courseRouter.get("/student/course/:sectionID", getCourseHeaderBySectionIDForStudent);
 
 export { courseRouter };
