@@ -87,8 +87,30 @@ import prisma from "../../../core/db/prismaInstance.js";
   
 export const requestToJoinClub = async (req, res) => {
   const { clubId } = req.params;
-  const memberId = req.user ? req.user.id : "STU00019"; // Replace hardcoded ID with req.user.id once authentication is implemented
-  const isStudent = memberId.startsWith("STU");
+  const user = req.user;
+
+  if(!user) {
+    console.error("Unauthorized access: req.user is missing");
+    return res.status(401).json({ success: false, message: "Unauthorized" });
+  }
+  console.log("Decoded user from token:", user);
+
+  let memberId;
+  let isStudent;
+
+  if (user.studentId) {
+    memberId = user.studentId;
+    isStudent = true;
+  } else if (user.empId) {
+    memberId = user.empId;
+    isStudent = false;
+  } else {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid user: no student_id or employee_id provided",
+    });
+  }
+  
   console.log("Request to join club with ID:", clubId, "by user:", memberId);
 
   try {
@@ -129,7 +151,6 @@ export const requestToJoinClub = async (req, res) => {
     });
     console.log("Member created successfully with line_id:", lineId);
 
-    // Additional logic for notifications, etc.
     const user = isStudent
       ? await prisma.student.findUnique({
           where: { id: memberId },
