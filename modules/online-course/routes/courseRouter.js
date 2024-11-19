@@ -5,6 +5,7 @@ import {
   getAllCoursesByStudentID,
   getCourseByStudentID,
   getCourseHeaderBySectionID,
+  getCourseHeaderBySectionIDForStudent
 } from "../controllers/courseController.js";
 const courseRouter = Router();
 
@@ -18,5 +19,6 @@ courseRouter.get("/:studentID", getCourseByStudentID);
 courseRouter.get("/:studentID/all", getAllCoursesByStudentID);
 courseRouter.get("/:professorID/teach", getAllCoursesByProfessorID);
 courseRouter.get("/course/:sectionID", getCourseHeaderBySectionID);
+courseRouter.get("/student/course/:sectionID", getCourseHeaderBySectionIDForStudent);
 
 export { courseRouter };
