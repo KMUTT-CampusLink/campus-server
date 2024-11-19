@@ -153,7 +153,7 @@ export const getMembershipStatus = async (req, res) => {
     const membership = await prisma.club_member.findFirst({
       where: {
         club_id: parseInt(clubId),
-        OR: [
+        AND: [
           { student_id: studentId },
           { employee_id: empId },
         ],
@@ -161,6 +161,8 @@ export const getMembershipStatus = async (req, res) => {
       select: {
         is_admin: true,
         status: true,
+        student_id: true,
+        employee_id: true,
       },
     });
 
