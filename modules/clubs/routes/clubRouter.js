@@ -79,7 +79,12 @@ router.post("/:clubId/join-request", requestToJoinClub);
 router.put("/:clubId/members/:memberId/status", updateJoinRequestStatus);
 
 // Admin-specific routes (e.g., creating posts and announcements)
-router.post("/admin/post/:clubId", createPost);
+router.post(
+  "/admin/post/:clubId",
+  file_uploader.single("photo"),
+  multerErrorHandler,
+  createPost
+);
 router.post("/admin/announcements/:clubId", createAnnouncement);
 
 // Club-specific routes
