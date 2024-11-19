@@ -40,8 +40,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
 // all routing
-app.use("/api/users", userRouter);
-app.get("/api/authorize", verifyAccessToken, (req, res) => {
+app.use("/api/users", verifyAccessToken,userRouter);
+app.get("/api/authorize", (req, res) => {
   return res.status(200).json({
     condition: "success",
     data: {
@@ -54,7 +54,7 @@ app.get("/api/authorize", verifyAccessToken, (req, res) => {
 app.use("/api/regis", verifyAccessToken, regisRouter);
 app.use("/api/attend", attendRouter);
 app.use("/api/security", secureRouter);
-app.use("/api/botastra",verifyAccessToken, botRouter);
+app.use("/api/botastra", verifyAccessToken, botRouter);
 app.use("/api/clubs", clubRouter);
 app.use("/api/employ", employRouter);
 app.use("/api/library", libRouter);

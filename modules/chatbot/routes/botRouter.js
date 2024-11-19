@@ -1,8 +1,8 @@
 import { Router } from "express";
 // import your logics from controllers here
 import { faqController } from "../controllers/faqController.js";
-import { webhookReqController } from "../controllers/webhookReqController.js";
 import { receiveMessageController } from "../controllers/receiveMessageController.js";
+import { webhookReqController } from "../controllers/webhookReqController.js";
 
 const botRouter = Router();
 
