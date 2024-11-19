@@ -4,9 +4,9 @@ const getStudents = async (req, res) => {
   try {
     const student = await prisma.student.findMany({
       include: {
-        uni_batch: {
+        degree: {
           select: {
-            batch_no: true,
+            name: true,
           },
         },
       },
