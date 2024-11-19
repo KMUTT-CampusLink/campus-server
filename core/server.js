@@ -60,7 +60,7 @@ app.use("/api/employ", verifyAccessToken, employRouter);
 app.use("/api/library", libRouter);
 app.use("/api/map", mapRouter);
 app.use("/api/courses", courseRouter);
-app.use("/api/exams", examRouter);
+app.use("/api/exams", verifyAccessToken, examRouter);
 app.use("/api/parking", verifyAccessToken, parkRouter);
 app.use("/api/payment", verifyAccessToken, paymentRouter);
 app.use("/api/transport", verifyAccessToken, transRouter);
