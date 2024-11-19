@@ -2,14 +2,21 @@ import prisma from "../../../core/db/prismaInstance.js"; // Import Prisma
 
 // Create a new post
 export const createPost = async (req, res) => {
-  console.log("Request body:", req.body);
-  console.log("File:", req.file); // Check if multer is correctly receiving the file
-
   const { clubId } = req.params;
   const postTitle = req.body.postTitle;
   const postContent = req.body.postContent;
-  const memberId = 1005; // Hardcoded for now
-  const post_img = req.file ? req.file.filename : null;
+  const post_img = req.file ? req.file.objName : null;
+
+  const fk_id = req.user.studentId || req.user.empId;
+  const data = await prisma.club_member.findFirst({
+    where: {
+      club_id: parseInt(clubId),
+      is_admin: true,
+    },
+    select: {
+      id: true,
+    },
+  });
 
   try {
     const newPost = await prisma.club_post.create({
@@ -18,7 +25,7 @@ export const createPost = async (req, res) => {
         content: postContent,
         post_img: post_img,
         club_id: parseInt(clubId),
-        member_id: memberId,
+        member_id: data.id,
       },
     });
     return res.status(201).json({
