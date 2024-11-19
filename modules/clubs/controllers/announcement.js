@@ -7,7 +7,6 @@ export const getAllAnnouncements = async (req, res) => {
             id: true,
             title: true,
             content: true,
-            //announcement_img: true,
             club: {
             select: {
                 name: true,
@@ -100,8 +99,10 @@ export const getAnnouncementPriceById = async (req, res) => {
 export const createAnnouncement = async (req, res) => {
   const { announcementTitle, announcementContent, eventDate, eventTimeFrom, eventTimeTo, eventPlace, seats, ticketAmount } = req.body;
   const { clubId } = req.params;
-  const memberId = 1003;
-
+  console.log("Raw request body:", req.body);
+  
+  //const memberId = 1003;
+  //console.log("Data:", data);
   const startDateTime = `${eventDate} ${eventTimeFrom}:00`;
   const endDateTime = `${eventDate} ${eventTimeTo}:00`;
 
@@ -118,9 +119,25 @@ export const createAnnouncement = async (req, res) => {
   });
 
   try {
+    const data = await prisma.club_member.findFirst({
+      where: {
+        club_id: parseInt(clubId),
+        is_admin: true,   
+      },
+      select: {
+        id: true,
+      },
+    });
+    console.log("Data:", data);
+    if (!data) {
+      return res.status(404).json({
+        success: false,
+        message: "Admin not found for the specified club.",
+      });
+    }
     const newAnnouncement = await prisma.$executeRaw`
       INSERT INTO club_announcement (title, content, date, start_time, end_time, location, max_seats, price, club_id, member_id)
-      VALUES (${announcementTitle}, ${announcementContent}, ${eventDate}::date, ${startDateTime}::timestamp, ${endDateTime}::timestamp, ${eventPlace}, ${parseInt(seats)}, ${parseFloat(ticketAmount)}, ${parseInt(clubId)}, ${memberId});
+      VALUES (${announcementTitle}, ${announcementContent}, ${eventDate}::date, ${startDateTime}::timestamp, ${endDateTime}::timestamp, ${eventPlace}, ${parseInt(seats)}, ${parseFloat(ticketAmount)}, ${parseInt(clubId)}, ${data.id});
     `;
     return res.status(201).json({
       success: true,
