@@ -1,12 +1,5 @@
 import prisma from "../../../core/db/prismaInstance.js";
 
-const parseTime = (date, time) => {
-  const [hours, minutes] = time.split(":").map(Number);
-  const parsedDate = new Date(date);
-  parsedDate.setHours(hours, minutes, 0, 0);
-  return parsedDate;
-};
-
 export const getBuildings = async () => {
   try {
     return await prisma.building.findMany({
