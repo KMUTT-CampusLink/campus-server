@@ -5,7 +5,7 @@ const getAllDupeRes = async (req, res) => {
     const bookList = await prisma.$queryRaw`
       SELECT b.*, bd.id AS duplicate_id, bd.book_id, bd.status as dup_status, 
              br.id AS reservation_id, br.user_id, br.book_duplicate_id as reserved_book, br.start_date, 
-             br.end_date, br.status as reserve_status
+             br.end_date, br.status as reserve_status, br.unlock_id
       FROM book b
       JOIN category c ON c.id = b.category_id
       JOIN book_duplicate bd ON bd.book_id = b.id
