@@ -1,4 +1,4 @@
-import { getBuildings, getFloorsByBuildingId, getRoomsByFloorId, isTimeAvailable, createNewBooking, getBooked, getAvailableTimes, deleteBooking } from './buildingService.js';
+import { getBuildings, getBuildingsWithRoom, getFloorsByBuildingId, getRoomsByFloorId, isTimeAvailable, createNewBooking, getBooked, getAvailableTimes, deleteBooking } from './buildingService.js';
 
 export const fetchBuildingData = async (req, res) => {
   try {
@@ -9,6 +9,17 @@ export const fetchBuildingData = async (req, res) => {
     res.status(500).json({ message: "An error occurred while fetching building data." });
   }
 };
+
+export const fetchBuildingWithRoomData = async (req, res) => {
+  try {
+    const buildings = await getBuildingsWithRoom();
+    res.status(200).json(buildings);
+  } catch (error) {
+    console.error("Error in building controller:", error);
+    res.status(500).json({ message: "An error occurred while fetching building data." });
+  }
+};
+
 
 export const fetchFloorsByBuildingId = async (req, res) => {
   const { buildingId } = req.params;
