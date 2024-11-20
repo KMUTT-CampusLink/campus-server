@@ -16,6 +16,7 @@ import {
   createPost,
   togglePostPin,
   deletePost,
+  updatePost,
 } from "../controllers/post.js";
 import {
   getAllAnnouncements,
@@ -63,6 +64,7 @@ router.get("/posts", getAllPosts);
 router.get("/posts/:clubId", getPostByClubId);
 router.delete("/posts/:id", deletePost);
 router.patch("/post/:id/pin", togglePostPin);
+router.put("/posts/:id", updatePost);
 
 router.get("/announcements", getAllAnnouncements);
 router.get("/announcements/:clubId", getAnnouncementsByClubId);
