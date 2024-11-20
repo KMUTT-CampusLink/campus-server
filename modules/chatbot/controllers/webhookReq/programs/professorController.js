@@ -1,7 +1,6 @@
 import prisma from "../../../../../core/db/prismaInstance.js";
 
 export const professorController = async(courseName)=>{
-    console.log(true);
     try{ 
         const professor = await prisma.$queryRaw`
         SELECT CONCAT(e.firstname,' ',e.lastname) as fullname
@@ -9,7 +8,7 @@ export const professorController = async(courseName)=>{
             WHERE c.code = s.course_code
             AND p.section_id = s.id
             AND p.emp_id = e.id
-            AND c.name = Upper(${courseName})`;
+            AND c.name = ${courseName}`;
         if (!professor || professor.length === 0) {
             return `Sorry, we could not find any information for the professor of ${courseName}.`;
         }else{
