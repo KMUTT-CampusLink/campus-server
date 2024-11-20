@@ -4,6 +4,7 @@ import { decodeToken } from "../middleware/jwt.js"
 export const addLostAndFoundList = async (req, res) => {
     const token = req.cookies.token;
     const decode = decodeToken(token);
+    console.log(decode);
     const {
         floor_id,
         description,
