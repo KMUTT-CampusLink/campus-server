@@ -7,6 +7,7 @@ export const getAllStudents = async (req, res) => {
       select: {
         id: true,
         firstname: true,
+        midname: true,
         lastname: true,
         //image: true
       },

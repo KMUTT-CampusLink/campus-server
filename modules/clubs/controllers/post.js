@@ -158,3 +158,50 @@ export const deletePost = async (req, res) => {
     });
   }
 };
+
+// Update a post
+export const updatePost = async (req, res) => {
+  const { id } = req.params; // Post ID
+  console.log("Post ID:", id);
+  const { title, content } = req.body; // Fields for posts
+
+  console.log("Received Post Data:", { title, content });
+
+  try {
+    // Check if the post exists
+    const existingPost = await prisma.$queryRaw`
+      SELECT id FROM club_post WHERE id = ${parseInt(id)};
+    `;
+
+    if (!existingPost.length) {
+      return res.status(404).json({ success: false, message: "Post not found" });
+    }
+
+    // Update the post
+    await prisma.$executeRaw`
+      UPDATE club_post
+      SET 
+        title = ${title},
+        content = ${content}
+      WHERE id = ${parseInt(id)}
+    `;
+
+    // Fetch the updated post
+    const updatedPost = await prisma.$queryRaw`
+      SELECT * FROM club_post WHERE id = ${parseInt(id)};
+    `;
+
+    return res.status(200).json({
+      success: true,
+      message: "Post updated successfully",
+      data: updatedPost[0],
+    });
+  } catch (error) {
+    console.error("Error updating post:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update post",
+      error: error.message,
+    });
+  }
+};

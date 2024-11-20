@@ -210,6 +210,7 @@ export const deleteAnnouncement = async (req, res) => {
 // Update an announcement
 export const updateAnnouncement = async (req, res) => {
   const {id} = req.params;
+  console.log("Received ID:", id);
   const {
     title,
     content,
