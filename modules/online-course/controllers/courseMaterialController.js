@@ -48,6 +48,8 @@ export const addCourseMaterials = async (req, res) => {
       originalName: videoFile.originalname,
     };
     console.log("Video file:", videoFileData);
+
+    // Create the new video record
     const newVideo = await prisma.course_video.create({
       data: {
         title: title,
@@ -56,19 +58,34 @@ export const addCourseMaterials = async (req, res) => {
       },
     });
 
-    console.log(newVideo);
+    console.log("New Video Created:", newVideo);
 
     // Loop through the material files and get only the objName
-    const materialFiles = req.files.materialFiles || []; // Assuming 'courseMaterials' is the name of the material file field
+    const materialFiles = req.files.materialFiles || [];
     const materialFileURLs = materialFiles.map((file) => ({
       objName: file.objName,
       originalName: file.originalname,
     }));
 
     console.log("Material files:", materialFileURLs);
+
+    // Loop through materialFileURLs and insert into course_attachment model
+    const courseAttachments = materialFileURLs.map((file) => ({
+      course_video_id: newVideo.id, // Assign the new video ID to the attachment
+      file_path: file.objName, // Store the objName as file_path
+      //file_name: file.originalName, // You can store the original file name if needed
+    }));
+
+    // Insert all attachments into the database
+    const createdAttachments = await prisma.course_attachment.createMany({
+      data: courseAttachments,
+    });
+
+    console.log("Created course attachments:", createdAttachments);
+
     res.status(200).json({
       message: "Files uploaded successfully!",
-      videoFile,
+      videoFile: videoFileData,
       materialFileURLs,
     });
   } catch (error) {
