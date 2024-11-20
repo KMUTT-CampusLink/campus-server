@@ -13,11 +13,13 @@ import { futureExamController } from "../controllers/webhookReq/student/futureEx
 import { semesterEndController } from "../controllers/webhookReq/timeTables/semesterEndController.js";
 import { webhookReqController } from "../controllers/webhookReqController.js";
 import { semesterStartController } from "../controllers/webhookReq/timeTables/semesterStartController.js";
+import { invoiceDetailController } from "../controllers/webhookReq/Invoices/invoiceDetailController.js";
 
 const botRouter = Router();
 
 botRouter.post("/webhook", webhookReqController);
 
+botRouter.get("/invoiceDetails", invoiceDetailController);
 botRouter.get("/semesterStartDate", semesterStartController);
 botRouter.get("/semesterEndDate", semesterEndController);
 botRouter.get("/professorname", professorController);
