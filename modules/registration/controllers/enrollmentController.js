@@ -137,6 +137,34 @@ export const deleteEnrollmentDetail = async (req, res) => {
   }
 };
 
+export const withdrawEnrollmentDetail = async (req, res) => {
+  const { selectedEnrollmentId } = req.params;
+
+  if (!selectedEnrollmentId) {
+    return res
+      .status(400)
+      .json({ message: "Enrollment detail ID is required." });
+  }
+
+  try {
+
+    await prisma.$executeRaw`
+    UPDATE enrollment_detail 
+    SET grade_id = 1011, status = 'Withdraw' 
+    WHERE id = ${Number(selectedEnrollmentId)};
+  `;
+
+    return res
+      .status(200)
+      .json({ message: "Enrollment successfully withdrawn." });
+  } catch (error) {
+    console.error("Error withdrawing enrollment detail:", error);
+    return res
+      .status(500)
+      .json({ message: "Error withdrawing enrollment detail." });
+  }
+};
+
 export const getOrCreateEnrollmentHead = async (req, res) => {
   const { studentId, currentSemesterId } = req.body;
 
@@ -163,7 +191,6 @@ export const getOrCreateEnrollmentHead = async (req, res) => {
       data: {
         student_id: studentId,
         semester_id: Number(currentSemesterId),
-        status: 'Unpaid',
         created_at: new Date(),
         updated_at: new Date(),
       },
@@ -185,6 +212,7 @@ export const getOrCreateEnrollmentHead = async (req, res) => {
   }
 };
 
+
 export const getPaymentStatus = async (req, res) => {
   const { headId } = req.params;
 
@@ -195,14 +223,38 @@ export const getPaymentStatus = async (req, res) => {
   }
 
   try {
-    const enrollment = await prisma.$queryRaw`
-      SELECT status FROM enrollment_head
-      WHERE id = ${Number(headId)};`;
+    const invoice = await prisma.$queryRaw`
+      SELECT invoice_id
+      FROM enrollment_head eh
+      WHERE eh.id = ${Number(headId)};`;
 
-    if (!enrollment.length) {
-      return res.status(200).json([]);
+    if (!invoice[0].invoice_id) {
+      const invoiceData = await prisma.$queryRaw`
+        SELECT student_id, user_id, price
+        FROM enrollment_head eh, student s, degree d
+        WHERE eh.id = ${Number(headId)} AND eh.student_id = s.id AND d.id = s.degree_id;`;
+
+      const { user_id, price } = invoiceData[0];
+
+      // Create a new invoice with the userId
+      const newInvoice = await prisma.$queryRaw`
+      INSERT INTO invoice (user_id, status, issued_by, title, issued_date, due_date, amount)
+      VALUES (${user_id}::uuid , 'Unpaid','Registration', 'Course Registration', NOW(), NOW() + INTERVAL '7 days', ${price})
+      RETURNING id;`;
+      console.log(newInvoice[0].id);
+      // Update the enrollment_head with the new invoice_id
+      await prisma.$queryRaw`
+      UPDATE enrollment_head 
+      SET invoice_id = ${newInvoice[0].id}::uuid 
+      WHERE id = ${Number(headId)};`;
     }
-    return res.status(200).json(enrollment[0].status);
+
+    const enrollment = await prisma.$queryRaw`
+     SELECT eh.id, issued_date, due_date, paid_date, amount, i.status 
+     FROM enrollment_head eh, invoice i
+     WHERE eh.id = ${Number(headId)} AND eh.invoice_id = i.id;`;
+
+    return res.status(200).json(enrollment[0]);
   } catch (error) {
     console.error("Error fetching enrollment status:", error);
     return res.status(500).json({

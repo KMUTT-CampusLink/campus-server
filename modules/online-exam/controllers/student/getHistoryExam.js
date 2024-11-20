@@ -1,11 +1,15 @@
 import prisma from "../../../../core/db/prismaInstance.js";
 
+import { decodeToken } from "../../middleware/jwt.js";
+
 export default async function getHistoryExam(req, res) {
-  // const studentId = req.query.studentId;
-  const studentId = "66130500850";
+  const token = req.cookies.token;
+  const sectionId = parseInt(req.query.sectionid);
   try {
-    const queryStudent =
-      await prisma.$queryRaw`SELECT student_exam.exam_id FROM student_exam, exam WHERE exam.id = student_exam.exam_id AND student_exam.student_id = ${studentId} AND student_exam.status = 'Completed' AND is_publish_immediately = true`;
+    const decoded = decodeToken(token);
+    const userId = decoded.id;
+    const queryStudentId = await prisma.$queryRaw`SELECT id FROM student WHERE user_id = ${userId}::uuid`;
+    const queryStudent = await prisma.$queryRaw`SELECT se.exam_id FROM student_exam AS se, exam AS e, student AS s WHERE s.user_id = ${userId}::uuid AND s.id = se.student_id AND e.id = se.exam_id AND se.student_id = ${queryStudentId[0].id} AND se.status = 'Completed' AND (e.is_publish_immediately = true OR e.publish_score_status = true) AND e.section_id = ${sectionId}`;
     const examIds = queryStudent.map((exam) => exam.exam_id);
     const queryExam = await prisma.exam.findMany({
       where: {

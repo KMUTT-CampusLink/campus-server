@@ -8,13 +8,22 @@ import { semesterStartController } from "./webhookReq/timeTables/semesterStartCo
 import { tutionFeeController } from "./webhookReq/programs/tutionFeeController.js";
 import { professorController } from "./webhookReq/programs/professorController.js";
 
+let globalParameters = {};
+
 export const webhookReqController = async(req, res) => {
   const pageName = req.body.pageInfo.displayName;
+  // console.log(pageName);
   let result;
+  globalParameters = req.body.sessionInfo.parameters;
+  let parameters = {};
   if(pageName === "Fees"){
     const programName = req.body.sessionInfo.parameters.program.trim();
     const degreeLevel = req.body.sessionInfo.parameters.degreelevel.trim() + " Degree";
     result = await tutionFeeController(programName, degreeLevel);
+    parameters = {
+      "program": null,
+      "degreelevel": null,
+    }
   }
   else if(pageName === "Programs List") {
     result = await programsListController();
@@ -23,7 +32,13 @@ export const webhookReqController = async(req, res) => {
   }else if(pageName === "EventList"){
     result = await libraryEventController();
   }else if(pageName === "Course"){
-    result = await requirecourseController();
+    const progName = req.body.sessionInfo.parameters.program.trim();
+    const degreeLevel = req.body.sessionInfo.parameters.degreelevel.trim();
+    result = await requirecourseController(progName, degreeLevel);
+    parameters = {
+      "program": null,
+      "degreelevel": null,
+    };
   }else if(pageName === "Semester Starttime"){
     result = await semesterStartController();
   }else if(pageName === "Semester Endingtime"){
@@ -33,19 +48,35 @@ export const webhookReqController = async(req, res) => {
   }else if(pageName === "Member"){
     const clubName = req.body.sessionInfo.parameters.clubs.trim();
     result = await clubMemberController(clubName);
-  }else if(PageName === "Course Professor"){
-    result = await professorController();
+    parameters = {
+      "clubs": null,
+    }
+  }else if(pageName === "Professor"){
+    const courseName = req.body.sessionInfo.parameters.course.trim();
+    result = await professorController(courseName);
+    parameters = {
+      "course" : null,
+    }
+  }else if(pageName === "Search Book"){
+    parameters = {
+      "books": null,
+    }
   }
-
+  // console.log(parameters);
   res.json({
     "fulfillmentResponse": {
       "messages": [
         {
           "text": {
-            "text": [result]
+            "text": [result ? result : "I do not understand."]
           }
         }
       ]
+    },
+    "sessionInfo": {
+      parameters
     }
   });
 }
+
+export {globalParameters}
