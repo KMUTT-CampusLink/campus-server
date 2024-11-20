@@ -40,11 +40,13 @@ import {
   getPendingRequests,
   updateJoinRequestStatus,
 } from "../controllers/request.js";
-import { reserveSeat } from "../controllers/reservation.js";
+import { reserveSeat, getReservationStatus } from "../controllers/reservation.js";
 import multerErrorHandler from "../../../core/middleware/multerErrorHandler.js";
 import file_uploader from "../../../core/middleware/multerUploader.js";
 
 const router = Router();
+
+router.post("/events/status", getReservationStatus);
 
 // Update lineID in club_member table
 router.put("/member/:memberId/lineID", updateLineID);
