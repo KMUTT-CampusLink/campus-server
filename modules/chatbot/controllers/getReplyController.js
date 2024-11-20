@@ -1,5 +1,6 @@
 import { SessionsClient } from "@google-cloud/dialogflow-cx";
 import prisma from "../../../core/db/prismaInstance.js";
+import { globalParameters } from "./webhookReqController.js";
 
 const client = new SessionsClient({
   credentials: {
@@ -36,8 +37,10 @@ const detectIntentText = async(projectId, inputText, sessionId, bearerToken) => 
 
   try {
     const [response] = await client.detectIntent(request);
-    const params = response.queryResult.parameters?.fields 
-    ? Object.values(Object.entries(response.queryResult?.parameters?.fields).filter(([key]) => key !== 'bearerToken'))
+    const globalparams = { ...globalParameters };
+    // console.log(globalparams);
+    const params = globalparams
+    ? Object.values(Object.entries(globalparams).filter(([key]) => key !== 'bearerToken'))
     : [];
     const responseMessages = response.queryResult.responseMessages;
     let responseText = '';
@@ -66,9 +69,11 @@ const detectIntentText = async(projectId, inputText, sessionId, bearerToken) => 
       parameters = "";
       if(params.length > 0){
         params.map((p) => {
-          parameters = parameters.concat(p.stringValue);
+          if(p[1]) parameters = parameters.concat(p[1]);
         })
-      }else parameters = "-";
+      } else parameters = "-";
+      if(parameters.length === 0) parameters = "-";
+      // console.log("pars " + parameters);
       await prisma.page_req_count.upsert({
         where: {
           page_name_params:{

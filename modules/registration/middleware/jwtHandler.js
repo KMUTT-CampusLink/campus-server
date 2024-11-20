@@ -13,7 +13,7 @@ const verifyAccessToken = (req, res, next) => {
     (authHeader &&
       authHeader?.startsWith("Bearer ") &&
       authHeader.split(" ")[1]);
-      console.log(token);
+
   if (!token) {
     return res.status(401).send("Unauthorized access");
   }

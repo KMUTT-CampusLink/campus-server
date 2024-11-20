@@ -8,17 +8,19 @@ import { semesterStartController } from "./webhookReq/timeTables/semesterStartCo
 import { tutionFeeController } from "./webhookReq/programs/tutionFeeController.js";
 import { professorController } from "./webhookReq/programs/professorController.js";
 
+let globalParameters = {};
+
 export const webhookReqController = async(req, res) => {
   const pageName = req.body.pageInfo.displayName;
-  console.log(pageName);
+  // console.log(pageName);
   let result;
-  let paramsList = {};
-  console.log(req.body.sessionInfo);
+  globalParameters = req.body.sessionInfo.parameters;
+  let parameters = {};
   if(pageName === "Fees"){
     const programName = req.body.sessionInfo.parameters.program.trim();
     const degreeLevel = req.body.sessionInfo.parameters.degreelevel.trim() + " Degree";
     result = await tutionFeeController(programName, degreeLevel);
-    paramsList = {
+    parameters = {
       "program": null,
       "degreelevel": null,
     }
@@ -33,7 +35,7 @@ export const webhookReqController = async(req, res) => {
     const progName = req.body.sessionInfo.parameters.program.trim();
     const degreeLevel = req.body.sessionInfo.parameters.degreelevel.trim();
     result = await requirecourseController(progName, degreeLevel);
-    paramsList = {
+    parameters = {
       "program": null,
       "degreelevel": null,
     };
@@ -46,34 +48,35 @@ export const webhookReqController = async(req, res) => {
   }else if(pageName === "Member"){
     const clubName = req.body.sessionInfo.parameters.clubs.trim();
     result = await clubMemberController(clubName);
-    paramsList = {
+    parameters = {
       "clubs": null,
     }
   }else if(pageName === "Professor"){
-    console.log("lee professor");
     const courseName = req.body.sessionInfo.parameters.course.trim();
     result = await professorController(courseName);
-    paramsList = {
+    parameters = {
       "course" : null,
     }
   }else if(pageName === "Search Book"){
-    paramsList = {
+    parameters = {
       "books": null,
     }
   }
-  console.log(result);
+  // console.log(parameters);
   res.json({
     "fulfillmentResponse": {
       "messages": [
         {
           "text": {
-            "text": [result]
+            "text": [result ? result : "I do not understand."]
           }
         }
       ]
     },
     "sessionInfo": {
-      "parameters": null
+      parameters
     }
   });
 }
+
+export {globalParameters}
