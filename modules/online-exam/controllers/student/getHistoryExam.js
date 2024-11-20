@@ -8,23 +8,12 @@ export default async function getHistoryExam(req, res) {
   try {
     const decoded = decodeToken(token);
     const userId = decoded.id;
-    const queryStudentId =
-      await prisma.$queryRaw`SELECT id FROM student WHERE user_id = ${userId}::uuid`;
-    const queryStudent =
-      await prisma.$queryRaw`SELECT se.exam_id, se.id FROM student_exam AS se, exam AS e, student AS s WHERE s.user_id = ${userId}::uuid AND s.id = se.student_id AND e.id = se.exam_id AND se.student_id = ${queryStudentId[0].id} AND se.status = 'Completed' AND (e.is_publish_immediately = true OR e.publish_score_status = true) AND e.section_id = ${sectionId}`;
+    const queryStudentId = await prisma.$queryRaw`SELECT id FROM student WHERE user_id = ${userId}::uuid`;
+    const queryStudent = await prisma.$queryRaw`SELECT se.exam_id FROM student_exam AS se, exam AS e, student AS s WHERE s.user_id = ${userId}::uuid AND s.id = se.student_id AND e.id = se.exam_id AND se.student_id = ${queryStudentId[0].id} AND se.status = 'Completed' AND (e.is_publish_immediately = true OR e.publish_score_status = true) AND e.section_id = ${sectionId}`;
     const examIds = queryStudent.map((exam) => exam.exam_id);
     if (examIds.length < 1) {
       return res.status(404).json({ message: "No exam found" });
     }
-    // const queryExam = await prisma.exam.findMany({
-    //   where: {
-    //     id: { in: examIds },
-    //   },
-    //   select: {
-    //     id: true,
-    //     title: true,
-    //   },
-    // });
     const examIdsList = `(${examIds.join(",")})`;
     const queryExam = await prisma.$queryRawUnsafe(`
   SELECT se.id AS studentExamId, e.id, e.title 

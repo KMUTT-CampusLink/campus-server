@@ -26,9 +26,10 @@ export default async function getAllExam(req, res) {
         title: true,
       },
     });
+    const course = await prisma.$queryRaw`SELECT c.name FROM course AS c, section AS s WHERE s.id = ${sectionid} AND s.course_code = c.code`;
     return res
       .status(200)
-      .json({ message: "All exams fetched", data: queryExam });
+      .json({ message: "All exams fetched", exam: queryExam, courseTitle: course });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: error.message });
