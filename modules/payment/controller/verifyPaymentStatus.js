@@ -59,6 +59,18 @@ const verifyPaymentStatus = async (req, res) => {
         }
       }
 
+      // ตรวจสอบว่าผ่อนชำระครบทุกบิลแล้วหรือไม่
+      const allPaid = installments.every((installment) => installment.status === 'Paid');
+
+      if (allPaid) {
+        // หากผ่อนชำระครบทุกงวดแล้ว อัปเดตสถานะของ Invoice หลักเป็น Paid
+        await prisma.invoice.update({
+          where: { id: invoice.id },
+          data: { status: 'Paid' },
+        });
+        return res.status(200).json({ status: 'Paid', message: "All installments have been paid. The main invoice is now marked as Paid." });
+      }
+
       const installmentDetails = installments.map((installment) => ({
         amount: installment.amount,
         due_date: installment.due_date,
