@@ -1,6 +1,7 @@
 import { Router } from "express";
 
 import validateRoles from "../middleware/validateRoles.js";
+import validateSection from "../middleware/validateSection.js";
 
 // professor import
 import createExam from "../controllers/professor/examModification/createExam.js";
@@ -19,10 +20,8 @@ import getQuestionScore from "../controllers/professor/studentScoring/getQuestio
 import getStudentScoreById from "../controllers/professor/studentScoring/getStudentScoreById.js";
 import updateStudentScore from "../controllers/professor/studentScoring/updateStudentScore.js";
 import updateExamAnnouncement from "../controllers/professor/examModification/updateExamAnnoucement.js";
-
-import announceScore from "../controllers/professor/studentScoring/announceScore.js";
 import dashboard from "../controllers/professor/studentScoring/dashboard.js";
-
+import getAllStudentInSection from "../controllers/professor/examModification/getAllStudentInSection.js";
 // student import
 import getAllExam from "../controllers/student/getAllExam.js";
 import getHistoryExams from "../controllers/student/getHistoryExam.js";
@@ -47,6 +46,7 @@ examRouter.get("/", (req, res) => {
 });
 
 examRouter.get("/validateRoles", validateRoles);
+examRouter.get("/validateSection", validateSection);
 
 //professor router
 examRouter.post("/professor/createExam", createExam);
@@ -66,6 +66,7 @@ examRouter.get("/professor/getQuestionScore", getQuestionScore);
 examRouter.get("/professor/getStudentScoreById", getStudentScoreById);
 examRouter.put("/professor/updateStudentScore", updateStudentScore);
 examRouter.put("/professor/updateExamAnnouncement", updateExamAnnouncement);
+examRouter.get("/professor/getAllStudentInSection", getAllStudentInSection);
 //student router
 examRouter.get("/student/getAllExam", getAllExam);
 examRouter.get("/student/getHistoryExams", getHistoryExams);
