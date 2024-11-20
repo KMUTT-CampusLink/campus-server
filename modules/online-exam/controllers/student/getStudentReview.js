@@ -12,7 +12,8 @@ export default async function getStudentReview(req, res) {
     const userId = decoded.id;
 
     // Get student ID with explicit type casting
-    const studentQuery = await prisma.$queryRaw`SELECT id FROM student WHERE user_id = ${userId}::uuid`;
+    const studentQuery =
+      await prisma.$queryRaw`SELECT id FROM student WHERE user_id = ${userId}::uuid`;
     if (!studentQuery.length) throw new Error("Student not found");
 
     const studentId = studentQuery[0].id;
@@ -26,7 +27,7 @@ export default async function getStudentReview(req, res) {
         type: true,
         title: true,
         question_img: true,
-        id:true,
+        id: true,
         exam_choice: {
           select: {
             choice_text: true,
@@ -39,6 +40,11 @@ export default async function getStudentReview(req, res) {
           },
           select: {
             answer: true,
+          },
+        },
+        exam: {
+          select: {
+            title: true,
           },
         },
       },
