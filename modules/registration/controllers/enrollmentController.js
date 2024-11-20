@@ -163,7 +163,6 @@ export const getOrCreateEnrollmentHead = async (req, res) => {
       data: {
         student_id: studentId,
         semester_id: Number(currentSemesterId),
-        status: 'Unpaid',
         created_at: new Date(),
         updated_at: new Date(),
       },
