@@ -13,12 +13,17 @@ export const createDiscussionTopic = async (req, res) => {
 
     // Check if section_id exists
     const sectionExists = await prisma.section.findUnique({
-      where: { id: section_id },
+      where: { id: parseInt(section_id) },
     });
     if (!sectionExists) {
       return res.status(404).json({
         message: "The specified section_id does not exist.",
       });
+    }
+    
+    const sectionIdParsed = parseInt(section_id, 10); // Base 10 parsing
+    if (isNaN(sectionIdParsed)) {
+      return res.status(400).json({ message: "Invalid section_id" });
     }
 
     // Check if user_id exists
@@ -34,7 +39,7 @@ export const createDiscussionTopic = async (req, res) => {
     // Create a new discussion topic
     const newTopic = await prisma.discussion_topic.create({
       data: {
-        section_id,
+        section_id: sectionIdParsed,
         user_id,
         title,
         content,
@@ -259,3 +264,19 @@ export const deleteDiscussionReply = async (req, res) => {
     });
   }
 };
+
+export const getAllDiscussionPostsBySectionID = async (req, res) => {
+  const { sectionID } = req.params;
+  const intSectionID = parseInt(sectionID, 10);
+  try {
+    const section = await prisma.$queryRaw`
+    SELECT dt.title,
+    FROM section s, discussion_topic dt, user u, 
+    WHERE s.id = dt.section_id
+    ;
+    `
+  }
+  catch {
+
+  }
+}
