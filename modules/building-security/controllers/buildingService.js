@@ -1,4 +1,4 @@
-import prisma from "../../../campus-server/core/db/prismaInstance.js";
+import prisma from "../../../core/db/prismaInstance.js";
 
 const parseTime = (date, time) => {
   const [hours, minutes] = time.split(":").map(Number);
@@ -21,6 +21,28 @@ export const getBuildings = async () => {
   }
 };
 
+export const getBuildingsWithRoom = async () => {
+  try {
+    return await prisma.building.findMany({
+      where: {
+        floor: {
+          some: {
+            room: {
+              some: {}, // Ensures only floors with rooms are included
+            },
+          },
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching floors:", error);
+    throw new Error("Could not retrieve floors");
+  }
+};
 export const getFloorsByBuildingId = async (buildingId) => {
   try {
     return await prisma.floor.findMany({
