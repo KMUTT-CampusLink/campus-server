@@ -37,7 +37,9 @@ import toggleAnswer from "../controllers/student/toggleAnswer.js";
 import getStudentReview from "../controllers/student/getStudentReview.js";
 import getStudentExamStatus from "../controllers/student/getStudentExamStatus.js";
 import getExamTime from "../controllers/student/getExamTime.js";
-
+import getStudentFullMark from "../controllers/student/getStudentFullMark.js";
+import studentGetStudentScoreById from "../controllers/student/studentGetStudentScoreById.js";
+import studentGetQuestionScore from "../controllers/student/studentgetQuestionScore.js";
 const examRouter = Router();
 
 examRouter.get("/", (req, res) => {
@@ -78,5 +80,8 @@ examRouter.put("/student/toggleAnswer", toggleAnswer);
 examRouter.get("/student/getStudentReview", getStudentReview);
 examRouter.get("/student/getStudentStatus", getStudentExamStatus);
 examRouter.get("/student/getExamTime", getExamTime);
+examRouter.get("/student/getFullMark", getStudentFullMark);
+examRouter.get("/student/getScoreById", studentGetStudentScoreById);
+examRouter.get("/student/getstudentQuestionScore",studentGetQuestionScore);
 
 export { examRouter };

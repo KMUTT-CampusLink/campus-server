@@ -26,7 +26,6 @@ export default async function getAllExam(req, res) {
         title: true,
       },
     });
-    console.log(res)
     return res
       .status(200)
       .json({ message: "All exams fetched", data: queryExam });
