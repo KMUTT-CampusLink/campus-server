@@ -14,6 +14,7 @@ import { buildingContactController } from "../controllers/webhookReq/building an
 import { clubAnnouncementController } from "../controllers/webhookReq/clubs/clubAnnouncementController.js";
 import { allaboutClubController } from "../controllers/webhookReq/clubs/allaboutClubController.js";
 import { allaboutCourseController } from "../controllers/webhookReq/programs/allaboutCourseController.js";
+import { courseDurationController } from "../controllers/webhookReq/programs/courseDurationController.js";
 
 const botRouter = Router();
 
@@ -25,6 +26,7 @@ botRouter.get("/clublist",clubListController);
 botRouter.get("/tutionfee",tutionFeeController);
 botRouter.get("/programlist",programsListController);
 botRouter.get("/requiredcourse",requirecourseController);
+botRouter.get("/duration",courseDurationController);
 botRouter.get("/checkbook",checkBookController);
 botRouter.get("/examscore",examScoreController);
 botRouter.get("/future",futureExamController);

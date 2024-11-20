@@ -4,7 +4,7 @@ export const tutionFeeController = async(req, res)=>{
     const { programName, degreeLevel } = req.query;
     try{
         const tutionfee = await prisma.$queryRaw`
-        SELECT p.name as ProgramName, p.price, d.degree_level
+        SELECT p.name as ProgramName, d.price, d.degree_level
             FROM "program" AS p ,"degree" AS d
             WHERE 
             p.id=d.program_id
