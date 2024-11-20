@@ -12,13 +12,13 @@ export const invoiceDetailController = async (req,res) => {
         let details;
         if(role && role[0]?.role === "Student"){
             details = await prisma.$queryRaw`
-            SELECT amount,issued_by,issued_date,due_date,status
+            SELECT amount,issued_by,issued_date,due_date,status,title
             from "invoice"
             WHERE user_id = ${id}::UUID;
             `;
         }else{
                 details = await prisma.$queryRaw`
-                SELECT amount,issued_by,issued_date,due_date,status
+                SELECT amount,issued_by,issued_date,due_date,status,title
                 from "invoice"
                 WHERE user_id = ${id}::UUID;
                 `;
@@ -29,7 +29,7 @@ export const invoiceDetailController = async (req,res) => {
             return `Sorry we could not find any information for your invoice details.`;
         }
         details.map((detail, index) => {
-            fulfillment += `${index + 1}. Amount: ${detail.amount}\nIssued By: ${detail.issued_by}\nIssued_date: ${new Date(detail.issued_date).toLocaleDateString()}\nDue Date: ${new Date(detail.due_date).toLocaleDateString()}\nStatus: ${detail.status}\n\n `
+            fulfillment += `${index + 1}. Reason: ${detail.title}\nAmount: ${detail.amount}\nIssued By: ${detail.issued_by}\nIssued_date: ${new Date(detail.issued_date).toLocaleDateString()}\nDue Date: ${new Date(detail.due_date).toLocaleDateString()}\nStatus: ${detail.status}\n\n `
         })
         res.status(200).json({reply: fulfillment});
         return fulfillment;
