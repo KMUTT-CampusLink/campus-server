@@ -1,6 +1,7 @@
 import prisma from "../../../../../core/db/prismaInstance.js";
 
 export const courseDurationController = async(programName,degreeLevel)=>{
+    degreeLevel += " Degree";
     try{
         const duration=await prisma.$queryRaw`
         SELECT name, duration,degree_level

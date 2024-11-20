@@ -10,7 +10,7 @@ export const checkBookController = async (title) => {
 
         if (book.length > 0) {
             // res.status(200).json({ message: `Yes, the book titled "${book[0].title}", edition ${book[0].edition}: written by ${book.author}, is available at the library.` });
-           return `Yes, the book titled "${book[0].title}", edition ${book[0].edition}: written by ${book.author}, is available at the library.`;
+           return `Yes, the book titled "${book[0].title}", edition ${book[0].edition}: written by ${book[0].author}, is available at the library.`;
         } else {
         //    res.status(404).json({ message: 'There is no such book available at the library.' });
             return `There is no such book available at the library right now.`

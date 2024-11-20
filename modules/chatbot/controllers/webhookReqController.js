@@ -9,14 +9,17 @@ import { tutionFeeController } from "./webhookReq/programs/tutionFeeController.j
 import { professorController } from "./webhookReq/programs/professorController.js";
 import { examScoreController } from "./webhookReq/student/examScoreController.js";
 import { futureExamController } from "./webhookReq/student/futureExamController.js";
+import { checkBookController } from "./webhookReq/library/checkBookController.js";
+import { courseDurationController } from "./webhookReq/programs/courseDurationController.js";
 
 let globalParameters = {};
 
 export const webhookReqController = async(req, res) => {
   const pageName = req.body.pageInfo.displayName;
-  // console.log(pageName);
+  console.log(pageName);
   let result;
   globalParameters = req.body.sessionInfo.parameters;
+  console.log(globalParameters)
   let parameters = {};
   if(pageName === "Fees"){
     const programName = req.body.sessionInfo.parameters.program.trim();
@@ -41,10 +44,9 @@ export const webhookReqController = async(req, res) => {
       "program": null,
       "degreelevel": null,
     };
-  }else if(pageName === "Semester Starttime"){
-    result = await semesterStartController();
   }else if(pageName === "Semester Endingtime"){
-    result = await semesterEndController();
+    const stuId = req.user.studentId;
+    result = await semesterEndController(stuId);
   }else if(pageName === "EventList"){
     result = await libraryEventController();
   }else if(pageName === "Member"){
@@ -59,10 +61,6 @@ export const webhookReqController = async(req, res) => {
     parameters = {
       "course" : null,
     }
-  }else if(pageName === "Search Book"){
-    parameters = {
-      "books": null,
-    }
   }else if(pageName === "Score"){
     const studentId = req.user.studentId;
     const examTitle = req.body.sessionInfo.parameters.course.trim();
@@ -76,6 +74,31 @@ export const webhookReqController = async(req, res) => {
     result = await futureExamController(studentId, examTitle);
     parameters = {
       "course": null,
+    }
+  }else if(pageName === "Search Book"){
+    const title = req.body.sessionInfo.parameters.books.trim();
+    result = await checkBookController(title);
+    parameters = {
+      "books": null,
+    }
+  }else if(pageName === "Course"){
+    const progName = req.body.sessionInfo.parameters.program.trim();
+    const degreeLevel = req.body.sessionInfo.parameters.degreelevel.trim();
+    result = await requirecourseController(progName, degreeLevel);
+    parameters = {
+      "program": null,
+      "degreelevel": null,
+    }
+  }else if(pageName === "Semester Starttime"){
+    const stuId = req.user.studentId;
+    result = await semesterStartController(stuId);
+  }else if(pageName === "Duration"){
+    const programName = req.body.sessionInfo.parameters.program.trim();
+    const degreeLevel = req.body.sessionInfo.parameters.degreelevel.trim();
+    result = await courseDurationController(programName, degreeLevel);
+    parameters = {
+      "program": null,
+      "degreelevel": null,
     }
   }
   // console.log(parameters);
