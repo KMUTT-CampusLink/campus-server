@@ -1,18 +1,16 @@
 import prisma from "../../../../../core/db/prismaInstance.js";
  export const futureExamController =async(studentId)=>{
     studentId = studentId.trim();
-    examTitle = examTitle.trim();
     try {
-        const future_exam=await prisma.$queryRaw`
-        select e.title, e.start_date 
-        from exam as e,section as s,semester as sm,student as stu ,course as c
+        const future_exam = await prisma.$queryRaw`
+        select e.title, e.start_date, c.name
+        from exam as e,section as s,student as stu ,course as c
         where e.section_id=s.id
-        and s.semester_id=sm.id
+        and s.semester_id=stu.semester_id
         and s.course_code=c.code
-        and sm.id=stu.semester_id
-        and e.start_date>current_date
+        and e.start_date > current_date
         and stu.id=${studentId}
-        and e.title=${examTitle};`
+        ;`
     console.log(future_exam);
   if (future_exam.length=== 0||!future_exam) {
     // res.status(404).json({ message: `There is no examination yet` });

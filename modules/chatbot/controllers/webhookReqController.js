@@ -16,6 +16,7 @@ import { allaboutCourseController } from "./webhookReq/programs/allaboutCourseCo
 import { allaboutClubController } from "./webhookReq/clubs/allaboutClubController.js";
 import { clubAnnouncementController } from "./webhookReq/clubs/clubAnnouncementController.js";
 import { buildingContactController } from "./webhookReq/building and secruity/buildingContactController.js";
+import { invoiceDetailController } from "./webhookReq/Invoices/invoiceDetailController.js";
 
 let globalParameters = {};
 
@@ -72,11 +73,7 @@ export const webhookReqController = async(req, res) => {
     result = await examScoreController(studentId);
   }else if(pageName === "Exam"){
     const studentId = req.user.studentId;
-    const examTitle = req.body.sessionInfo.parameters.course.trim();
-    result = await futureExamController(studentId, examTitle);
-    parameters = {
-      "course": null, 
-    }
+    result = await futureExamController(studentId);
   }else if(pageName === "Search Book"){
     const title = req.body.sessionInfo.parameters.books.trim();
     result = await checkBookController(title);
@@ -128,6 +125,9 @@ export const webhookReqController = async(req, res) => {
     parameters = {
       "building": null,
     }
+  }else if(pageName === "Invoice All"){
+    const id = req.user.id;
+    result = await invoiceDetailController(id);
   }
   // console.log(parameters);
   res.json({
