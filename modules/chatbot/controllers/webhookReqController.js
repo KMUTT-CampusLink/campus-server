@@ -22,10 +22,10 @@ let globalParameters = {};
 
 export const webhookReqController = async(req, res) => {
   const pageName = req.body.pageInfo.displayName;
-  console.log(pageName);
+  // console.log(pageName);
   let result;
   globalParameters = req.body.sessionInfo.parameters;
-  console.log(globalParameters)
+  // console.log(globalParameters)
   let parameters = {};
   if(pageName === "Fees"){
     const programName = req.body.sessionInfo.parameters.program.trim();
@@ -70,8 +70,12 @@ export const webhookReqController = async(req, res) => {
     }
   }else if(pageName === "Score"){
     const studentId = req.user.studentId;
-    result = await examScoreController(studentId);
-  }else if(pageName === "Exam"){
+    const courseName = req.body.sessionInfo.parameters.course.trim();
+    result = await examScoreController(studentId, courseName);
+    parameters = {
+      "course": null,
+    }
+  }else if(pageName === "Future Exam"){
     const studentId = req.user.studentId;
     result = await futureExamController(studentId);
   }else if(pageName === "Search Book"){
