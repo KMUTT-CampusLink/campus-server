@@ -68,7 +68,7 @@ export const webhookReqController = async(req, res) => {
       "messages": [
         {
           "text": {
-            "text": [result ? result : "I do not understand."]
+            "text": [result ? result : "I do not have that information right now."]
           }
         }
       ]
