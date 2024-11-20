@@ -23,7 +23,7 @@ courseRouter.get("/", (req, res) => {
 });
 
 courseRouter.get("/all", getAllCourses);
-courseRouter.get("/videos", getAllVideos);
+courseRouter.get("/videos/:section_id", getAllVideos);
 courseRouter.get("/:sectionID", getCourseHeaderBySectionID);
 courseRouter.get("/:professorID/teach", getAllCoursesByProfessorID);
 courseRouter.get("/course/:sectionID", getCourseHeaderBySectionID);

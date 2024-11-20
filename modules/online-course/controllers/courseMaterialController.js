@@ -24,11 +24,21 @@ export const addVideo = async (req, res) => {
 };
 
 export const getAllVideos = async (req, res) => {
+  const { section_id } = req.params; // Extract section_id from request parameters
+
   try {
-    const videos = await prisma.$queryRaw`
-      SELECT *
-      FROM course_video
-      ORDER BY created_at`;
+    const videos = await prisma.course_video.findMany({
+      where: {
+        section_id: parseInt(section_id), // Filter by section_id from params
+      },
+      orderBy: {
+        created_at: "asc", // You can use 'desc' for descending order
+      },
+      include: {
+        course_attachment: true, // Include the related course_attachment models
+      },
+    });
+
     return res.status(200).json(videos);
   } catch (error) {
     return res.status(500).json(error);
@@ -73,7 +83,7 @@ export const addCourseMaterials = async (req, res) => {
     const courseAttachments = materialFileURLs.map((file) => ({
       course_video_id: newVideo.id, // Assign the new video ID to the attachment
       file_path: file.objName, // Store the objName as file_path
-      //file_name: file.originalName, // You can store the original file name if needed
+      file_name: file.originalName, // You can store the original file name if needed
     }));
 
     // Insert all attachments into the database
