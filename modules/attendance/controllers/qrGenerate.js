@@ -22,7 +22,7 @@ const generateQrCode = async (req, res) => {
       return res.status(400).json("Invalid Section Id");
     }
 
-    const onGoing = await prisma.attendance_qr_code.findFirst({
+    const onGoing = await prisma.attendance.findFirst({
       where: {
         section_id: secId,
         professor_id: professorId,
@@ -40,7 +40,7 @@ const generateQrCode = async (req, res) => {
       });
     }
 
-    const newAttendance = await prisma.attendance_qr_code.create({
+    const newAttendance = await prisma.attendance.create({
       data: {
         section_id: secId, // Ensure these fields match your Prisma schema
         professor_id: professorId,

@@ -24,7 +24,7 @@ const validateQrCodeController = async (req, res) => {
     }
 
 
-    const attendances = await prisma.attendance_qr_code.findFirst({
+    const attendances = await prisma.attendance.findFirst({
       where: {
         id: attendanceId,
       },
@@ -36,7 +36,7 @@ const validateQrCodeController = async (req, res) => {
     const secId = attendances.section_id;
     const isStudentExist = await prisma.class_attendance.findFirst({
       where: {
-        attendance_qr_code_id: attendanceId,
+        attendance_id: attendanceId,
         student_id: studentId,
       },
     });
@@ -57,7 +57,7 @@ const validateQrCodeController = async (req, res) => {
         student_id: studentId,
         status: "Present",
         section_id: secId,
-        attendance_qr_code_id: attendanceId
+        attendance_id: attendanceId
       },
     });
 
