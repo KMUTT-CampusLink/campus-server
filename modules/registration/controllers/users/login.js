@@ -21,8 +21,8 @@ export default async function login(req, res) {
     }
 
     // Verify the password
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (isPasswordValid) { // อย่าลืมคืนนน!! isPasswordValid
+    // const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (password == user.password) { // อย่าลืมคืนนน!! isPasswordValid
       // Find the student ID based on the user ID
       const student = await prisma.student.findUnique({
         where: { user_id: user.id },

@@ -24,7 +24,7 @@ parkRouter.get("/", checkUnpaidInvoices, (req, res) => {
 parkRouter.get("/getParking", checkUnpaidInvoices, getParking );
 parkRouter.get("/getBuildingById/:building_id", checkUnpaidInvoices, getBuildingById)
 // parkRouter.get("/getFloorById/:floor_id", checkUnpaidInvoices, getFloorById)
-parkRouter.get("/getCar/:license_no", checkUnpaidInvoices, getCar)
+parkRouter.get("/getCar", checkUnpaidInvoices, getCar)
 parkRouter.delete("/deleteReservation/:reservation_id", checkUnpaidInvoices, deleteReservation)
 parkRouter.post("/postReservation", checkUnpaidInvoices, postReservation)
 parkRouter.post("/postCheckin", checkUnpaidInvoices, postCheckin)
