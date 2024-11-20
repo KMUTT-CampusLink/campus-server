@@ -18,6 +18,7 @@ import { getMaintenanceList } from "../controllers/getMaintenanceList.js";
 import { addMaintenanceList } from "../controllers/addMaintenanceList.js";
 import { addLostAndFoundList } from "../controllers/addLostAndFoundList.js";
 import { updateLostAndFoundList } from "../controllers/updateLostAndFoundList.js";
+import { adminDeleteMaintenanceList } from "../controllers/adminDeleteMaintenanceList.js";
 import verifyRoles from "../../../core/middleware/verifyRoles.js";
 
 // import { deleteReturned } from "../controllers/deleteReturned.js";
@@ -55,5 +56,6 @@ secureRouter.post("/addMaintenanceList", verifyRoles("Student", "Professor", "St
 secureRouter.post("/addLostAndFoundList", addLostAndFoundList);
 secureRouter.patch("/updateStatus/:id", updateLostAndFoundList);
 // secureRouter.delete("/deleteReturned", deleteReturned);
+secureRouter.delete("/adminDeleteMaintenanceList/:id", verifyRoles("Professor", "Staff"), adminDeleteMaintenanceList);
 
 export { secureRouter };
