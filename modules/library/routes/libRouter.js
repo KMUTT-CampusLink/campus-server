@@ -9,6 +9,7 @@ import { getAllDupeRes } from "../controllers/getAllDupeRes.js";
 import { createReservation } from "../controllers/createReservation.js";
 import { updateReturnBook } from "../controllers/updateReturnBook.js";
 import { getAllBookDupe } from "../controllers/getAllBookDupe.js";
+import { getAllUser } from "../controllers/getAllUser.js";
 
 const libRouter = Router();
 libRouter.get("/event", getAllLibraryEvents);
@@ -21,6 +22,7 @@ libRouter.get("/allDupe", getAllDupeRes);
 libRouter.post("/reservations", createReservation);
 libRouter.post("/returnBook", updateReturnBook);
 libRouter.get("/bookDupe", getAllBookDupe);
+libRouter.get("/user", getAllUser);
 
 libRouter.get("/", (req, res) => {
   return res.send("Library System");

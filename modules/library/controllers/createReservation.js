@@ -1,9 +1,12 @@
 import prisma from "../../../core/db/prismaInstance.js";
+import { decodeToken } from "../middleware/jwt.js"
 
 const createReservation = async (req, res) => {
-  const { status, user_id, book_duplicate_id, start_date, end_date } = req.body; // Changed from book_id to book_duplicate_id
+  const token = req.cookies.token;
+  const decode = decodeToken(token);
+  const user_id = decode.id;
+  const { status, book_duplicate_id, start_date, end_date } = req.body; 
 
-  // Check if all required fields are provided
   if (!status ||  !user_id || !book_duplicate_id || !start_date || !end_date) {
     return res.status(400).json({ error: "All fields are required" });
   }
