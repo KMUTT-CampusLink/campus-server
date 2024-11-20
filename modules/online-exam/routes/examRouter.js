@@ -39,6 +39,7 @@ import getExamTime from "../controllers/student/getExamTime.js";
 import getStudentFullMark from "../controllers/student/getStudentFullMark.js";
 import studentGetStudentScoreById from "../controllers/student/studentGetStudentScoreById.js";
 import studentGetQuestionScore from "../controllers/student/studentgetQuestionScore.js";
+import studentGetStudentAnswerById from "../controllers/student/studentGetStudentAnswerById.js";
 const examRouter = Router();
 
 examRouter.get("/", (req, res) => {
@@ -84,5 +85,6 @@ examRouter.get("/student/getExamTime", getExamTime);
 examRouter.get("/student/getFullMark", getStudentFullMark);
 examRouter.get("/student/getScoreById", studentGetStudentScoreById);
 examRouter.get("/student/getstudentQuestionScore",studentGetQuestionScore);
+examRouter.get("/student/studentGetStudentAnswerById",studentGetStudentAnswerById);
 
 export { examRouter };
