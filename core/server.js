@@ -53,14 +53,14 @@ app.get("/api/authorize", verifyAccessToken, (req, res) => {
 });
 app.use("/api/regis", verifyAccessToken, regisRouter);
 app.use("/api/attend", attendRouter);
-app.use("/api/security", secureRouter);
+app.use("/api/security", verifyAccessToken, secureRouter);
 app.use("/api/botastra", verifyAccessToken, botRouter);
 app.use("/api/clubs", clubRouter);
 app.use("/api/employ", employRouter);
 app.use("/api/library", libRouter);
 app.use("/api/map", mapRouter);
 app.use("/api/courses", courseRouter);
-app.use("/api/exams", examRouter);
+app.use("/api/exams", verifyAccessToken, examRouter);
 app.use("/api/parking", verifyAccessToken, parkRouter);
 app.use("/api/payment", verifyAccessToken, paymentRouter);
 app.use("/api/transport", verifyAccessToken, transRouter);
