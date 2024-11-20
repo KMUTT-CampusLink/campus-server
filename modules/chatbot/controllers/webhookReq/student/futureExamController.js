@@ -1,6 +1,5 @@
 import prisma from "../../../../../core/db/prismaInstance.js";
- export const futureExamController =async(req,res)=>{
-    let {studentId,examTitle}=req.query;
+ export const futureExamController =async(studentId, examTitle)=>{
     studentId = studentId.trim();
     examTitle = examTitle.trim();
     try {
@@ -16,17 +15,17 @@ import prisma from "../../../../../core/db/prismaInstance.js";
         and e.title=${examTitle};`
     console.log(future_exam);
   if (future_exam.length=== 0||!future_exam) {
-    res.status(404).json({ message: `There is no examination yet` });
-   // return `There is no examination yet`;
+    // res.status(404).json({ message: `There is no examination yet` });
+   return `There is no examination yet`;
   }else{
-      //return `The examination for ${examTitle}  is  at${future_exam[0].start_date}`;
-      res.status(200).json({
-          message: `The examination for ${examTitle}  is  at  ${future_exam[0].start_date} `
-      });
+      return `The examination for ${examTitle}  is  at${future_exam[0].start_date}`;
+    //   res.status(200).json({
+    //       message: `The examination for ${examTitle}  is  at  ${future_exam[0].start_date} `
+    //   });
   }
     } catch (error) {
         console.error("Error fetching future exam " + error);
-        //  return {error: "Error fetching future exam"};
-        res.status(500).json({ error: "Failed to fetch future exam" });
+         return {error: "Error fetching future exam"};
+        // res.status(500).json({ error: "Failed to fetch future exam" });
     }
  }

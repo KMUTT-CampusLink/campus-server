@@ -7,6 +7,8 @@ import { semesterEndController } from "./webhookReq/timeTables/semesterEndContro
 import { semesterStartController } from "./webhookReq/timeTables/semesterStartController.js";
 import { tutionFeeController } from "./webhookReq/programs/tutionFeeController.js";
 import { professorController } from "./webhookReq/programs/professorController.js";
+import { examScoreController } from "./webhookReq/student/examScoreController.js";
+import { futureExamController } from "./webhookReq/student/futureExamController.js";
 
 let globalParameters = {};
 
@@ -61,6 +63,20 @@ export const webhookReqController = async(req, res) => {
     parameters = {
       "books": null,
     }
+  }else if(pageName === "Score"){
+    const studentId = req.user.studentId;
+    const examTitle = req.body.sessionInfo.parameters.course.trim();
+    result = await examScoreController(studentId, examTitle);
+    parameters = {
+      "course": null,
+    }
+  }else if(pageName === "Exam"){
+    const studentId = req.user.studentId;
+    const examTitle = req.body.sessionInfo.parameters.course.trim();
+    result = await futureExamController(studentId, examTitle);
+    parameters = {
+      "course": null,
+    }
   }
   // console.log(parameters);
   res.json({
@@ -68,7 +84,7 @@ export const webhookReqController = async(req, res) => {
       "messages": [
         {
           "text": {
-            "text": [result ? result : "I do not have that information right now."]
+            "text": [result ? result : "I'm sorry. I do not have that information right now."]
           }
         }
       ]
