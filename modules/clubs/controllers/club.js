@@ -117,7 +117,7 @@ export const createClub = async (req, res) => {
   const name = req.body.clubName;
   const description = req.body.clubDescription;
   const content = req.body.clubDetails;
-  const owner_id = req.user.studentId || req.user.empId || "STU00023";
+  const owner_id = req.user.studentId || req.user.empId;
   const members = req.body.members;
   const building_id = req.body.buildingId;
 
