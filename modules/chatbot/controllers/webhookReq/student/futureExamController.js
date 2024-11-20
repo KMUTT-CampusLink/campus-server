@@ -1,5 +1,5 @@
 import prisma from "../../../../../core/db/prismaInstance.js";
- export const futureExamController =async(studentId, examTitle)=>{
+ export const futureExamController =async(studentId)=>{
     studentId = studentId.trim();
     examTitle = examTitle.trim();
     try {

@@ -1,5 +1,5 @@
 import prisma from "../../../../../core/db/prismaInstance.js";
- export const examScoreController =async(studentId, examTitle)=>{
+ export const examScoreController =async(studentId)=>{
     try {
         const examscore=await prisma.$queryRaw`
         SELECT total_score ,title
@@ -7,8 +7,8 @@ import prisma from "../../../../../core/db/prismaInstance.js";
         Where sex.exam_id=ex.id
         AND sex.student_id=stu.id
         AND stu.id=${studentId}
-        AND ex.title=${examTitle};`
-
+        `
+    console.log(examscore);
   if (examscore.length=== 0||!examscore) {
     // res.status(404).json({ message: `Sorry, we could not find any information for the score ` });
    return `Sorry, we could not find any information for the score.`;

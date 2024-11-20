@@ -11,6 +11,11 @@ import { examScoreController } from "./webhookReq/student/examScoreController.js
 import { futureExamController } from "./webhookReq/student/futureExamController.js";
 import { checkBookController } from "./webhookReq/library/checkBookController.js";
 import { courseDurationController } from "./webhookReq/programs/courseDurationController.js";
+import { libraryAnnouncementController } from "./webhookReq/library/libraryAnnouncementController.js";
+import { allaboutCourseController } from "./webhookReq/programs/allaboutCourseController.js";
+import { allaboutClubController } from "./webhookReq/clubs/allaboutClubController.js";
+import { clubAnnouncementController } from "./webhookReq/clubs/clubAnnouncementController.js";
+import { buildingContactController } from "./webhookReq/building and secruity/buildingContactController.js";
 
 let globalParameters = {};
 
@@ -50,10 +55,11 @@ export const webhookReqController = async(req, res) => {
   }else if(pageName === "EventList"){
     result = await libraryEventController();
   }else if(pageName === "Member"){
-    const clubName = req.body.sessionInfo.parameters.clubs.trim();
+    const clubName = req.body.sessionInfo.parameters.club.trim();
     result = await clubMemberController(clubName);
     parameters = {
       "clubs": null,
+      "club": null,
     }
   }else if(pageName === "Professor"){
     const courseName = req.body.sessionInfo.parameters.course.trim();
@@ -63,17 +69,13 @@ export const webhookReqController = async(req, res) => {
     }
   }else if(pageName === "Score"){
     const studentId = req.user.studentId;
-    const examTitle = req.body.sessionInfo.parameters.course.trim();
-    result = await examScoreController(studentId, examTitle);
-    parameters = {
-      "course": null,
-    }
+    result = await examScoreController(studentId);
   }else if(pageName === "Exam"){
     const studentId = req.user.studentId;
     const examTitle = req.body.sessionInfo.parameters.course.trim();
     result = await futureExamController(studentId, examTitle);
     parameters = {
-      "course": null,
+      "course": null, 
     }
   }else if(pageName === "Search Book"){
     const title = req.body.sessionInfo.parameters.books.trim();
@@ -99,6 +101,32 @@ export const webhookReqController = async(req, res) => {
     parameters = {
       "program": null,
       "degreelevel": null,
+    }
+  }else if(pageName === "RecentAnnouncement"){
+    result = await libraryAnnouncementController();
+  }else if(pageName === "All Course"){
+    const courseName = req.body.sessionInfo.parameters.course.trim();
+    result = await allaboutCourseController(courseName);
+    parameters = {
+      "course": null,
+    }
+  }else if(pageName === "All Club"){
+    const clubName = req.body.sessionInfo.parameters.club.trim();
+    result = await allaboutClubController(clubName);
+    parameters = {
+      "club": null,
+    }
+  }else if(pageName === "Club Event Announcement"){
+    const clubName = req.body.sessionInfo.parameters.club.trim();
+    result = await clubAnnouncementController(clubName);
+    parameters = {
+      "club": null,
+    }
+  }else if(pageName === "Building Contact"){
+    const buildingName = req.body.sessionInfo.parameters.building.trim();
+    result = await buildingContactController(buildingName);
+    parameters = {
+      "building": null,
     }
   }
   // console.log(parameters);
