@@ -1,6 +1,7 @@
 import { Router } from "express";
 
 import validateRoles from "../middleware/validateRoles.js";
+import validateSection from "../middleware/validateSection.js";
 
 // professor import
 import createExam from "../controllers/professor/examModification/createExam.js";
@@ -45,6 +46,7 @@ examRouter.get("/", (req, res) => {
 });
 
 examRouter.get("/validateRoles", validateRoles);
+examRouter.get("/validateSection", validateSection);
 
 //professor router
 examRouter.post("/professor/createExam", createExam);
