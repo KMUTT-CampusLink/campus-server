@@ -12,6 +12,7 @@ import { examScoreController } from "../controllers/webhookReq/student/examScore
 import { futureExamController } from "../controllers/webhookReq/student/futureExamController.js";
 import { buildingContactController } from "../controllers/webhookReq/building and secruity/buildingContactController.js";
 import { clubAnnouncementController } from "../controllers/webhookReq/clubs/clubAnnouncementController.js";
+import { allaboutClubController } from "../controllers/webhookReq/clubs/allaboutClubController.js";
 
 const botRouter = Router();
 
@@ -28,6 +29,7 @@ botRouter.get("/examscore",examScoreController);
 botRouter.get("/future",futureExamController);
 botRouter.get("/contact",buildingContactController);
 botRouter.get("/clubannouncement",clubAnnouncementController);
+botRouter.get("/clubinfo",allaboutClubController);
 
 export { botRouter };
 
