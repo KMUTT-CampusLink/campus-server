@@ -20,6 +20,7 @@ import { addLostAndFoundList } from "../controllers/addLostAndFoundList.js";
 import { updateLostAndFoundList } from "../controllers/updateLostAndFoundList.js";
 import { adminDeleteMaintenanceList } from "../controllers/adminDeleteMaintenanceList.js";
 import verifyRoles from "../../../core/middleware/verifyRoles.js";
+import { getLostAndFoundInterMap } from "../controllers/LostAndFoundControllerInterMap.js";
 
 // import { deleteReturned } from "../controllers/deleteReturned.js";
 const secureRouter = Router();
@@ -27,7 +28,7 @@ const secureRouter = Router();
 // Route to fetch buildings
 secureRouter.get("/buildings", fetchBuildingData);
 
-secureRouter.get("/buildingsWithRoom", fetchBuildingWithRoomData)
+secureRouter.get("/buildingsWithRoom", fetchBuildingWithRoomData);
 
 // Route to fetch floors by building ID
 secureRouter.get("/floors/:buildingId", fetchFloorsByBuildingId);
@@ -52,10 +53,18 @@ secureRouter.delete("/bookings/:id", deleteBookingController);
 // secureRouter.get("/room", getRoom);
 secureRouter.get("/LostAndFoundList", getLostAndFoundList);
 secureRouter.get("/MaintenanceList", getMaintenanceList);
-secureRouter.post("/addMaintenanceList", verifyRoles("Student", "Professor", "Staff"), addMaintenanceList);
+secureRouter.post(
+  "/addMaintenanceList",
+  verifyRoles("Student", "Professor", "Staff"),
+  addMaintenanceList
+);
 secureRouter.post("/addLostAndFoundList", addLostAndFoundList);
 secureRouter.patch("/updateStatus/:id", updateLostAndFoundList);
 // secureRouter.delete("/deleteReturned", deleteReturned);
 secureRouter.delete("/adminDeleteMaintenanceList/:id", verifyRoles("Professor", "Staff"), adminDeleteMaintenanceList);
+
+// For send API to another GROUP
+secureRouter.get("/lostAndFound/interMap", getLostAndFoundInterMap);
+
 
 export { secureRouter };
