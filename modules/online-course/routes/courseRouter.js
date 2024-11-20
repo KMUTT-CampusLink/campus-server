@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  addCourseMaterials,
   addVideo,
   getAllVideos,
 } from "../controllers/courseMaterialController.js";
@@ -26,5 +27,22 @@ courseRouter.get("/videos", getAllVideos);
 courseRouter.get("/:sectionID", getCourseHeaderBySectionID);
 courseRouter.get("/:professorID/teach", getAllCoursesByProfessorID);
 courseRouter.get("/course/:sectionID", getCourseHeaderBySectionID);
+
+courseRouter.post(
+  "/addVideo",
+  file_uploader.single("courseVideo"),
+  multerErrorHandler,
+  addVideo
+);
+
+courseRouter.post(
+  "/addVideoMaterials",
+  file_uploader.fields([
+    { name: "videoFile", maxCount: 1 },
+    { name: "materialFiles", maxCount: 10 },
+  ]),
+  multerErrorHandler,
+  addCourseMaterials
+);
 
 export { courseRouter };
