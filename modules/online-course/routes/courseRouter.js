@@ -25,15 +25,6 @@ courseRouter.get("/all", getAllCourses);
 courseRouter.get("/videos", getAllVideos);
 courseRouter.get("/:sectionID", getCourseHeaderBySectionID);
 courseRouter.get("/:professorID/teach", getAllCoursesByProfessorID);
-
-courseRouter.use("/student", studentRouter);
-courseRouter.use("/discussion", discussionRouter);
-
-courseRouter.post(
-  "/addVideo",
-  file_uploader.single("courseVideo"),
-  multerErrorHandler,
-  addVideo
-);
+courseRouter.get("/course/:sectionID", getCourseHeaderBySectionID);
 
 export { courseRouter };

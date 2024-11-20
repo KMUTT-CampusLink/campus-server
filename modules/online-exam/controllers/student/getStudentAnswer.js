@@ -15,8 +15,7 @@ export default async function getStudentAnswer(req, res) {
             },
             select: {
                 question_id: true,
-                answer: true,
-            },
+                answer: true,            },
         });
         return res.status(200).json({ message: "All answers fetched", data: queryAnswer });
     } catch (error) {
