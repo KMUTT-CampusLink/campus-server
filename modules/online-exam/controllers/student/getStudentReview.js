@@ -26,6 +26,7 @@ export default async function getStudentReview(req, res) {
         type: true,
         title: true,
         question_img: true,
+        id:true,
         exam_choice: {
           select: {
             choice_text: true,
