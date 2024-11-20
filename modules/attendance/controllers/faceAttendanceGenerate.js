@@ -1,13 +1,22 @@
 import { PrismaClient } from "@prisma/client";
-
+import { decodeToken } from "../middleware/jwt.js"
 const prisma = new PrismaClient();
 
 const generateFaceRecAttendance = async (req, res) => {
   const secId = parseInt(req.params.secId);
 
-  // Mock professor token value
-  const professorId = 1001;
-  // TODO: Get professor token from client cookies or headers for authentication
+  const token = req.cookies.token;
+  const decode = decodeToken(token);
+  const empId = decode.employeeId;
+  const professorId = await prisma.professor.findFirst({
+    where: {
+      id: empId,
+    },
+    select: {
+      id: true,
+    },
+  })
+
 
   try {
     // Check if the section exists
@@ -23,7 +32,7 @@ const generateFaceRecAttendance = async (req, res) => {
     const onGoing = await prisma.attendance.findFirst({
       where: {
         section_id: secId,
-        professor_id: professorId,
+        professor_id: professorId.id,
         end_at: { gt: new Date() },
       },
     });
@@ -41,7 +50,7 @@ const generateFaceRecAttendance = async (req, res) => {
     const newAttendance = await prisma.attendance.create({
       data: {
         section_id: secId,
-        professor_id: professorId,
+        professor_id: professorId.id,
         start_at: new Date(),
         end_at: new Date(new Date().getTime() + 1 * 60 * 1000), // Session ends in 15 minutes
       },
