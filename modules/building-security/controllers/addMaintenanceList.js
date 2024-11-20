@@ -1,46 +1,36 @@
 import prisma from "../../../core/db/prismaInstance.js";
-export const addMaintenanceRequest = async (req, res) => {
-    const {
-        user_id,
-        location,
+import { decodeToken } from "../middleware/jwt.js";
+
+export const addMaintenanceList = async (req, res) => {
+  const token = req.cookies.token;
+  const decode = decodeToken(token);
+  const { room, type, description, priority, status } = req.body;
+
+  try {
+    // Use decoded user information from req.user
+    const newRequest = await prisma.maintenance_request.create({
+      data: {
+        user_id: decode.id,
+        room_id: room, // Use user ID from the decoded token
         type,
         description,
         priority,
-        status
-    } = req.body;
+        status,
+      },
+    });
 
-    try {
-        // Convert the current time to Thailand time
-        const getThailandTime = () => {
-            const now = new Date();
-            return new Date(now.getTime() + 7 * 60 * 60 * 1000); // Add 7 hours for ICT
-        };
-
-        const newRequest = await prisma.maintenance_request.create({
-            data: {
-                user_id,
-                location,
-                type,
-                description,
-                priority,
-                status,
-                created_at: getThailandTime(),
-                updated_at: getThailandTime(),
-            },
-        });
-
-        res.status(201).json({
-            success: true,
-            data: newRequest,
-        });
-    } catch (error) {
-        console.error("Error adding maintenance request:", error);
-        res.status(500).json({
-            success: false,
-            message: "Failed to add maintenance request",
-            error: error.message,
-        });
-    } finally {
-        await prisma.$disconnect();
-    }
+    res.status(201).json({
+      success: true,
+      data: newRequest,
+    });
+  } catch (error) {
+    console.error("Error adding maintenance request:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to add maintenance request",
+      error: error.message,
+    });
+  } finally {
+    await prisma.$disconnect();
+  }
 };
