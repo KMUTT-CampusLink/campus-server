@@ -59,7 +59,7 @@ app.use("/api/clubs", verifyAccessToken, clubRouter);
 app.use("/api/employ", verifyAccessToken, employRouter);
 app.use("/api/library", verifyAccessToken, libRouter);
 app.use("/api/map", mapRouter);
-app.use("/api/courses", verifyAccessToken, courseRouter);
+app.use("/api/courses",  courseRouter);
 app.use("/api/exams", verifyAccessToken, examRouter);
 app.use("/api/parking", verifyAccessToken, parkRouter);
 app.use("/api/payment", verifyAccessToken, paymentRouter);
