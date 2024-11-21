@@ -37,6 +37,30 @@ export const createAssignment = async (req, res) => {
 };
 
 
+export const addAssignment = async (req, res) => {
+  const { title, sec_id } = req.body;
+  console.log(title);
+  console.log(sec_id);
+
+  try {
+    console.log(req.file.objName);
+    // const newVideo = await prisma.course_video.create({
+    //   data: {
+    //     title: title,
+    //     section_id: parseInt(sec_id),
+    //     video_url: req.file.objName,
+    //   },
+    // });
+
+    // console.log(newVideo);
+    return res.status(200).json({"newVideo": "newVideo"});
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json(error);
+  }
+};
+
+
 // Controller to edit an assignment
 export const editAssignment = async (req, res) => {
   try {
@@ -147,9 +171,9 @@ export const getAllAssignments = async (req, res) => {
     });
 
     // Return the list of assignments
-    return res.status(200).json(
-      assignments
-    );
+    return res.status(200).json({
+      assignments,
+    });
   } catch (error) {
     console.error("Error fetching assignments:", error);
     return res.status(500).json({

@@ -41,6 +41,8 @@ courseRouter.post(
   addVideo
 );
 
+
+
 courseRouter.post(
   "/addVideoMaterials",
   file_uploader.fields([
