@@ -14,15 +14,6 @@ export default async function getHistoryExam(req, res) {
     if (examIds.length < 1) {
       return res.status(404).json({ message: "No exam found" });
     }
-    // const queryExam = await prisma.exam.findMany({
-    //   where: {
-    //     id: { in: examIds },
-    //   },
-    //   select: {
-    //     id: true,
-    //     title: true,
-    //   },
-    // });
     const examIdsList = `(${examIds.join(",")})`;
     const queryExam = await prisma.$queryRawUnsafe(`
   SELECT se.id AS studentExamId, e.id, e.title 

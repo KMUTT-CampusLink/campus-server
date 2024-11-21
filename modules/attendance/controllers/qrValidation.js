@@ -1,14 +1,15 @@
 import { PrismaClient } from "@prisma/client";
-
+import { decodeToken } from "../middleware/jwt.js"
 const prisma = new PrismaClient();
 
 const validateQrCodeController = async (req, res) => {
   const attendanceId = parseInt(req.params.attendanceId);
   try {
     // TODO: get student token
-    const MOCK_STUDENT_ID = "STU00022";
-    const studentId = MOCK_STUDENT_ID;
-
+    const token = req.cookies.token;
+    const decode = decodeToken(token);
+    const studentId = decode.studentId;
+    
     if (!studentId) {
       return res.status(400).json({ success: false, message: "Missing StudentId" });
     }
@@ -24,7 +25,7 @@ const validateQrCodeController = async (req, res) => {
     }
 
 
-    const attendances = await prisma.attendance_qr_code.findFirst({
+    const attendances = await prisma.attendance.findFirst({
       where: {
         id: attendanceId,
       },
@@ -36,7 +37,7 @@ const validateQrCodeController = async (req, res) => {
     const secId = attendances.section_id;
     const isStudentExist = await prisma.class_attendance.findFirst({
       where: {
-        attendance_qr_code_id: attendanceId,
+        attendance_id: attendanceId,
         student_id: studentId,
       },
     });
@@ -57,7 +58,7 @@ const validateQrCodeController = async (req, res) => {
         student_id: studentId,
         status: "Present",
         section_id: secId,
-        attendance_qr_code_id: attendanceId
+        attendance_id: attendanceId
       },
     });
 
