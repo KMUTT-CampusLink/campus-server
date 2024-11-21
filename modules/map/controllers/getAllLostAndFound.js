@@ -17,7 +17,6 @@ export const getAllLostAndFound = async (req, res) => {
 
     const formattedItems = items.reduce((acc, item) => {
         const { buildingid, floorname, itemname, detail, status } = item;
-        console.log(item)
 
       
         if (!acc[buildingid]) {

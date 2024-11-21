@@ -19,7 +19,6 @@ const getAllDepartments = async (req, res) => {
           campus_id: campus.id
         }
       });
-      
       res.json({ buildings });
     } catch (error) {
       console.error(error); 
