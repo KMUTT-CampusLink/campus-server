@@ -5,7 +5,7 @@ export default async function getStudentScoreById(req, res) {
   const studentId = req.query.studentId;
   try {
     const questionType =
-      await prisma.$queryRaw`SELECT type, mark FzROM exam_question WHERE id = ${questionId}`;
+      await prisma.$queryRaw`SELECT type, mark FROM exam_question WHERE id = ${questionId}`;
     if (questionType[0].type == "Essay") {
       const studentScore =
         await prisma.$queryRaw`SELECT essay_score FROM student_answer WHERE question_id = ${questionId} AND student_id = ${studentId}`;
