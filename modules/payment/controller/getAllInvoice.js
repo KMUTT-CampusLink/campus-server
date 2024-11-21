@@ -1,12 +1,9 @@
 import prisma from '../../../core/db/prismaInstance.js';
 import dayjs from 'dayjs';
-import { decodeToken } from '../middlewares/jwt.js';
 
 const getAllInvoice = async (req, res) => {
   try {
-    const token = req.cookies.token;
-    const decoded = decodeToken(token);
-    const id = decoded.id; 
+    const id = req.user.id; 
     //ตรวจสอบว่ามีการส่งค่า id มาหรือไม่
     if (!id) {
       return res.status(400).json({ error: 'User ID is required' });
