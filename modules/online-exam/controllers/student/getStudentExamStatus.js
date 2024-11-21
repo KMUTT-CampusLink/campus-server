@@ -8,15 +8,7 @@ export default async function getStudentExamStatus(req, res) {
         const decoded = decodeToken(token);
         const userId = decoded.id;
         const studentQuery = await prisma.$queryRaw`SELECT id FROM student WHERE user_id = ${userId}::uuid`;
-        const queryStudentExam = await prisma.student_exam.findFirst({
-            where: {
-                exam_id: examId,
-                student_id: studentQuery.id
-            },
-            select: {
-                status: true
-            }
-        });
+        const queryStudentExam = await prisma.$queryRaw`SELECT status FROM student_exam WHERE exam_id = ${examId} AND student_id = ${studentQuery[0].id}`;
         const status = queryStudentExam.status === "Completed" ? true : false;
         return res.status(200).json({ message: "Student exam status fetched", data: status });
     } catch (error) {
