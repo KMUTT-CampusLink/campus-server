@@ -24,3 +24,4 @@ const getAllComplaint = async (req, res) => {
 };
 
 export { getAllComplaint };
+
