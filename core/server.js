@@ -52,7 +52,7 @@ app.get("/api/authorize", verifyAccessToken, (req, res) => {
   });
 });
 app.use("/api/regis", verifyAccessToken, regisRouter);
-app.use("/api/attend", attendRouter);
+app.use("/api/attend",verifyAccessToken, attendRouter);
 app.use("/api/security", verifyAccessToken, secureRouter);
 app.use("/api/botastra", verifyAccessToken, botRouter);
 app.use("/api/clubs", verifyAccessToken, clubRouter);
