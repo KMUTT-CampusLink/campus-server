@@ -1,7 +1,6 @@
 import prisma from "../../../../../core/db/prismaInstance.js";
 
 export const professorController = async(courseName)=>{
-    console.log(true);
     try{ 
         const professor = await prisma.$queryRaw`
         SELECT CONCAT(e.firstname,' ',e.lastname) as fullname

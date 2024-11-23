@@ -7,6 +7,7 @@ import { semesterEndController } from "./webhookReq/timeTables/semesterEndContro
 import { semesterStartController } from "./webhookReq/timeTables/semesterStartController.js";
 import { tutionFeeController } from "./webhookReq/programs/tutionFeeController.js";
 import { professorController } from "./webhookReq/programs/professorController.js";
+import { availableParkingSlotController } from "./webhookReq/parking/availableParkingSlot.js";
 
 let globalParameters = {};
 
@@ -61,6 +62,14 @@ export const webhookReqController = async(req, res) => {
     parameters = {
       "books": null,
     }
+  }else if(pageName === Slots){
+    const building = req.body.sessionInfo.parameters.building.trim();
+    const floor = req.body.sessionInfo.parameters.floor.trim();
+    result = await availableParkingSlotController(building, floor);
+    parameters = {
+      "building" : null,
+      "floor": null,
+    };
   }
   // console.log(parameters);
   res.json({

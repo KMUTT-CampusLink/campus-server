@@ -5,7 +5,7 @@ export const libraryAnnouncementController = async (req, res) => {
 
     const announcements = await prisma.$queryRaw`
       SELECT title, location
-      FROM "library_announcement" 
+      FROM "library_announcement"
       
     `;
 
