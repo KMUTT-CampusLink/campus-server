@@ -4,9 +4,11 @@ import { queryAllData } from "../utils/queryAllData.js";
 
 import userRouter from "./userRouter.js";
 import driverRouter from "./driverRouter.js";
+import errorHandler from "../middleware/errorHandler.js";
 
 const transRouter = Router();
 
+transRouter.use(errorHandler);
 transRouter.use("/user", userRouter);
 transRouter.use("/driver", driverRouter);
 
