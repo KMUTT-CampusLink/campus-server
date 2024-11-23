@@ -1,6 +1,6 @@
 import { Router } from "express";
 import verifyRoles from "../../../core/middleware/verifyRoles.js";
-import { bookForTrip } from "../controllers/user/book.js";
+import { bookForTrip, deleteBooking } from "../controllers/user/book.js";
 import {
   queryAllStops,
   queryAllTripData,
@@ -24,6 +24,7 @@ userRouter.get(
 userRouter.get("/tripsByRouteID/:routeID", queryTripsByRouteID); //done on frontend api
 userRouter.get("/bookings", queryUserBookings); //done on frontend api
 userRouter.get("/tripData/:tripID", queryAllTripData); //done on frontend api
-userRouter.post("/book", bookForTrip); //done on frontend api
+userRouter.post("/booking", bookForTrip); //done on frontend api
+userRouter.delete("/booking", deleteBooking);
 
 export default userRouter;

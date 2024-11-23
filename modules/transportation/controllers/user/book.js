@@ -1,9 +1,6 @@
 import prisma from "../../../../core/db/prismaInstance.js";
 import errorHandler from "../../utils/errorHandler.js";
-import {
-  BadRequestError,
-  UnauthorizedError,
-} from "../../utils/customErrors.js";
+import { BadRequestError, NotFoundError } from "../../utils/customErrors.js";
 
 export const bookForTrip = errorHandler(async (req, res) => {
   if (!req.body.tripID) {
@@ -36,4 +33,30 @@ export const bookForTrip = errorHandler(async (req, res) => {
       .status(200)
       .json({ booking: newBooking, message: "Booking successful" });
   }
+});
+
+export const deleteBooking = errorHandler(async (req, res) => {
+  const bookingID = req.body?.bookingID;
+  console.log(req.body);
+  console.log(bookingID);
+
+  if (!bookingID) {
+    throw new BadRequestError("Booking ID is missing");
+  }
+
+  // Check if the booking exists
+  const booking = await prisma.trip_booking.findUnique({
+    where: { id: bookingID },
+  });
+
+  if (!booking) {
+    throw new NotFoundError("Booking not found");
+  }
+
+  // Delete the booking
+  await prisma.trip_booking.delete({
+    where: { id: bookingID },
+  });
+
+  res.status(200).json({ message: "Booking deleted successfully" });
 });

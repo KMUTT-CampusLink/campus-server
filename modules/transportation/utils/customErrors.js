@@ -16,3 +16,9 @@ export class BadRequestError extends CustomError {
     super(message, 400);
   }
 }
+
+export class NotFoundError extends CustomError {
+  constructor(message = "Not Found") {
+    super(message, 404);
+  }
+}
