@@ -15,6 +15,7 @@ import { clubAnnouncementController } from "../controllers/webhookReq/clubs/club
 import { allaboutClubController } from "../controllers/webhookReq/clubs/allaboutClubController.js";
 import { allaboutCourseController } from "../controllers/webhookReq/programs/allaboutCourseController.js";
 import { courseDurationController } from "../controllers/webhookReq/programs/courseDurationController.js";
+import { registeredCourseController } from "../controllers/webhookReq/student/registeredCourseController.js";
 
 const botRouter = Router();
 
@@ -34,7 +35,7 @@ botRouter.get("/contact",buildingContactController);
 botRouter.get("/clubannouncement",clubAnnouncementController);
 botRouter.get("/clubinfo",allaboutClubController);
 botRouter.get("/courseinfo",allaboutCourseController);
-
+botRouter.get("/registercourse",registeredCourseController);
 export { botRouter };
 
 // ngrok http --url=epic-witty-kit.ngrok-free.app 3000
