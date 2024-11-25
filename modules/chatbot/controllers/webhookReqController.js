@@ -17,6 +17,9 @@ import { allaboutClubController } from "./webhookReq/clubs/allaboutClubControlle
 import { clubAnnouncementController } from "./webhookReq/clubs/clubAnnouncementController.js";
 import { buildingContactController } from "./webhookReq/building and secruity/buildingContactController.js";
 import { invoiceDetailController } from "./webhookReq/Invoices/invoiceDetailController.js";
+import { unPaidInvoicesController } from "./webhookReq/Invoices/UnPaidInvoicesController.js";
+import { professorContactController } from "./webhookReq/programs/professorContactController.js";
+import { availableParkingSlotController } from "./webhookReq/parking/availableParkingSlot.js";
 
 let globalParameters = {};
 
@@ -132,6 +135,25 @@ export const webhookReqController = async(req, res) => {
   }else if(pageName === "Invoice All"){
     const id = req.user.id;
     result = await invoiceDetailController(id);
+  }else if(pageName === "Unpaid Invoices"){
+    const id = req.user.id;
+    result = await unPaidInvoicesController(id);
+  }else if(pageName === "Contact"){
+    const courseName = req.body.sessionInfo.parameters.course.trim();
+    const sectionName = req.body.sessionInfo.parameters.section.trim();
+    result = await professorContactController(courseName, sectionName);
+    parameters = {
+      "course": null,
+      "section": null
+    }
+  }else if(pageName === "Slots"){
+    const building = req.body.sessionInfo.parameters.building.trim();
+    const floor = req.body.sessionInfo.parameters.floor.trim();
+    result = await availableParkingSlotController(building, floor);
+    parameters = {
+      "building": null,
+      "floor": null,
+    }
   }
   // console.log(parameters);
   res.json({
