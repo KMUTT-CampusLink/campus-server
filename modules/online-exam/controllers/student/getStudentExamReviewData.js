@@ -1,5 +1,5 @@
 import prisma from "../../../../core/db/prismaInstance.js";
-import { decodeToken } from "../../middleware/jwt";
+import { decodeToken } from "../../middleware/jwt.js";
 
 export default async function getStudentExamReviewData(req, res) {
   const examId = parseInt(req.query.examId);
