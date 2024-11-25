@@ -11,14 +11,14 @@ export default async function createExam(req, res) {
   try {
     const decoded = decodeToken(token);
     const userId = decoded.id;
-    const queryProfessorData = await prisma.$queryRaw`SELECT p.id FROM professor AS p, employee AS e WHERE e.user_id = ${userId}::uuid AND p.emp_id = e.id`;
+    const  queryProfessorData = await prisma.$queryRaw`SELECT e.id FROM professor AS p, employee AS e WHERE e.user_id= ${userId}::uuid AND e.id = p.emp_id AND p.section_id = ${sectionId}`;
     const totalScore = exam.questions.map((question) => parseInt(question.score)).reduce((a, b) => a + b, 0);
-    console.log(totalScore);
+    console.log(queryProfessorData);
     const queryExamRaw = await prisma.exam.create({
       data: {
         title: title,
         description: description,
-        professor_id: parseInt(queryProfessorData[0].id),
+        professor_id: queryProfessorData[0].id,
         section_id: sectionId,
         full_mark: totalScore
       },
