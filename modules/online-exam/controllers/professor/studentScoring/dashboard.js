@@ -12,18 +12,22 @@ export default async function dashboard(req, res) {
     const examMin = await prisma.$queryRaw`
         SELECT MIN(total_score) AS minScore 
         FROM student_exam
+        WHERE exam_id = ${examId}
     `;
     const examMax = await prisma.$queryRaw`
         SELECT MAX(total_score) AS maxScore 
         FROM student_exam
+        WHERE exam_id = ${examId}
     `;
     const examAverage = await prisma.$queryRaw`
         SELECT AVG(total_score) AS avgScore 
         FROM student_exam
+        WHERE exam_id = ${examId}
     `;
     const passMark = await prisma.$queryRaw`
         SELECT pass_mark 
         FROM exam
+        WHERE id = ${examId}
     `;
     const examPass = await prisma.$queryRaw`
         SELECT COUNT(*) as passAmount
