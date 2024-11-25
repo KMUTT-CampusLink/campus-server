@@ -1,14 +1,10 @@
 import { PrismaClient } from "@prisma/client";
-import { decodeToken } from "../middleware/jwt.js"
 const prisma = new PrismaClient();
 
 const validateQrCodeController = async (req, res) => {
   const attendanceId = parseInt(req.params.attendanceId);
-  try {
-    // TODO: get student token
-    const token = req.cookies.token;
-    const decode = decodeToken(token);
-    const studentId = decode.studentId;
+  try {;
+    const studentId = req.user.studentId;
     
     if (!studentId) {
       return res.status(400).json({ success: false, message: "Missing StudentId" });

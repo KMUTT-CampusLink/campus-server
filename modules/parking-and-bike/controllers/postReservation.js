@@ -1,7 +1,6 @@
 import prisma from "../../../core/db/prismaInstance.js";
 import crypto from "crypto";
 import zlib from "zlib";
-import jwt from "jsonwebtoken";
 
 const ENCRYPTION_KEY = crypto.randomBytes(32);
 const IV_LENGTH = 16;
@@ -18,17 +17,14 @@ function encrypt(data) {
 }
 
 const postReservation = async (req, res) => {
-    const token = req.cookies.token;
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    // const user_id = decoded.id
-
+    const user = req.user
     const { parking_slot_id, reserve_time } = req.body;
 
     try {
 
         const unpaidInvoice = await prisma.invoice.findFirst({
             where: {
-                user_id: decoded.id,
+                user_id: user.id,
                 status: "Unpaid",
             },
         });
@@ -38,7 +34,7 @@ const postReservation = async (req, res) => {
         }
 
         const verifiedCar = await prisma.verified_car.findFirst({
-            where: { user_id: decoded.id }
+            where: { user_id: user.id }
         }); // Is there car id in verified_car
         
         const existingReservation = await prisma.parking_reservation.findFirst({
@@ -148,7 +144,7 @@ const postReservation = async (req, res) => {
             message: 'Reservation created successfully!',
             QRCode: encryptedData ,
             reservation_id: postReservation.id,
-            user_id: decoded.id,
+            user_id: user.id,
             car_id: verifiedCar.id,
             license_no: verifiedCar.license_no,
             building_name: slot.floor.building.name,
