@@ -34,7 +34,7 @@ const detectIntentText = async(projectId, inputText, sessionId, bearerToken) => 
         },
       }
     }
-  };
+  }; 
 
   try {
     const [response] = await client.detectIntent(request);
