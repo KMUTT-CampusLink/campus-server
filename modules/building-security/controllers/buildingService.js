@@ -1,11 +1,5 @@
 import prisma from "../../../core/db/prismaInstance.js";
-
-const parseTime = (date, time) => {
-  const [hours, minutes] = time.split(":").map(Number);
-  const parsedDate = new Date(date);
-  parsedDate.setHours(hours, minutes, 0, 0);
-  return parsedDate;
-};
+import moment from "moment-timezone";
 
 export const getBuildings = async () => {
   try {
@@ -28,7 +22,7 @@ export const getBuildingsWithRoom = async () => {
         floor: {
           some: {
             room: {
-              some: {}, // Ensures only floors with rooms are included
+              some: {},
             },
           },
         },
@@ -79,34 +73,54 @@ export const isTimeAvailable = async (
   newStartTime,
   newEndTime
 ) => {
+  // Parse the input start and end times
   const parsedStartTime = parseTimeString(date, newStartTime.split("T")[1]);
   const parsedEndTime = parseTimeString(date, newEndTime.split("T")[1]);
 
-  // Find overlapping bookings
+  // Log parsed times for debugging
+  console.log("Parsed Start Time:", parsedStartTime);
+  console.log("Parsed End Time:", parsedEndTime);
+
+  // Fetch existing bookings for the room on the given date
   const existingBookings = await prisma.room_booking.findMany({
     where: {
       room_id: parseInt(roomId, 10),
       booking_date: new Date(date),
       AND: [
-        { start_time: { lt: parsedEndTime } },
-        { end_time: { gt: parsedStartTime } },
+        { start_time: { lt: parsedEndTime } }, // Existing booking starts before the new end time
+        { end_time: { gt: parsedStartTime } }, // Existing booking ends after the new start time
       ],
     },
-    orderBy: { end_time: "desc" },
+    orderBy: { start_time: "asc" }, // Order by start time for better debugging
   });
 
-  if (existingBookings.length > 0) {
-    // If there are overlapping bookings, get the latest end time from them
-    const maxEndTime = existingBookings[0].end_time;
-    return { available: false, maxEndTime };
+  // Allow adjacent bookings (new start matches an existing end)
+  for (const booking of existingBookings) {
+    if (
+      parsedStartTime.getTime() === new Date(booking.end_time).getTime() ||
+      parsedEndTime.getTime() === new Date(booking.start_time).getTime()
+    ) {
+      continue; // This is an adjacent booking and should be allowed
+    }
+
+    // Overlapping booking found
+    console.log("Overlapping booking found:", booking);
+    return {
+      available: false,
+      overlappingBooking: {
+        start_time: booking.start_time,
+        end_time: booking.end_time,
+      },
+    };
   }
 
+  // If no overlaps are found, return available
   return { available: true };
 };
 
 const parseTimeString = (date, time) => {
-  const [timePart, period] = time.split(" ");
-  let [hours, minutes] = timePart.split(":").map(Number);
+  const [hoursMinutes, period] = time.split(" "); // Split time into hours:minutes and AM/PM
+  let [hours, minutes] = hoursMinutes.split(":").map(Number);
 
   // Convert to 24-hour format if period is PM and hours are not 12
   if (period === "PM" && hours !== 12) {
@@ -115,64 +129,51 @@ const parseTimeString = (date, time) => {
     hours = 0; // Midnight case
   }
 
-  // Adjust the time to UTC+7
-  hours += 7;
-
-  // Format the date with the adjusted hours and minutes
-  const formattedDate = `${date} ${String(hours).padStart(2, "0")}:${String(
+  // Combine date with time to form a proper timestamp
+  const formattedDate = `${date}T${String(hours).padStart(2, "0")}:${String(
     minutes
-  ).padStart(2, "0")}:00.0000000`;
+  ).padStart(2, "0")}:00.000Z`;
+
+  // Create a new Date object
   const timestamp = new Date(formattedDate);
 
   if (isNaN(timestamp.getTime())) {
     throw new Error(
-      `Invalid date format for start or end time: ${formattedDate}`
+      `Invalid date or time format: Date: ${date}, Time: ${time}`
     );
   }
 
   return timestamp;
 };
 
-export const createNewBooking = async (userId, roomId, date, startTime, endTime) => {
+export const createNewBooking = async (
+  userId,
+  roomId,
+  date,
+  startTime,
+  endTime
+) => {
   try {
-    const latestBooking = await prisma.room_booking.findFirst({
-      orderBy: { id: "desc" },
-    });
-
-    const latestId = latestBooking ? latestBooking.id : 0;
-    const newId = latestId + 1;
-
-    const startTimestamp = parseTimeString(date, startTime.split("T")[1]); // Parses correctly for UTC
-    const endTimestamp = parseTimeString(date, endTime.split("T")[1]); // Parses correctly for UTC
-
-    if (isNaN(startTimestamp.getTime()) || isNaN(endTimestamp.getTime())) {
-      throw new Error("Invalid date format for start or end time");
-    }
-
-    const now = new Date();
-    now.setHours(now.getHours() + 7); // Adjust current time to UTC+7
+    const parsedStartTime = parseTimeString(date, startTime.split("T")[1]);
+    const parsedEndTime = parseTimeString(date, endTime.split("T")[1]);
 
     const newBooking = await prisma.room_booking.create({
       data: {
-        id: newId,
         user_id: userId,
         room_id: parseInt(roomId, 10),
         booking_date: new Date(date),
-        start_time: startTimestamp,
-        end_time: endTimestamp,
-        created_at: now, // Adjusted to UTC+7
-        updated_at: now, // Adjusted to UTC+7
+        start_time: parsedStartTime,
+        end_time: parsedEndTime,
       },
     });
 
-    console.log("New booking created with ID:", newBooking.id);
+    console.log("New booking created:", newBooking);
     return newBooking;
   } catch (error) {
     console.error("Error creating booking:", error);
     throw new Error("An error occurred while creating the booking.");
   }
 };
-
 
 export const getBooked = async () => {
   try {
@@ -184,7 +185,6 @@ export const getBooked = async () => {
         start_time: true,
         end_time: true,
         room: {
-          // This assumes a relation exists between room_booking and room in Prisma schema
           select: {
             name: true,
           },

@@ -7,10 +7,11 @@ const client = new SessionsClient({
     client_email: process.env.BOT_CLIENT_EMAIL,
     private_key: process.env.BOT_PRIVATE_KEY.replace(/\\n/g, '\n')
   }
-})
+});
 let prevPage = "Start Page";
 let parameters = "-";
 const detectIntentText = async(projectId, inputText, sessionId, bearerToken) => {
+
   const location = process.env.BOT_LOCATION; // or the specific location of your agent
   const agentId = process.env.BOT_AGENT_ID;
   

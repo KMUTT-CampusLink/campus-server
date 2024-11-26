@@ -13,12 +13,17 @@ export const createDiscussionTopic = async (req, res) => {
 
     // Check if section_id exists
     const sectionExists = await prisma.section.findUnique({
-      where: { id: section_id },
+      where: { id: parseInt(section_id) },
     });
     if (!sectionExists) {
       return res.status(404).json({
         message: "The specified section_id does not exist.",
       });
+    }
+    
+    const sectionIdParsed = parseInt(section_id, 10); // Base 10 parsing
+    if (isNaN(sectionIdParsed)) {
+      return res.status(400).json({ message: "Invalid section_id" });
     }
 
     // Check if user_id exists
@@ -34,7 +39,7 @@ export const createDiscussionTopic = async (req, res) => {
     // Create a new discussion topic
     const newTopic = await prisma.discussion_topic.create({
       data: {
-        section_id,
+        section_id: sectionIdParsed,
         user_id,
         title,
         content,
@@ -259,3 +264,92 @@ export const deleteDiscussionReply = async (req, res) => {
     });
   }
 };
+
+export const getAllDiscussionPostsBySectionID = async (req, res) => {
+  const { sectionID } = req.params;
+  const intSectionID = parseInt(sectionID, 10);
+
+  if (isNaN(intSectionID)) {
+    return res.status(400).json({ message: "Invalid section ID." });
+  }
+
+  try {
+    // Fetch all discussion posts with post owner's name
+    const discussionPosts = await prisma.$queryRaw`
+      SELECT 
+        dt.id,
+        dt.section_id,
+        dt.user_id,
+        dt.title,
+        dt.content,
+        dt.discussion_img AS img,
+        dt.create_at,
+        CASE 
+          WHEN u.role = 'Student' THEN CONCAT(st.firstname, ' ', st.lastname)
+          WHEN u.role = 'Professor' THEN CONCAT(e.firstname, ' ', e.lastname)
+          ELSE 'Unknown'
+        END AS owner_name
+      FROM discussion_topic dt
+      LEFT JOIN "user" u ON dt.user_id = u.id
+      LEFT JOIN student st ON u.id = st.user_id
+      LEFT JOIN employee e ON u.id = e.user_id
+      WHERE dt.section_id = ${intSectionID};
+    `;
+
+    return res.status(200).json(discussionPosts);
+  } catch (error) {
+    console.error("Error fetching discussion posts:", error);
+    return res.status(500).json({
+      message: "An error occurred while fetching discussion posts.",
+      error: error.message,
+    });
+  }
+};
+
+export const getAllCommentsByPostID = async (req, res) => {
+  const { postID } = req.params;
+  const intPostID = parseInt(postID, 10);
+
+  if (isNaN(intPostID)) {
+    return res.status(400).json({ message: "Invalid post ID." });
+  }
+
+  try {
+    // Fetch all comments with commenter details
+    const comments = await prisma.$queryRaw`
+      SELECT
+    dr.id AS comment_id,
+    dr.content AS comment_content,
+    dr.create_at AS comment_created_at,
+    dr.user_id,
+    dt.id AS topic_id,
+    dt.title AS topic_title,
+    dt.content AS topic_content,
+    dt.create_at AS topic_created_at,
+    u.id AS user_id,
+    u.role AS user_role,
+    CASE
+        WHEN u.role = 'Student' THEN CONCAT(st.firstname, ' ', st.lastname)
+        WHEN u.role = 'Professor' THEN CONCAT(e.firstname, ' ', e.lastname)
+        ELSE 'Unknown'
+        END AS user_fullname
+FROM discussion_reply dr
+         JOIN discussion_topic dt ON dr.topic_id = dt.id
+         JOIN "user" u ON dr.user_id = u.id
+         LEFT JOIN student st ON u.id = st.user_id
+         LEFT JOIN employee e ON u.id = e.user_id
+WHERE dt.id = ${intPostID}
+
+      ORDER BY dr.create_at ASC;
+    `;
+
+    return res.status(200).json(comments);
+  } catch (error) {
+    console.error("Error fetching comments:", error);
+    return res.status(500).json({
+      message: "An error occurred while fetching comments.",
+      error: error.message,
+    });
+  }
+};
+

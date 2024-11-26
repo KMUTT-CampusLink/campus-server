@@ -1,11 +1,8 @@
 import prisma from "../../../core/db/prismaInstance.js";
-import jwt from "jsonwebtoken"; // เพิ่มการ import ตัวนี้
 
 export const checkUnpaidInvoices = async (req, res, next) => {
     try {
-        const token = req.cookies.token;
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const userId = decoded.id;
+        const userId = req.user.id;
         const now = new Date();
 
         const overdueInvoice = await prisma.invoice.findFirst({

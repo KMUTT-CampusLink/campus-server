@@ -6,8 +6,8 @@ export const requirecourseController = async (progName, degreeLevel) => {
     const courses = await prisma.$queryRaw`
       Select c.name as coursename --p.name as programname
       From "course" as c,"program" as p,"degree"as d
-      Where c.program_id=p.id 
-      AND   p.id=d.program_id
+      Where d.program_id=p.id 
+      AND   p.id=c.program_id
       And p.name = ${progName}
       And d.degree_level=${degreeLevel}::education_level_enum;
     `;

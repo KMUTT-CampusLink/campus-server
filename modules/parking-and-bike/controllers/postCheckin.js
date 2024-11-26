@@ -1,7 +1,6 @@
 import prisma from "../../../core/db/prismaInstance.js";
 import crypto from "crypto";
 import zlib from "zlib";
-import jwt from "jsonwebtoken";
 
 const ENCRYPTION_KEY = crypto.randomBytes(32);
 const IV_LENGTH = 16;
@@ -18,17 +17,14 @@ function encrypt(data) {
 }
 
 const postCheckin = async (req, res) => {
-    const token = req.cookies.token;
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    // const user_id = decoded.id
-
+    const user = req.user
     const { reservation_id, checkin_time } = req.body;
 
     try {
 
         const unpaidInvoice = await prisma.invoice.findFirst({
             where: {
-                user_id: decoded.id,
+                user_id: user.id,
                 status: "Unpaid",
             },
         });
@@ -55,7 +51,7 @@ const postCheckin = async (req, res) => {
 
         if (!reservation) {
             return res.status(400).json({ error: `Reservation with ID ${reservation_id} does not exist.` });
-        } else if (reservation.verified_car.user_id !== decoded.id) {
+        } else if (reservation.verified_car.user_id !== user.id) {
             return res.status(403).json({ error: "Unauthorized access. You do not own this reservation." });
         } else if (reservation.status !== 'Reserved') {
             return res.status(400).json({ error: "Cannot check in. The reservation status must be 'Reserved'." });
@@ -92,7 +88,7 @@ const postCheckin = async (req, res) => {
             message: 'QR Checkout created successfully!',
             QRCode: encryptedData,
             reservation_id: reservation_id,
-            user_id: decoded.id,
+            user_id: user.id,
             car_id: reservation.car_id,
             license_no: reservation.verified_car.license_no,
             building_name: reservation.parking_slot.floor.building.name,
