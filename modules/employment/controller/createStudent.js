@@ -94,7 +94,7 @@ const createStudent = async (req, res) => {
           personal_email: personalEmailToUse,
           password: hashedPassword,
           role: "Student",
-          is_activated: true,
+          is_activated: false,
         },
       });
 
