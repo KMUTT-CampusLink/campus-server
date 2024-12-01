@@ -39,7 +39,7 @@ import getStudentExamStatus from "../controllers/student/getStudentExamStatus.js
 import getExamTime from "../controllers/student/getExamTime.js";
 import getStudentFullMark from "../controllers/student/getStudentFullMark.js";
 import studentGetStudentScoreById from "../controllers/student/studentGetStudentScoreById.js";
-import studentGetQuestionScore from "../controllers/student/studentgetQuestionScore.js";
+import studentGetQuestionScore from "../controllers/student/studentGetQuestionScore.js";
 import studentGetStudentAnswerById from "../controllers/student/studentGetStudentAnswerById.js";
 import getStudentExamReviewData from "../controllers/student/getStudentExamReviewData.js";
 const examRouter = Router();

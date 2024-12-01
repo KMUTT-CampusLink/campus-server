@@ -62,11 +62,10 @@ export default async function dashboard(req, res) {
           choice_text: [],
         };
       }
-      acc[item.id].choice_text.push(Number(item.choice_text)); // แปลงเป็น Number ถ้าต้องการเป็นตัวเลข
+      acc[item.id].choice_text.push(Number(item.choice_text));
       return acc;
     }, {});
     const groupedDataArr = Object.values(groupedData);
-    //console.log(groupedDataArr);
 
     res.status(200).json({
       data: {
