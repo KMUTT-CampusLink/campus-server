@@ -105,14 +105,14 @@ const getEachQuestionMark = async (questionId, studentId) => {
       await prisma.$queryRaw`SELECT count(*) FROM student_answer WHERE question_id = ${questionId} AND student_id = ${studentId} AND ans_correct = true`;
     return parseFloat(studentScore[0].count) * questionType[0].mark;
   } else {
-    const studentScore =
-      await prisma.$queryRaw`SELECT count(*) FROM student_answer WHERE question_id = ${questionId} AND student_id = ${studentId} AND ans_correct = true`;
-    const studnetScore2 =
-      await prisma.$queryRaw`SELECT count(*) FROM exam_choice WHERE question_id = ${questionId} AND correct_ans = false  AND question_id = ${questionId} AND choice_text NOT IN (SELECT answer FROM student_answer WHERE question_id = ${questionId} AND student_id = ${studentId})`;
-    return (
-      parseInt(studentScore[0].count + studnetScore2[0].count) *
-      parseFloat(questionType[0].mark)
-    );
+    const choiceAmount =
+        await prisma.$queryRaw`SELECT count(*) FROM exam_choice WHERE question_id = ${questionId}`;
+      const studentScore =
+        await prisma.$queryRaw`SELECT count(*) FROM student_answer WHERE question_id = ${questionId} AND student_id = ${studentId} AND ans_correct = true`;
+      const studnetScore2 =
+        await prisma.$queryRaw`SELECT count(*) FROM exam_choice WHERE question_id = ${questionId} AND correct_ans = false AND choice_text NOT IN (SELECT answer FROM student_answer WHERE question_id = ${questionId} AND student_id = ${studentId})`;
+        const studentTotalScore = choiceAmount[0].count === studentScore[0].count + studnetScore2[0].count ? Math.round(parseInt(studentScore[0].count + studnetScore2[0].count) * parseFloat(questionType[0].mark)) : parseInt(studentScore[0].count + studnetScore2[0].count) * parseFloat(questionType[0].mark);
+    return studentTotalScore;
   }
 };
 
@@ -125,10 +125,11 @@ const getEacQuestionScore = async (questionId) => {
     const maxScore = parseFloat(essayScore[0].mark);
     return maxScore;
   } else if (questionType[0].type == "Checklist") {
+    const choiceAmount =
+      await prisma.$queryRaw`SELECT count(*) FROM exam_choice WHERE question_id = ${questionId}`;
     const checklistScore =
       await prisma.$queryRaw`SELECT eq.mark, count(*), eq.id FROM exam_question AS eq, exam_choice AS ec WHERE eq.id = ec.question_id AND eq.id = ${questionId} GROUP BY eq.id`;
-    const maxScore =
-      parseFloat(checklistScore[0].mark) * parseFloat(checklistScore[0].count);
+    const maxScore = checklistScore[0].count === choiceAmount[0].count? Math.round(parseFloat(checklistScore[0].mark) * parseFloat(checklistScore[0].count)) : parseFloat(checklistScore[0].mark) * parseFloat(checklistScore[0].count);
     return maxScore;
   } else {
     const multipleChoiceScore =
