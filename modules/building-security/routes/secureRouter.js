@@ -21,6 +21,7 @@ import { updateLostAndFoundList } from "../controllers/updateLostAndFoundList.js
 import { adminDeleteMaintenanceList } from "../controllers/adminDeleteMaintenanceList.js";
 import verifyRoles from "../../../core/middleware/verifyRoles.js";
 import { getLostAndFoundInterMap } from "../controllers/LostAndFoundControllerInterMap.js";
+import { getGuardReservationList } from "../controllers/getGuardReservationList.js";
 
 // import { deleteReturned } from "../controllers/deleteReturned.js";
 const secureRouter = Router();
@@ -65,6 +66,9 @@ secureRouter.delete("/adminDeleteMaintenanceList/:id", verifyRoles("Professor", 
 
 // For send API to another GROUP
 secureRouter.get("/lostAndFound/interMap", getLostAndFoundInterMap);
+
+
+
 
 
 export { secureRouter };
