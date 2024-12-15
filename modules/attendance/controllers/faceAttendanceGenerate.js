@@ -1,13 +1,9 @@
 import { PrismaClient } from "@prisma/client";
-import { decodeToken } from "../middleware/jwt.js"
 const prisma = new PrismaClient();
 
 const generateFaceRecAttendance = async (req, res) => {
   const secId = parseInt(req.params.secId);
-
-  const token = req.cookies.token;
-  const decode = decodeToken(token);
-  const empId = decode.employeeId;
+  const empId = req.user.employeeId;
   const professorId = await prisma.professor.findFirst({
     where: {
       id: empId,

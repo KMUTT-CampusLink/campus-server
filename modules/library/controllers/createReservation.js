@@ -96,12 +96,9 @@
 
 
 import prisma from "../../../core/db/prismaInstance.js";
-import { decodeToken } from "../middleware/jwt.js";
 
 const createReservation = async (req, res) => {
-  const token = req.cookies.token;
-  const decode = decodeToken(token);
-  const user_id = decode.id;
+  const user_id = req.user.id;
   const { status, book_duplicate_id, start_date, end_date, unlock_code } = req.body;
 
   if (!status || !user_id || !book_duplicate_id || !start_date || !end_date || !unlock_code) {
