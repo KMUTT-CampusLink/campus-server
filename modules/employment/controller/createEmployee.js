@@ -1,7 +1,7 @@
 import prisma from "../../../core/db/prismaInstance.js";
-import bcrypt from "bcrypt"; 
+import bcrypt from "bcrypt";
 import crypto from "crypto";
-
+ 
 const createEmployee = async (req, res) => {
   const {
     campus_email,
@@ -25,27 +25,27 @@ const createEmployee = async (req, res) => {
     province,
     postal_code,
   } = req.body;
-
+ 
   try {
     const generatedCampusEmail = `${firstname.toLowerCase()}.${lastname.toLowerCase()}@campus.edu`;
     const campusEmailToUse = campus_email || generatedCampusEmail;
-
+ 
     const generatedPersonalEmail = `${firstname.toLowerCase()}.${lastname.toLowerCase()}@personal.com`;
     const personalEmailToUse = personal_email || generatedPersonalEmail;
-
+ 
     const generatedPassword = crypto.randomBytes(8).toString("hex");
     const passwordToUse = password || generatedPassword;
-
+ 
     const hashedPassword = await bcrypt.hash(passwordToUse, 10);
-
+ 
     const salaryToUse = salary ? parseInt(salary, 10) : null;
-
+ 
     if (salary && isNaN(salaryToUse)) {
       return res
         .status(400)
         .json({ error: "Invalid salary format. Expected a number or null." });
     }
-
+ 
     const result = await prisma.$transaction(async (prisma) => {
       const newAddress = await prisma.address.create({
         data: {
@@ -56,7 +56,7 @@ const createEmployee = async (req, res) => {
           postal_code: postal_code,
         },
       });
-
+ 
       const newUser = await prisma.user.create({
         data: {
           campus_email: campusEmailToUse,
@@ -66,7 +66,7 @@ const createEmployee = async (req, res) => {
           is_activated: true,
         },
       });
-
+ 
       const newEmployee = await prisma.employee.create({
         data: {
           firstname,
@@ -84,10 +84,10 @@ const createEmployee = async (req, res) => {
           salary: salaryToUse,
         },
       });
-
+ 
       return { newEmployee, newUser, newAddress };
     });
-
+ 
     res.json({
       message: "Employee created successfully",
       employee: result.newEmployee,
@@ -99,5 +99,5 @@ const createEmployee = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
+ 
 export default createEmployee;

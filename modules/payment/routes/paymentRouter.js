@@ -7,41 +7,18 @@ import { verifyPaymentStatus } from "../controller/verifyPaymentStatus.js";
 import { createInstallmentPlan } from "../controller/Installments/createInstallmentPlan.js";
 import { viewInstallmentDetails } from "../controller/Installments/viewInstallmentDetails.js";
 import { installmentPreview  } from "../controller/Installments/installmentPreview.js";
+import { getInvoiceInfo } from "../controller/getInvoiceInfo.js";
 
 const paymentRouter = Router();
 
 paymentRouter.get("/invoice", async (req, res) => {
   try {
-    // Calling the getAllInvoice function and passing req, res
     await getAllInvoice(req, res);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-  // const { id } = req.query; // Extracting 'id' from the query parameters for testing purpose
-  // if (id) {
-  //   try {
-  //     // Calling the getAllInvoice function and passing req, res
-  //     await getAllInvoice(req, res);
-  //   } catch (error) {
-  //     res.status(500).json({ message: error.message });
-  //   }
-  // } else {
-  //   res.status(400).json({ message: "User ID is required" });
-  // }
 });
 
-// paymentRouter.post("/pay", (req, res) => {
-//   const { inv } = req.body;
-//   if (inv) {
-//     try {
-//       connectPaymentGateway(req, res);
-//     } catch (error) {
-//       res.status(500).json({ message: error.message });
-//     }
-//   } else {
-//     res.status(400).json({ message: "Invoice ID is required" });
-//   }
-// });
 
 paymentRouter.post("/pay", (req, res) => {
   const { inv, ins } = req.body;
@@ -130,6 +107,19 @@ paymentRouter.get("/installmentPreview/:invoiceId/:numInstallments", async (req,
     }
   } else {
     res.status(400).json({ message: "Invoice ID and valid installment number (2 or 3) are required" });
+  }
+});
+
+paymentRouter.get("/invoiceInfo/:invoiceId", async (req, res) => {
+  const { invoiceId } = req.params; // รับค่า invoiceId จาก URL parameter
+  if (invoiceId) {
+    try {
+      await getInvoiceInfo(req, res); // เรียกใช้ฟังก์ชัน getInvoiceInfo
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  } else {
+    res.status(400).json({ message: "Invoice ID is required" });
   }
 });
 

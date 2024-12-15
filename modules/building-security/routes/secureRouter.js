@@ -1,27 +1,34 @@
 import { Router } from "express";
 import {
   fetchBuildingData,
+  fetchBuildingWithRoomData,
   fetchFloorsByBuildingId,
   fetchRoomsByFloorId,
   createBooking,
   fetchBooked,
   deleteBookingController,
   fetchAvailableTimesController,
-} from "../buildingController.js";
-import { getBuilding } from "../controllers/getBuilding.js";
-import { getFloor } from "../controllers/getFloor.js";
-import { getRoom } from "../controllers/getRoom.js";
+} from "../controllers/buildingController.js";
+// import { getBuilding } from "../controllers/getBuilding.js";
+// import { getFloor } from "../controllers/getFloor.js";
+// import { getRoom } from "../controllers/getRoom.js";
 // import your logics from controllers here
 import { getLostAndFoundList } from "../controllers/getLostAndFoundList.js";
 import { getMaintenanceList } from "../controllers/getMaintenanceList.js";
-import { addMaintenanceRequest } from "../controllers/addMaintenanceList.js";
+import { addMaintenanceList } from "../controllers/addMaintenanceList.js";
 import { addLostAndFoundList } from "../controllers/addLostAndFoundList.js";
 import { updateLostAndFoundList } from "../controllers/updateLostAndFoundList.js";
+import { adminDeleteMaintenanceList } from "../controllers/adminDeleteMaintenanceList.js";
+import verifyRoles from "../../../core/middleware/verifyRoles.js";
+import { getLostAndFoundInterMap } from "../controllers/LostAndFoundControllerInterMap.js";
+
 // import { deleteReturned } from "../controllers/deleteReturned.js";
 const secureRouter = Router();
 
 // Route to fetch buildings
 secureRouter.get("/buildings", fetchBuildingData);
+
+secureRouter.get("/buildingsWithRoom", fetchBuildingWithRoomData);
 
 // Route to fetch floors by building ID
 secureRouter.get("/floors/:buildingId", fetchFloorsByBuildingId);
@@ -41,14 +48,23 @@ secureRouter.post("/bookings", createBooking);
 // Route to delete a booking by id that selected by delete icon
 secureRouter.delete("/bookings/:id", deleteBookingController);
 
-secureRouter.get("/building", getBuilding);
-secureRouter.get("/floor", getFloor);
-secureRouter.get("/room", getRoom);
+// secureRouter.get("/building", getBuilding);
+// secureRouter.get("/floor", getFloor);
+// secureRouter.get("/room", getRoom);
 secureRouter.get("/LostAndFoundList", getLostAndFoundList);
 secureRouter.get("/MaintenanceList", getMaintenanceList);
-secureRouter.post("/addMaintenanceList", addMaintenanceRequest);
+secureRouter.post(
+  "/addMaintenanceList",
+  verifyRoles("Student", "Professor", "Staff"),
+  addMaintenanceList
+);
 secureRouter.post("/addLostAndFoundList", addLostAndFoundList);
 secureRouter.patch("/updateStatus/:id", updateLostAndFoundList);
 // secureRouter.delete("/deleteReturned", deleteReturned);
+secureRouter.delete("/adminDeleteMaintenanceList/:id", verifyRoles("Professor", "Staff"), adminDeleteMaintenanceList);
+
+// For send API to another GROUP
+secureRouter.get("/lostAndFound/interMap", getLostAndFoundInterMap);
+
 
 export { secureRouter };

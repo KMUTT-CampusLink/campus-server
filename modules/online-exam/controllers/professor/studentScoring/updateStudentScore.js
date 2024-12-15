@@ -4,12 +4,18 @@ export default async function updateStudentScore(req, res) {
   const id = parseInt(req.body.studentExamId);
   const studentId = req.body.studentId;
   const finalEssayScore = req.body.finalEssayScore.scoring;
+  const finalComment = req.body.finalComment.comment;
   try {
     await Promise.all(
       finalEssayScore.map(async (score) => {
         await prisma.$queryRaw`UPDATE student_answer SET essay_score = ${parseFloat(
             score.score
         )} WHERE student_id = ${studentId} AND question_id = ${score.question_id}`;
+      })
+    );
+    await Promise.all(
+      finalComment.map(async (comment) => {
+        await prisma.$queryRaw`UPDATE student_answer SET essay_comment = ${comment.comment} WHERE student_id = ${studentId} AND question_id = ${comment.question_id}`;
       })
     );
     let score = 0;
