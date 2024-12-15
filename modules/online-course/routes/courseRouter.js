@@ -15,6 +15,7 @@ import {
 import { studentRouter } from "./studentRouter.js";
 import { discussionRouter } from "./discussionRouter.js";
 import { assignmentRouter } from "./assignmentRouter.js";
+import { announcementRouter } from "./announcementRouter.js";
 // import { professorRouter } from "./professorRouter.js";
 
 const courseRouter = Router();
@@ -33,6 +34,7 @@ courseRouter.use("/assignment", assignmentRouter);
 // courseRouter.use("/:studentID/all",getAllCoursesByStudentID);
 courseRouter.get("/:professorID/teach", getAllCoursesByProfessorID);
 courseRouter.get("/course/:sectionID", getCourseHeaderBySectionID);
+courseRouter.use("/announcement", announcementRouter);
 
 courseRouter.post(
   "/addVideo",
