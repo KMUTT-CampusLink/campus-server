@@ -90,7 +90,6 @@ export const getAllTransactionsByUserId = async (req, res) => {
         // Decode the token to get the user ID
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const userId = decoded.id;
-        console.log(userId);
 
         // Fetch all transactions from the invoice table for the user
         const transactions = await prisma.$queryRaw`
