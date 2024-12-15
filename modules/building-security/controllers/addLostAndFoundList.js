@@ -1,10 +1,8 @@
 import prisma from "../../../core/db/prismaInstance.js";
-import { decodeToken } from "../middleware/jwt.js"
 
 export const addLostAndFoundList = async (req, res) => {
-    const token = req.cookies.token;
-    const decode = decodeToken(token);
-    console.log(decode);
+    const user = req.user
+    
     const {
         floor_id,
         description,
@@ -18,7 +16,7 @@ export const addLostAndFoundList = async (req, res) => {
                 lastname: true,
             },
             where: {
-                user_id: decode.id,
+                user_id: user.id,
             },
         }) || await prisma.employee.findFirst({
             select: {
@@ -26,7 +24,7 @@ export const addLostAndFoundList = async (req, res) => {
                 lastname: true,
             },
             where: {
-                user_id: decode.id,
+                user_id: user.id,
             },
         });
 
@@ -42,7 +40,7 @@ export const addLostAndFoundList = async (req, res) => {
 
         const newLostAndFound = await prisma.lost_and_found.create({
             data: {
-                reporter_id: decode.id,
+                reporter_id: user.id,
                 name: name,
                 description,
                 status,

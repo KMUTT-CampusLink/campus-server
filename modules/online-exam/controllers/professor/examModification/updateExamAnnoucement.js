@@ -2,15 +2,14 @@ import prisma from "../../../../../core/db/prismaInstance.js";
 
 export default async function updateExamAnnouncement(req, res) {
   const examId = parseInt(req.body.examId);
-  const  publicScoreStatus  = req.body.publicScoreStatus; // Extract publish_score_status from the request body
-    console.log(req.body)
+  const publicScoreStatus = req.body.publicScoreStatus;
   try {
     const updatedExam = await prisma.exam.update({
       where: {
         id: examId,
       },
       data: {
-        publish_score_status: publicScoreStatus, // Update only the publish_score_status field
+        publish_score_status: publicScoreStatus,
       },
     });
 

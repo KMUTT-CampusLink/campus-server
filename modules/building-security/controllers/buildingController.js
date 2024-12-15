@@ -9,8 +9,6 @@ import {
   getAvailableTimes,
   deleteBooking,
 } from "./buildingService.js";
-import prisma from "../../../core/db/prismaInstance.js";
-import { decodeToken } from "../middleware/jwt.js";
 
 export const fetchBuildingData = async (req, res) => {
   try {
@@ -110,18 +108,7 @@ export const createBooking = async (req, res) => {
   const { roomId, bookingDate, startTime, endTime } = req.body;
 
   try {
-    // Extract token from cookies
-    const token = req.cookies.token;
-    if (!token) {
-      return res.status(401).json({ message: "Unauthorized: No token provided." });
-    }
-
-    const decoded = decodeToken(token);
-    if (!decoded || !decoded.id) {
-      return res.status(401).json({ message: "Unauthorized: Invalid token." });
-    }
-
-    const userId = decoded.id;
+    const userId = req.user.id;
 
     if (!roomId || !bookingDate || !startTime || !endTime) {
       return res.status(400).json({
