@@ -137,34 +137,6 @@ export const deleteEnrollmentDetail = async (req, res) => {
   }
 };
 
-export const withdrawEnrollmentDetail = async (req, res) => {
-  const { selectedEnrollmentId } = req.params;
-
-  if (!selectedEnrollmentId) {
-    return res
-      .status(400)
-      .json({ message: "Enrollment detail ID is required." });
-  }
-
-  try {
-
-    await prisma.$executeRaw`
-    UPDATE enrollment_detail 
-    SET grade_id = 1011, status = 'Withdraw' 
-    WHERE id = ${Number(selectedEnrollmentId)};
-  `;
-
-    return res
-      .status(200)
-      .json({ message: "Enrollment successfully withdrawn." });
-  } catch (error) {
-    console.error("Error withdrawing enrollment detail:", error);
-    return res
-      .status(500)
-      .json({ message: "Error withdrawing enrollment detail." });
-  }
-};
-
 export const getOrCreateEnrollmentHead = async (req, res) => {
   const { studentId, currentSemesterId } = req.body;
 
