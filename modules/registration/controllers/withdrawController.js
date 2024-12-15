@@ -1,3 +1,4 @@
+import jwt from "jsonwebtoken";
 import prisma from "../../../core/db/prismaInstance.js";
 
 export const withdrawEnrollmentDetail = async (req, res) => {
@@ -78,3 +79,27 @@ export async function updateRefund(selectedEnrollmentId) {
     }
 }
 
+export const getAllTransactionsByUserId = async (req, res) => {
+    const token = req.cookies.token;
+
+    if (!token) {
+        return res.status(401).json({ msg: "Unauthorized" });
+    }
+
+    try {
+        // Decode the token to get the user ID
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const userId = decoded.id;
+        // const { userId } = req.params;
+        // Fetch all transactions from the invoice table for the user
+        const transactions = await prisma.$queryRaw`
+        SELECT * 
+        FROM invoice 
+        WHERE user_id = ${userId}::uuid AND status = 'Paid';
+      `;
+        return res.status(200).json(transactions);
+    } catch (error) {
+        console.error("Error fetching transactions:", error);
+        return res.status(500).json({ msg: "Server error", error: error.message });
+    }
+};
