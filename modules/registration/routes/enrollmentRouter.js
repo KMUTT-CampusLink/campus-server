@@ -4,6 +4,7 @@ import {
   deleteEnrollmentDetail,
   getOrCreateEnrollmentHead,
   getPaymentStatus,
+  withdrawEnrollmentDetail,
 } from "../controllers/enrollmentController.js";
 const enrollmentRouter = Router();
 
@@ -13,6 +14,7 @@ enrollmentRouter.get("/", (req, res) => {
 enrollmentRouter.get("/payment/:headId", getPaymentStatus);
 enrollmentRouter.post("/head", getOrCreateEnrollmentHead);
 enrollmentRouter.post("/", addEnrollmentDetail);
+enrollmentRouter.post("/:selectedEnrollmentId", withdrawEnrollmentDetail);
 enrollmentRouter.delete("/:selectedEnrollmentId", deleteEnrollmentDetail);
 
 export { enrollmentRouter };

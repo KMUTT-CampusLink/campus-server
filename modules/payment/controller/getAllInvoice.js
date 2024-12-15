@@ -3,11 +3,11 @@ import dayjs from 'dayjs';
 
 const getAllInvoice = async (req, res) => {
   try {
-    const { id } = "bed7f568-03fa-4a3a-9b37-037bed188aba"; //req.query; // รับค่า id จาก URL parameter
-    // ตรวจสอบว่ามีการส่งค่า id มาหรือไม่
-    // if (!id) {
-    //   return res.status(400).json({ error: 'User ID is required' });
-    // }
+    const id = req.user.id; 
+    //ตรวจสอบว่ามีการส่งค่า id มาหรือไม่
+    if (!id) {
+      return res.status(400).json({ error: 'User ID is required' });
+    }
 
     // ดึงข้อมูล invoice โดยใช้ user_id ที่ได้รับจาก query
     const showAllInvoice = await prisma.invoice.findMany({
@@ -28,6 +28,41 @@ const getAllInvoice = async (req, res) => {
           where: { id: invoice.id },
           data: { status: 'Cancelled' },
         });
+      } else if (invoice.status === 'Pay_by_Installments') {
+        // ตรวจสอบการผ่อนชำระ
+        const installments = await prisma.installment.findMany({
+          where: {
+            invoice_id: invoice.id,
+          },
+          orderBy: {
+            due_date: 'asc',
+          },
+        });
+
+        if (installments.length > 0) {
+          const firstInstallment = installments[0];
+          if (dayjs(firstInstallment.due_date).isBefore(now) && firstInstallment.status === 'Unpaid') {
+            // ยกเลิก invoice หลักและการผ่อนชำระทั้งหมดหากบิลแรกไม่ได้จ่าย
+            await prisma.invoice.update({
+              where: { id: invoice.id },
+              data: { status: 'Cancelled' },
+            });
+            await prisma.installment.updateMany({
+              where: { invoice_id: invoice.id },
+              data: { status: 'Cancelled' },
+            });
+          } else {
+            // ตรวจสอบว่าทุกบิลถูกชำระแล้วหรือไม่
+            const allPaid = installments.every(installment => installment.status === 'Paid');
+            if (allPaid) {
+              // อัปเดตสถานะ invoice เป็น Paid หากบิลผ่อนชำระทั้งหมดถูกชำระแล้ว
+              await prisma.invoice.update({
+                where: { id: invoice.id },
+                data: { status: 'Paid' },
+              });
+            }
+          }
+        }
       }
     }
 
