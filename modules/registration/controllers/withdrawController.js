@@ -90,14 +90,50 @@ export const getAllTransactionsByUserId = async (req, res) => {
         // Decode the token to get the user ID
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const userId = decoded.id;
-        // const { userId } = req.params;
+        console.log(userId);
+
         // Fetch all transactions from the invoice table for the user
         const transactions = await prisma.$queryRaw`
-        SELECT * 
-        FROM invoice 
-        WHERE user_id = ${userId}::uuid AND status = 'Paid';
-      `;
-        return res.status(200).json(transactions);
+            SELECT * 
+            FROM invoice 
+            WHERE user_id = ${userId}::uuid AND status = 'Paid';
+        `;
+
+        // Fetch the total balance from the user table
+        const totalBalance = await prisma.$queryRaw`
+            SELECT wallet 
+            FROM "user" 
+            WHERE id = ${userId}::uuid;
+        `;
+
+        // Calculate the sum of course refunds
+        const courseRefunds = await prisma.$queryRaw`
+            SELECT COALESCE(SUM(amount), 0) as refunds 
+            FROM invoice 
+            WHERE user_id = ${userId}::uuid AND status = 'Paid' AND title = 'Course Refund';
+        `;
+
+        // Calculate the sum of deposits
+        const deposits = await prisma.$queryRaw`
+            SELECT COALESCE(SUM(amount), 0) as deposits 
+            FROM invoice 
+            WHERE user_id = ${userId}::uuid AND status = 'Paid' AND title = 'Deposit';
+        `;
+
+        // Calculate the sum of other transactions
+        const others = await prisma.$queryRaw`
+            SELECT COALESCE(SUM(amount), 0) as others 
+            FROM invoice 
+            WHERE user_id = ${userId}::uuid AND status = 'Paid' AND title NOT IN ('Course Refund', 'Deposit');
+        `;
+
+        return res.status(200).json({
+            totalBalance: totalBalance[0].wallet,
+            refunds: courseRefunds[0].refunds,
+            deposits: deposits[0].deposits,
+            others: others[0].others,
+            transactions
+        });
     } catch (error) {
         console.error("Error fetching transactions:", error);
         return res.status(500).json({ msg: "Server error", error: error.message });
