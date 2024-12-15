@@ -51,7 +51,7 @@ app.get("/api/authorize", verifyAccessToken, (req, res) => {
     message: "User is authorized",
   });
 });
-app.use("/api/regis", regisRouter);
+app.use("/api/regis", verifyAccessToken, regisRouter);
 app.use("/api/attend", verifyAccessToken, attendRouter);
 app.use("/api/security", verifyAccessToken, secureRouter);
 app.use("/api/botastra", verifyAccessToken, botRouter);
