@@ -2,7 +2,7 @@ import prisma from "../../../core/db/prismaInstance.js"; // Assuming the correct
 
 export const getGuardSchedule = async (req, res) => {
   try {
-    // Fetching guard schedules along with related employee and user data
+    // Fetching guard schedules along with related employee, user, and building data
     const guardSchedules = await prisma.guard_schedule.findMany({
       orderBy: { created_at: 'desc' }, // Ordering by creation date
       include: {
@@ -29,6 +29,12 @@ export const getGuardSchedule = async (req, res) => {
             },
           },
         },
+        // Fetching building data using building_id from guard_schedule
+        building: {
+          select: {
+            name: true,  // Assuming the building name is stored as buildingName
+          },
+        },
       },
     });
 
@@ -42,17 +48,19 @@ export const getGuardSchedule = async (req, res) => {
     });
 
     // Processing each guard schedule to concatenate guard's firstname + lastname (guardName)
-    const schedulesWithGuardNames = guardSchedules.map((schedule) => ({
+    const schedulesWithGuardNamesAndBuilding = guardSchedules.map((schedule) => ({
       ...schedule,
       guardName: `${schedule.guard.employee.firstname} ${schedule.guard.employee.lastname}`,
       // Map userId to userName using the created map
       userName: userNameMap.get(schedule.user?.id) || '',  // Default to empty string if userName not found
+      // Adding the building name to the schedule
+      buildingName: schedule.building?.name || '',  // Default to empty string if buildingName not found
     }));
 
     // Sending the response back with the modified schedules
     res.status(200).json({
       success: true,
-      data: schedulesWithGuardNames,
+      data: schedulesWithGuardNamesAndBuilding,
     });
   } catch (error) {
     // Logging the error and sending a failure response
