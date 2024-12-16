@@ -14,7 +14,8 @@ export default async function getStudentExamReviewData(req, res) {
       ...studentExamReviewData,
       studentAnswers,
     };
-    return res.status(200).json(response);
+    const PermissionStatus = await prisma.$queryRaw`SELECT view_history FROM exam WHERE id = ${examId}`;
+    return res.status(200).json({response: response, PermissionStatus: PermissionStatus[0]});
   } catch (e) {
     return res.status(500).json({ message: e });
   }
