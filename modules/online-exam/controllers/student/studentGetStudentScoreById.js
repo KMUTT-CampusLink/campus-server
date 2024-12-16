@@ -26,14 +26,21 @@ export default async function studentGetStudentScoreById(req, res) {
         await prisma.$queryRaw`SELECT count(*) FROM student_answer WHERE question_id = ${questionId} AND student_id = ${queryStudent.id} AND ans_correct = true`;
       res.json(parseFloat(studentScore[0].count) * questionType[0].mark);
     } else {
+      const choiceAmount =
+        await prisma.$queryRaw`SELECT count(*) FROM exam_choice WHERE question_id = ${questionId}`;
       const studentScore =
         await prisma.$queryRaw`SELECT count(*) FROM student_answer WHERE question_id = ${questionId} AND student_id = ${queryStudent.id} AND ans_correct = true`;
       const studnetScore2 =
-        await prisma.$queryRaw`SELECT count(*) FROM exam_choice WHERE question_id = ${questionId} AND correct_ans = false  AND question_id = ${questionId} AND choice_text NOT IN (SELECT answer FROM student_answer WHERE question_id = ${questionId} AND student_id = ${queryStudent.id})`;
-      res.json(
-        parseInt(studentScore[0].count + studnetScore2[0].count) *
-          parseFloat(questionType[0].mark)
-      );
+        await prisma.$queryRaw`SELECT count(*) FROM exam_choice WHERE question_id = ${questionId} AND correct_ans = false AND choice_text NOT IN (SELECT answer FROM student_answer WHERE question_id = ${questionId} AND student_id = ${queryStudent.id})`;
+      const studentTotalScore =
+        choiceAmount[0].count === studentScore[0].count + studnetScore2[0].count
+          ? Math.round(
+              parseInt(studentScore[0].count + studnetScore2[0].count) *
+                parseFloat(questionType[0].mark)
+            )
+          : parseInt(studentScore[0].count + studnetScore2[0].count) *
+            parseFloat(questionType[0].mark);
+      res.json(studentTotalScore);
     }
   } catch (error) {
     console.log(error);
