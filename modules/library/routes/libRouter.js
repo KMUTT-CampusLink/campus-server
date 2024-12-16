@@ -10,7 +10,7 @@ import { createReservation } from "../controllers/createReservation.js";
 import { updateReturnBook } from "../controllers/updateReturnBook.js";
 import { getAllBookDupe } from "../controllers/getAllBookDupe.js";
 import { getAllUser } from "../controllers/getAllUser.js";
-
+import { getEveryBook } from "../controllers/getEveryBook.js";
 const libRouter = Router();
 libRouter.get("/event", getAllLibraryEvents);
 libRouter.get("/announce", getAllLibraryAnnouncements);
@@ -23,6 +23,7 @@ libRouter.post("/reservations", createReservation);
 libRouter.post("/returnBook", updateReturnBook);
 libRouter.get("/bookDupe", getAllBookDupe);
 libRouter.get("/user", getAllUser);
+libRouter.get("/everyBook", getEveryBook);
 
 libRouter.get("/", (req, res) => {
   return res.send("Library System");
