@@ -10,7 +10,7 @@ export default async function createExam(req, res) {
   const exam = req.body.exam;
   try {
     const decoded = decodeToken(token);
-    const userId = decoded.empid;
+    const userId = decoded.empId;
     const totalScore = exam.questions.map((question) => parseInt(question.score)).reduce((a, b) => a + b, 0);
     const queryExamRaw = await prisma.exam.create({
       data: {
