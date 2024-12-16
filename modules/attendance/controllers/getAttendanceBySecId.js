@@ -4,22 +4,18 @@ const prisma = new PrismaClient();
 const getAttendanceBySecId = async (req, res) => {
   try {
     const { sectionID } = req.params;
+    const section_id = parseInt(sectionID)
     if (!sectionID) {
       return res.status(400).json("No Section Id");
     }
-
-    const attendanceData = await prisma.class_attendance.findMany({
-      where: {
-        section: {
-          id: Number(sectionID),  // This should work correctly with the updated filter
-        },
-      },
-      include: {
-        student: true, 
-        section: true,
-      },
-    });
-
+    const attendanceData = await prisma.$queryRaw`
+      SELECT TO_CHAR(d.created_at,'YYYY-MM-DD') created_at, ed.student_id, s.firstname, s.midname, s.lastname, COALESCE(ca.status, 'Absent') AS status
+      FROM (SELECT DISTINCT created_at FROM class_attendance WHERE section_id = ${section_id}) as d
+      CROSS JOIN enrollment_detail ed
+      JOIN student s ON ed.student_id = s.id
+      LEFT JOIN class_attendance ca ON ed.student_id = ca.student_id AND d.created_at = ca.created_at
+      WHERE ed.student_id = s.id AND ed.section_id = ${section_id}
+      ORDER BY d.created_at desc, ed.student_id;`
     return res.status(200).json({
       success: true,
       data: attendanceData,
