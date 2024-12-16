@@ -4,7 +4,7 @@ export const getGuardSchedule = async (req, res) => {
   try {
     // Fetching guard schedules along with related employee, user, and building data
     const guardSchedules = await prisma.guard_schedule.findMany({
-      orderBy: { created_at: 'desc' }, // Ordering by creation date
+      orderBy: { created_at: 'asc' }, // Ordering by creation date
       include: {
         // Fetching guard's employee data (guardName)
         guard: {
