@@ -5,6 +5,6 @@ import { createAnnouncement, getUpComingAnnouncement } from "../controllers/anno
 const announcementRouter = Router();
 
 announcementRouter.post("/create", createAnnouncement);
-announcementRouter.get("/:sectionID", getUpComingAnnouncement);
+announcementRouter.get("/:studentID", getUpComingAnnouncement);
 
 export { announcementRouter };

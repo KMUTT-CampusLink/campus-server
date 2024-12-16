@@ -1,7 +1,6 @@
 import prisma from "../../../core/db/prismaInstance.js";
 
 export const createAnnouncement = async (req, res) => {
-
   try {
     // Extract data from the request body
     const { title, content, section_id, professor_id, start_date, end_date } =
@@ -41,23 +40,43 @@ export const createAnnouncement = async (req, res) => {
 
 export const getUpComingAnnouncement = async (req, res) => {
   try {
-    // Extract the sectionID from the request parameters
-    const { sectionID } = req.params;
+    // Extract the studentID from the request parameters
+    const { studentID } = req.params;
 
-    // Validate sectionID
-    if (!sectionID) {
-      return res.status(400).json({ error: "Section ID is required." });
+    // Validate studentID
+    if (!studentID) {
+      return res.status(400).json({ error: "Student ID is required." });
     }
+
+    // Fetch the section IDs associated with the student
+    const courses = await prisma.$queryRaw`
+      SELECT ed.section_id AS sectionId
+      FROM enrollment_detail ed
+      JOIN section s ON ed.section_id = s.id
+      JOIN semester sem ON s.semester_id = sem.id
+      JOIN course c ON s.course_code = c.code
+      WHERE ed.student_id = ${studentID}`;
+
+    console.log(courses);
+    // Check if courses were found
+    if (!courses || courses.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "No courses found for the student." });
+    }
+
+    // Extract section IDs into an array
+    const sectionIds = courses.map((course) => course.sectionid);
 
     // Get the current date and time
     const currentDate = new Date();
 
-    // Query the database for announcements whose end_date is greater than today
-    const upcomingAnnouncements = await prisma.course_announcement.findMany({
+    // Fetch all upcoming announcements for the student's sections
+    const allUpcomingAnnouncements = await prisma.course_announcement.findMany({
       where: {
-        section_id: parseInt(sectionID, 10),
+        section_id: { in: sectionIds }, // Filter by the list of section IDs
         end_date: {
-          gte: currentDate, // Filter announcements with end_date greater than or equal to today's date
+          gte: currentDate, // Only include announcements with end_date >= current date
         },
       },
       orderBy: {
@@ -68,12 +87,12 @@ export const getUpComingAnnouncement = async (req, res) => {
     // Respond with the list of upcoming announcements
     res.status(200).json({
       message: "Upcoming announcements retrieved successfully",
-      announcements: upcomingAnnouncements,
+      announcements: allUpcomingAnnouncements,
     });
   } catch (error) {
     console.error("Error retrieving upcoming announcements:", error);
-    res
-      .status(500)
-      .json({ error: "An error occurred while fetching announcements." });
+    res.status(500).json({
+      error: "An error occurred while fetching announcements.",
+    });
   }
 };
