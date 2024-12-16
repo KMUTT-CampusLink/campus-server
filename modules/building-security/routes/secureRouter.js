@@ -15,10 +15,12 @@ import {
 
 import { getLostAndFoundList } from "../controllers/getLostAndFoundList.js";
 import { getMaintenanceList } from "../controllers/getMaintenanceList.js";
+import { getGuardSchedule } from "../controllers/getGuardSchedule.js";
 import { addMaintenanceList } from "../controllers/addMaintenanceList.js";
 import { addLostAndFoundList } from "../controllers/addLostAndFoundList.js";
 import { updateLostAndFoundList } from "../controllers/updateLostAndFoundList.js";
 import { adminDeleteMaintenanceList } from "../controllers/adminDeleteMaintenanceList.js";
+import { deleteGuard } from "../controllers/deleteGuard.js";
 import verifyRoles from "../../../core/middleware/verifyRoles.js";
 import { getLostAndFoundInterMap } from "../controllers/LostAndFoundControllerInterMap.js";
 
@@ -43,14 +45,24 @@ secureRouter.delete("/bookings/:id", deleteBookingController);
 secureRouter.get("/LostAndFoundList", getLostAndFoundList);
 
 secureRouter.get("/MaintenanceList", getMaintenanceList);
+<<<<<<< HEAD
 
 secureRouter.post("/addMaintenanceList", verifyRoles("Student", "Professor", "Staff"), addMaintenanceList);
 
+=======
+secureRouter.get("/GuardList", getGuardSchedule);
+secureRouter.post(
+  "/addMaintenanceList",
+  verifyRoles("Student", "Professor", "Staff"),
+  addMaintenanceList
+);
+>>>>>>> ad05e8f54dd6f77c3b63567b7e9ee85ee8c6e719
 secureRouter.post("/addLostAndFoundList", addLostAndFoundList);
 
 secureRouter.patch("/updateStatus/:id", updateLostAndFoundList);
 
 secureRouter.delete("/adminDeleteMaintenanceList/:id", verifyRoles("Professor", "Staff"), adminDeleteMaintenanceList);
+secureRouter.delete("/deleteGuard/:id", deleteGuard);
 
 secureRouter.get("/lostAndFound/interMap", getLostAndFoundInterMap);
 
