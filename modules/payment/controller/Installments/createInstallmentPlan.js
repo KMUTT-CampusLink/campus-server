@@ -26,10 +26,25 @@ export const createInstallmentPlan = async (req, res) => {
       },
     });
 
+    // คำนวณวันที่ครบกำหนดของงวดสุดท้าย
+    const dueDateLastInstallment = dayjs(invoice.due_date).add(numInstallments - 1, 'month');
+
+    // คำนวณระยะเวลาการคิดดอกเบี้ย (เป็นปี)
+    const totalMonths = dueDateLastInstallment.diff(dayjs(invoice.due_date), 'month');
+    const totalYears = totalMonths / 12;
+
+    // อัตราดอกเบี้ย 5% ต่อปี
+    const interestRate = 0.05;
+
+    // คำนวณดอกเบี้ยทั้งหมด (ปัดเป็นจำนวนเต็ม)
+    const totalInterest = Math.round(invoice.amount * interestRate * totalYears);
+
+    // รวมดอกเบี้ยเข้าในยอดเงินต้น
+    const totalAmountWithInterest = invoice.amount + totalInterest;
+
     // คำนวณจำนวนเงินในการผ่อนแต่ละงวด
-    const totalAmount = invoice.amount;
-    const installmentAmount = Math.ceil(totalAmount / numInstallments); // ปัดเศษขึ้นในใบแรก
-    const lastInstallmentAmount = totalAmount - installmentAmount * (numInstallments - 1); // คำนวณใบสุดท้าย
+    const installmentAmount = Math.ceil(totalAmountWithInterest / numInstallments);
+    const lastInstallmentAmount = totalAmountWithInterest - installmentAmount * (numInstallments - 1);
 
     // กำหนดวันที่ครบกำหนดของแต่ละงวด
     let dueDate = dayjs(invoice.due_date);
