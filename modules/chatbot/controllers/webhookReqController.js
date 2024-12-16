@@ -20,8 +20,11 @@ import { invoiceDetailController } from "./webhookReq/Invoices/invoiceDetailCont
 import { unPaidInvoicesController } from "./webhookReq/Invoices/UnPaidInvoicesController.js";
 import { professorContactController } from "./webhookReq/programs/professorContactController.js";
 import { availableParkingSlotController } from "./webhookReq/parking/availableParkingSlot.js";
+import { registeredCourseController } from "./webhookReq/student/registeredCourseController.js";
+import { transportationBookingController } from "./webhookReq/bookings/transportationBookingController.js";
 
 let globalParameters = {};
+let trips_data = [];
 
 export const webhookReqController = async(req, res) => {
   const pageName = req.body.pageInfo.displayName;
@@ -154,8 +157,24 @@ export const webhookReqController = async(req, res) => {
       "building": null,
       "floor": null,
     }
+  }else if(pageName === "Registered Course"){
+    const studId = req.user.studentId;
+    result = await registeredCourseController(studId);
+  }else if(pageName === "Transportation Trips"){
+    const startStop = req.body.sessionInfo.parameters.start.trim();
+    const endStop = req.body.sessionInfo.parameters.stop.trim();
+    const day = req.body.sessionInfo.parameters.day.trim();
+    trips_data = await transportationBookingController(startStop, endStop, day);
+    parameters = {
+      "start": null,
+      "stop": null,
+      "day": null,
+    }
+    if(!trips_data || trips_data.length === 0){
+      result = `I'm sorry. There is no route available from ${startStop} to ${endStop}.`
+    }else result = "-";
   }
-  // console.log(parameters);
+  // console.log(result);
   res.json({
     "fulfillmentResponse": {
       "messages": [
@@ -167,9 +186,9 @@ export const webhookReqController = async(req, res) => {
       ]
     },
     "sessionInfo": {
-      parameters
+      parameters,
     }
   });
 }
 
-export {globalParameters}
+export {globalParameters, trips_data}
