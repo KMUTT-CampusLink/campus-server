@@ -15,10 +15,12 @@ import {
 // import your logics from controllers here
 import { getLostAndFoundList } from "../controllers/getLostAndFoundList.js";
 import { getMaintenanceList } from "../controllers/getMaintenanceList.js";
+import { getGuardSchedule } from "../controllers/getGuardSchedule.js";
 import { addMaintenanceList } from "../controllers/addMaintenanceList.js";
 import { addLostAndFoundList } from "../controllers/addLostAndFoundList.js";
 import { updateLostAndFoundList } from "../controllers/updateLostAndFoundList.js";
 import { adminDeleteMaintenanceList } from "../controllers/adminDeleteMaintenanceList.js";
+import { deleteGuard } from "../controllers/deleteGuard.js";
 import verifyRoles from "../../../core/middleware/verifyRoles.js";
 import { getLostAndFoundInterMap } from "../controllers/LostAndFoundControllerInterMap.js";
 
@@ -53,6 +55,7 @@ secureRouter.delete("/bookings/:id", deleteBookingController);
 // secureRouter.get("/room", getRoom);
 secureRouter.get("/LostAndFoundList", getLostAndFoundList);
 secureRouter.get("/MaintenanceList", getMaintenanceList);
+secureRouter.get("/GuardList", getGuardSchedule);
 secureRouter.post(
   "/addMaintenanceList",
   verifyRoles("Student", "Professor", "Staff"),
@@ -62,6 +65,7 @@ secureRouter.post("/addLostAndFoundList", addLostAndFoundList);
 secureRouter.patch("/updateStatus/:id", updateLostAndFoundList);
 // secureRouter.delete("/deleteReturned", deleteReturned);
 secureRouter.delete("/adminDeleteMaintenanceList/:id", verifyRoles("Professor", "Staff"), adminDeleteMaintenanceList);
+secureRouter.delete("/deleteGuard/:id", deleteGuard);
 
 // For send API to another GROUP
 secureRouter.get("/lostAndFound/interMap", getLostAndFoundInterMap);
