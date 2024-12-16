@@ -20,6 +20,7 @@ export const getGuardSchedule = async (req, res) => {
         // Fetch user information using user_id and link to the employee to fetch their firstname and lastname
         user: {
           select: {
+            id: true,  // Include the userId
             employee: {
               select: {
                 firstname: true,
@@ -31,14 +32,22 @@ export const getGuardSchedule = async (req, res) => {
       },
     });
 
+    // Create a map to associate userId with userName
+    const userNameMap = new Map();
+
+    // Populate the map with userId as key and full name as value
+    guardSchedules.forEach((schedule) => {
+      const fullName = `${schedule.user?.employee?.firstname || ''} ${schedule.user?.employee?.lastname || ''}`;
+      userNameMap.set(schedule.user?.id, fullName);
+    });
+
     // Processing each guard schedule to concatenate guard's firstname + lastname (guardName)
     const schedulesWithGuardNames = guardSchedules.map((schedule) => ({
       ...schedule,
       guardName: `${schedule.guard.employee.firstname} ${schedule.guard.employee.lastname}`,
-      // Concatenating the userName (using user_id and joining user to employee)
-      userName: `${schedule.user?.employee?.firstname || ''} ${schedule.user?.employee?.lastname || ''}`,
+      // Map userId to userName using the created map
+      userName: userNameMap.get(schedule.user?.id) || '',  // Default to empty string if userName not found
     }));
-
 
     // Sending the response back with the modified schedules
     res.status(200).json({
