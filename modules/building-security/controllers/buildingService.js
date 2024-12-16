@@ -477,11 +477,20 @@ export const createNewGBooking = async (userId, buildingId, guardId, details) =>
           },
         },
         data: {
-          guard_status: false, // Set the guard status to false
+          guard_status: false, 
         },
       });
 
-      return { newGBooking, updateGuardStatus, updatedBuildings: nearbyBuildingIds };
+      const updateSelectBuilding = await prisma.building.update({
+        where: {
+          id: buildingId,
+        },
+        data: {
+          guard_status: false, 
+        },
+      });
+
+      return { newGBooking, updateGuardStatus, updatedBuildings: nearbyBuildingIds, updateSelectBuilding};
     });
 
     console.log("Transaction successful:", newGBooking);
