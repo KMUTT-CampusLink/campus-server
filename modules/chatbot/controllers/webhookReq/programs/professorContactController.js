@@ -26,7 +26,7 @@ export const professorContactController = async(req,res) =>{
             return `We could not find the professor of the ${courseName} course ${sectionName}.\n\n Please make sure the course name and the section are exactly correct since the chatbot is case sensitive. For example, "Introduction to Phonetics" and "introductiontophonetic" are not the same and make sure the section is the format "Section 1 (2024)"`;
         }else{
             res.status(200).json({message: `The professor ${contact[0].fullname}'s contact information is as follow\n\n  phone: ${contact[0].phone}\n  email:${contact[0].email}`});
-            return `The professor ${contact[0].fullname}'s contact information is as follow\n\n  phone: ${contact[0].phone}\n  email:${contact[0].email}`;
+            return `The professor ${contact[0].fullname}'s contact information is as follow\n\n  phone: ${contact[0].phone}\n  email: ${contact[0].personal_email}`;
         }
     }
     catch(error){

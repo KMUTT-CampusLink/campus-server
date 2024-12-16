@@ -71,6 +71,7 @@ export const webhookReqController = async(req, res) => {
       "floor": null,
     };
   }
+  
   // console.log(parameters);
   res.json({
     "fulfillmentResponse": {

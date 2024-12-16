@@ -21,4 +21,4 @@ res.status(200).json({
         //  return {error: "Failed to fetch exam score"};
         res.status(500).json({ error: "Failed to fetch contact for the building" });
     }
- }
+}

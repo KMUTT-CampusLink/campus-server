@@ -54,8 +54,8 @@ app.get("/api/authorize", verifyAccessToken, (req, res) => {
 app.use("/api/regis", verifyAccessToken, regisRouter);
 app.use("/api/attend", attendRouter);
 app.use("/api/security", verifyAccessToken, secureRouter);
-// app.use("/api/botastra", verifyAccessToken, botRouter);
-app.use("/api/botastra", botRouter);
+app.use("/api/botastra", verifyAccessToken, botRouter);
+//app.use("/api/botastra", botRouter);
 app.use("/api/clubs", clubRouter);
 app.use("/api/employ", verifyAccessToken, employRouter);
 app.use("/api/library", libRouter);
