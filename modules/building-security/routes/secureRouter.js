@@ -45,18 +45,16 @@ secureRouter.delete("/bookings/:id", deleteBookingController);
 secureRouter.get("/LostAndFoundList", getLostAndFoundList);
 
 secureRouter.get("/MaintenanceList", getMaintenanceList);
-<<<<<<< HEAD
 
 secureRouter.post("/addMaintenanceList", verifyRoles("Student", "Professor", "Staff"), addMaintenanceList);
 
-=======
 secureRouter.get("/GuardList", getGuardSchedule);
 secureRouter.post(
   "/addMaintenanceList",
   verifyRoles("Student", "Professor", "Staff"),
   addMaintenanceList
 );
->>>>>>> ad05e8f54dd6f77c3b63567b7e9ee85ee8c6e719
+
 secureRouter.post("/addLostAndFoundList", addLostAndFoundList);
 
 secureRouter.patch("/updateStatus/:id", updateLostAndFoundList);
