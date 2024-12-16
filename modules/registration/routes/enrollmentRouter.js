@@ -4,8 +4,8 @@ import {
   deleteEnrollmentDetail,
   getOrCreateEnrollmentHead,
   getPaymentStatus,
-  withdrawEnrollmentDetail,
 } from "../controllers/enrollmentController.js";
+import { withdrawEnrollmentDetail } from "../controllers/withdrawController.js";
 const enrollmentRouter = Router();
 
 enrollmentRouter.get("/", (req, res) => {

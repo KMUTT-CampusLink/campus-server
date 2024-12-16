@@ -1,9 +1,7 @@
 import prisma from "../../../core/db/prismaInstance.js";
-import jwt from "jsonwebtoken";
 
 const postCheckout = async (req, res) => {
-        const token = req.cookies.token;
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = req.user
         const { reservation_id, checkout_time } = req.body;
     
         // Check if checkout_time is provided
@@ -15,7 +13,7 @@ const postCheckout = async (req, res) => {
             // Rest of your code
             const unpaidInvoice = await prisma.invoice.findFirst({
                 where: {
-                    user_id: decoded.id,
+                    user_id: user.id,
                     status: "Unpaid",
                 },
             });
@@ -34,7 +32,7 @@ const postCheckout = async (req, res) => {
     
             if (!reservation) {
                 return res.status(400).json({ error: `Reservation with ID ${reservation_id} does not exist.` });
-            } else if (reservation.verified_car.user_id !== decoded.id) {
+            } else if (reservation.verified_car.user_id !== user.id) {
                 return res.status(403).json({ error: "Unauthorized access. You do not own this reservation." });
             } else if (reservation.status !== 'Occupied') {
                 return res.status(400).json({ error: "Cannot check out. The reservation status must be 'Occupied'." });
@@ -94,7 +92,7 @@ const postCheckout = async (req, res) => {
             res.json({
                 message: 'Checkout and Invoice completed successfully!',
                 reservation_id: reservation_id,
-                user_id: decoded.id,
+                user_id: user.id,
                 car_id: reservation.verified_car.id,
                 license_no: reservation.verified_car.license_no,
                 reserve_time: reservation.reserve_time,
