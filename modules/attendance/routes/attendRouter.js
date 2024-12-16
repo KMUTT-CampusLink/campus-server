@@ -9,6 +9,7 @@ import searchName from "../controllers/searchName.js";
 import express from "express";
 import getCourseDetail from "../controllers/getCourseHeader.js";
 import getEnrollStudent from "../controllers/getStudentEnroll.js";
+import updateAttendance from "../controllers/updateAttendance.js";
 // import your logics from controllers here
 
 const attendRouter = Router();
@@ -38,6 +39,7 @@ attendRouter.post("/qrGen/:secId", generateQrCode);
 attendRouter.get("/validate/:attendanceId", validateQrCodeController );
 attendRouter.post("/faceGen/:secId", generateFaceRecAttendance)
 attendRouter.post("/markAttendance", markAttendance)
+attendRouter.post("/update", updateAttendance)
 attendRouter.get("/attendData/:sectionID",getAttendanceBySecId)
 attendRouter.get("/search", searchName)
 attendRouter.get("/course/:sectionID", getCourseDetail)
