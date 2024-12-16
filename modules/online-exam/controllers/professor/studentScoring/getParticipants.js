@@ -17,7 +17,7 @@ export default async function getParticipants(req, res) {
             full_mark: true,
         },
     });
-    console.log(queryStudentExam)
+    // console.log(queryStudentExam)
     res.status(200).json({
         data: queryStudentExam,
         pass_mark: queryExam.pass_mark,
