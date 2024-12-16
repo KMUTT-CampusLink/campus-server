@@ -1,22 +1,34 @@
 import prisma from "../../../../../core/db/prismaInstance.js";
 
-export const courseDurationController = async(programName,degreeLevel)=>{
+export const courseDurationController = async(req,res)=>{
+    let {programName,degreeLevel}=req.query;
+    programName = programName.trim();
+    degreeLevel = degreeLevel.trim();
     try{
         const duration=await prisma.$queryRaw`
-        SELECT name, duration,degree_level
-            FROM "program"
-            WHERE name = ${programName} and degree_level = ${degreeLevel}::education_level_enum;
+        SELECT p.name , d.duration as program_duration, degree_level
+            FROM "degree" as d,"program" as p
+            WHERE p.id=d.program_id
+            and p.name = ${programName} 
+            and degree_level = ${degreeLevel}::education_level_enum;
+             
         `;
         console.log(duration);
-        if (!duration) {
+        if (duration.length===0) {
             return `Sorry, we could not find any course duration information for the program "${programName}".`;
+           // res.status(404).json({ message: `Sorry, we could not find any course duration information for the program "${programName}".`});
+        }else{
+             return `The duration for ${programName} (${degreeLevel}) is ${duration[0].program_duration} years.`;
+            //  res.status(200).json({
+            //      message: `The duration for ${programName} (${degreeLevel}) is ${duration[0].program_duration} years.`
+            //  });
         }
         
-        return `The duration for ${duration[0].name} (${duration[0].degree_level}) is ${duration[0].duration} years.`;
     }
 
     catch(error){
         console.error("Error fetching  course duration: " + error);
         return {error: "Failed to fetch course duration"};
+       // res.status(500).json({ error: "Failed to fetch course duration" });
     }
 }
