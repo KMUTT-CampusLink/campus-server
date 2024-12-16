@@ -41,13 +41,14 @@ import {
   getPendingRequests,
   updateJoinRequestStatus,
 } from "../controllers/request.js";
-import { reserveSeat, getReservationStatus } from "../controllers/reservation.js";
+import { reserveSeat, getReservationStatus, getJoinedEvents } from "../controllers/reservation.js";
 import multerErrorHandler from "../../../core/middleware/multerErrorHandler.js";
 import file_uploader from "../../../core/middleware/multerUploader.js";
 
 const router = Router();
 
 router.post("/events/status", getReservationStatus);
+router.get("/member/:memberId/joined-events", getJoinedEvents); // Add route for joined events
 
 // Update lineID in club_member table
 router.put("/member/:memberId/lineID", updateLineID);
@@ -101,7 +102,7 @@ router.post(
   multerErrorHandler,
   createClub
 );
-router.delete("/:id", deleteClub); // Placed last to avoid conflicts with other `/:id` routes
+router.delete("/:id", deleteClub); // Placed last to avoid conflicts with other /:id routes
 
 // Notifications and pending requests
 router.get("/notifications", getNotifications);
