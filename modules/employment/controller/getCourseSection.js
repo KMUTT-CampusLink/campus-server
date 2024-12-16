@@ -1,7 +1,7 @@
 import prisma from "../../../core/db/prismaInstance.js";
 
 const getCourseSection = async (req, res) => {
-  const { id: code } = req.params;
+  const { code } = req.params;
   try {
     if (!code) {
       return res.status(400).json({ error: "Course Code is required." });
@@ -37,6 +37,7 @@ const getCourseSection = async (req, res) => {
             course: {
               select: {
                 name: true,
+                code: true,
               },
             },
           },

@@ -21,7 +21,9 @@ const createStudent = async (req, res) => {
     district,
     province,
     postal_code,
-  } = req.body;
+  } = req.body.data;
+
+  const image = req.file;
 
   console.log("Request body:", req.body);
 
@@ -104,6 +106,7 @@ const createStudent = async (req, res) => {
           midname,
           lastname,
           phone,
+          image: image.objName,
           address: {
             connect: {
               id: newAddress.id,

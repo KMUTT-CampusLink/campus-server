@@ -2,19 +2,13 @@ import prisma from "../../../core/db/prismaInstance.js";
 
 const getCourse = async (req, res) => {
   try {
-    const course = await prisma.section.findMany({
-      include: {
-        course: {
-          select: {
-            code: true,
-            name: true,
-          },
-        },
+    const course = await prisma.course.findMany({
+      select: {
+        code: true,
+        name: true,
       },
       orderBy: {
-        course: {
-          code: "asc",
-        },
+        code: "asc",
       },
     });
     res.json(course);

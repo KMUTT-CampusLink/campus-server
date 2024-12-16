@@ -21,6 +21,8 @@ import updateSection from "../controller/updateSection.js";
 import getSection from "../controller/getSection.js";
 import deleteSection from "../controller/deleteSection.js";
 import deleteCourse from "../controller/deleteCourse.js";
+import file_uploader from "../../../core/middleware/multerUploader.js";
+import multerErrorHandler from "../../../core/middleware/multerErrorHandler.js";
 
 const employRouter = Router();
 
@@ -32,7 +34,9 @@ employRouter.post("/updateEmp/:id", updateEmployee);
 employRouter.delete("/deleteEmp/:id", deleteEmployee);
 
 employRouter.get("/getStu/", getStudents);
-employRouter.post("/postStu", createStudent);
+
+employRouter.post("/postStu",file_uploader.single("stuImage"), multerErrorHandler, createStudent);
+
 employRouter.get("/getStu/:id", getStudentsId);
 employRouter.post("/updateStu/:id", updateStudent);
 employRouter.delete("/deleteStu/:id", deleteStudent);
@@ -41,7 +45,7 @@ employRouter.get("/getCourse", getCourse);
 employRouter.post("/postCourse", createCourse);
 employRouter.post("/updateCourse/:id", updateCourse);
 employRouter.delete("/deleteCourse/:id", deleteCourse);
-employRouter.get("/getCourseSection/:id", getCourseSection);
+employRouter.get("/getCourseSection/:code", getCourseSection);
 
 employRouter.get("/getSection/:code/:id", getSection);
 employRouter.post("/postSection/:id", createSection);
