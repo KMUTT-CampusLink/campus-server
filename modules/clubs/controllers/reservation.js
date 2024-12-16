@@ -110,3 +110,120 @@ export const getReservationStatus = async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to fetch status" });
   }
 };
+
+// export const getJoinedEvents = async (req, res) => {
+//   const { studentId } = req.params;
+
+//   try {
+//     // Fetch the user_id associated with the student_id
+//     const student = await prisma.student.findUnique({
+//       where: { id: studentId },
+//       select: { user_id: true }, // Fetch only the user_id
+//     });
+
+//     if (!student) {
+//       return res.status(404).json({ success: false, message: "Student not found" });
+//     }
+
+//     // Fetch joined events using the user_id
+//     const events = await prisma.event_reservation.findMany({
+//       where: {
+//         user_id: student.user_id, // Use the user_id fetched from the student relation
+//       },
+//       include: {
+//         club_announcement: {
+//           select: {
+//             id: true,
+//             title: true,
+//             date: true,
+//             location: true,
+//           },
+//         },
+//       },
+//     });
+
+//     if (!events || events.length === 0) {
+//       return res.status(200).json({ success: true, data: [] });
+//     }
+
+//     const joinedEvents = events.map((event) => ({
+//       id: event.club_announcement.id,
+//       title: event.club_announcement.title,
+//       date: event.club_announcement.date,
+//       location: event.club_announcement.location || "Not Specified",
+//     }));
+
+//     res.status(200).json({ success: true, data: joinedEvents });
+//   } catch (error) {
+//     console.error("Error fetching joined events:", error);
+//     res.status(500).json({ success: false, message: "Failed to fetch events" });
+//   }
+// };
+
+export const getJoinedEvents = async (req, res) => {
+  const { memberId } = req.params; // Correct parameter name
+  console.log("Received memberId:", memberId); // Debug log
+
+  if (!memberId) {
+    return res.status(400).json({ success: false, message: "Member ID is required" });
+  }
+
+  try {
+    let userId = null;
+
+    // Check if the member is a student
+    const student = await prisma.student.findUnique({
+      where: { id: memberId }, // Use memberId as studentId
+      select: { user_id: true },
+    });
+
+    if (student) {
+      userId = student.user_id;
+    } else {
+      // If not a student, check if the member is an employee
+      const employee = await prisma.employee.findUnique({
+        where: { id: memberId }, // Use memberId as employeeId
+        select: { user_id: true },
+      });
+
+      if (employee) {
+        userId = employee.user_id;
+      }
+    }
+
+    if (!userId) {
+      return res.status(404).json({ success: false, message: "Member not found" });
+    }
+
+    // Fetch joined events using the user_id
+    const events = await prisma.event_reservation.findMany({
+      where: { user_id: userId },
+      include: {
+        club_announcement: {
+          select: {
+            id: true,
+            title: true,
+            date: true,
+            location: true,
+          },
+        },
+      },
+    });
+
+    if (!events || events.length === 0) {
+      return res.status(200).json({ success: true, data: [] });
+    }
+
+    const joinedEvents = events.map((event) => ({
+      id: event.club_announcement.id,
+      title: event.club_announcement.title,
+      date: event.club_announcement.date,
+      location: event.club_announcement.location || "Not Specified",
+    }));
+
+    res.status(200).json({ success: true, data: joinedEvents });
+  } catch (error) {
+    console.error("Error fetching joined events:", error);
+    res.status(500).json({ success: false, message: "Failed to fetch events" });
+  }
+};
