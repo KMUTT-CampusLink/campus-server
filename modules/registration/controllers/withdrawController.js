@@ -67,8 +67,8 @@ export async function updateRefund(selectedEnrollmentId) {
    `;
         // Create a new invoice entry
         await prisma.$executeRaw`
-    INSERT INTO invoice (user_id, issued_by, title, issued_date, due_date, amount, status)
-    VALUES (${user_id}::uuid, 'Registration', 'Course Refund', NOW(), NOW(), 2000, 'Paid');
+    INSERT INTO invoice (user_id, issued_by, title, issued_date, due_date, paid_date, amount, status)
+    VALUES (${user_id}::uuid, 'Registration', 'Course Refund', NOW(), NOW(), NOW(), 2000, 'Paid');
 `;
 
 
