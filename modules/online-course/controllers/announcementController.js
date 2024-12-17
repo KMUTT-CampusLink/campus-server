@@ -134,7 +134,7 @@ export const getUpComingAnnouncement = async (req, res) => {
         },
       },
       orderBy: {
-        end_date: "asc", // Sort by end_date in ascending order
+        start_date: "asc", // Sort by end_date in ascending order
       },
     });
 
@@ -186,7 +186,7 @@ export const getAnnouncementByProfessor = async (req, res) => {
         },
       },
       orderBy: {
-        end_date: "asc", // Sort by end_date in ascending order
+        end_date: "desc", // Sort by end_date in ascending order
       },
     });
 

@@ -1,6 +1,27 @@
 import prisma from "../../../core/db/prismaInstance.js";
 import moment from "moment-timezone";
 
+function toRadians(degrees) {
+  return degrees * (Math.PI / 180);
+}
+
+// Haversine formula to calculate distance between two points (lat, lon)
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371; // Radius of the Earth in kilometers
+  const phi1 = toRadians(lat1);
+  const phi2 = toRadians(lat2);
+  const deltaPhi = toRadians(lat2 - lat1);
+  const deltaLambda = toRadians(lon2 - lon1);
+
+  const a =
+    Math.sin(deltaPhi / 2) * Math.sin(deltaPhi / 2) +
+    Math.cos(phi1) * Math.cos(phi2) * Math.sin(deltaLambda / 2) * Math.sin(deltaLambda / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const distance = R * c;
+
+  return distance;
+}
+
 export const getBuildings = async () => {
   try {
     return await prisma.building.findMany({
@@ -14,6 +35,55 @@ export const getBuildings = async () => {
     throw new Error("Could not retrieve buildings");
   }
 };
+
+export const getGBuildings = async () => {
+  try {
+    return await prisma.building.findMany({
+      where: {
+        guard_status: true,
+      },
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching buildings:", error);
+    throw new Error("Could not retrieve buildings");
+  }
+};
+
+export const getGuards = async () => {
+  try {
+    const guards = await prisma.guard.findMany({
+      where: {
+        status: true,
+      },
+      select: {
+        id: true,
+        employee_id: true,
+        employee: {
+          select: {
+            firstname: true,
+            lastname: true,
+          },
+        },
+      },
+    });
+
+    const result = guards.map(guard => ({
+      ...guard,
+      fullName: `${guard.employee.firstname} ${guard.employee.lastname}`,
+    }));
+
+    return result;
+  } catch (error) {
+    console.error("Error fetching guards:", error);
+    throw new Error("Could not retrieve guards");
+  }
+};
+
+
 
 export const getBuildingsWithRoom = async () => {
   try {
@@ -339,4 +409,95 @@ const generateTimeSlots = () => {
   }
 
   return { startSlots, endSlots };
+};
+
+export const createNewGBooking = async (userId, buildingId, guardId, details) => {
+  try {
+    const newGBooking = await prisma.$transaction(async (prisma) => {
+
+      guardId = parseInt(guardId, 10);
+      buildingId = parseInt(buildingId, 10);
+
+      // Create the new guard booking
+      const newGBooking = await prisma.guard_schedule.create({
+        data: {
+          user_id: userId,
+          building_id: buildingId,
+          guard_id: guardId,
+          description: details,
+        },
+      });
+
+      // Update the guard's status to false
+      const updateGuardStatus = await prisma.guard.update({
+        where: {
+          id: guardId,
+        },
+        data: {
+          status: false, // Set guard status to false after booking
+        },
+      });
+
+      // Fetch the latitude and longitude of the building where the guard is assigned
+      const guardBuilding = await prisma.building.findUnique({
+        where: { id: parseInt(buildingId, 10) },
+        select: { id: true, latitude: true, longitude: true },
+      });
+
+      if (!guardBuilding) {
+        throw new Error(`Building with id ${buildingId} not found.`);
+      }
+
+      const { latitude, longitude } = guardBuilding;
+
+      // Fetch all buildings except the one where the guard is assigned
+      const allBuildings = await prisma.building.findMany({
+        where: {
+          id: {
+            not: buildingId, // Exclude the current building
+          },
+        },
+        select: { id: true, latitude: true, longitude: true },
+      });
+
+      // Filter buildings within 50 meters
+      const nearbyBuildings = allBuildings.filter(building => {
+        const distance = calculateDistance(latitude, longitude, building.latitude, building.longitude);
+        return distance < 0.05; // Distance less than 50 meters (0.05 km)
+      });
+
+      // Extract the building IDs that are within 50 meters
+      const nearbyBuildingIds = nearbyBuildings.map(building => building.id);
+
+      // Update the status of these nearby buildings to false
+      await prisma.building.updateMany({
+        where: {
+          id: {
+            in: nearbyBuildingIds, // Only update buildings in the nearbyBuildingIds array
+          },
+        },
+        data: {
+          guard_status: false, 
+        },
+      });
+
+      const updateSelectBuilding = await prisma.building.update({
+        where: {
+          id: buildingId,
+        },
+        data: {
+          guard_status: false, 
+        },
+      });
+
+      return { newGBooking, updateGuardStatus, updatedBuildings: nearbyBuildingIds, updateSelectBuilding};
+    });
+
+    console.log("Transaction successful:", newGBooking);
+    return newGBooking;
+
+  } catch (error) {
+    console.error("Error creating booking:", error.message);
+    throw new Error(`An error occurred while creating the booking: ${error.message}`);
+  }
 };
