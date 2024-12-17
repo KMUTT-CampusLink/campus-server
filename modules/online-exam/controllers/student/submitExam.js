@@ -92,9 +92,9 @@ export default async function submitExam(req, res) {
           }
         });
         if (correctCount === cAmount) {
-          totalScore += Math.round(parseFloat(question.mark * cAmount));
+          totalScore += Math.round(parseFloat(question.mark * correctCount));
         } else {
-          totalScore += parseFloat(question.mark * cAmount);
+          totalScore += parseFloat(question.mark * correctCount);
         }
       }
     });

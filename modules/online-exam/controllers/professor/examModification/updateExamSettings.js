@@ -5,6 +5,7 @@ import { encryptPin } from "../../../utils/crypto.js";
 export default async function updateExamSettings(req, res) {
     const examId = parseInt(req.body.examId);
     const exam = req.body.exam;
+    console.log(exam.publish_score_status)
     try {
         const pin = encryptPin(exam.pin);
         const updatedExam = await prisma.exam.update({

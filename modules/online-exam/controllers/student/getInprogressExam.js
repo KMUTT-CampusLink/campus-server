@@ -15,7 +15,11 @@ export default async function getInprogressExam(req, res) {
           id: true,
         },
       });
-      const queryStudentExam = await prisma.$queryRaw`SELECT se.exam_id FROM student_exam AS se, exam AS e WHERE se.exam_id = e.id AND se.student_id = ${queryStudent.id} AND e.section_id = ${sectionid} AND se.status = 'In Progress'`;
+      const queryStudentExam = await prisma.$queryRaw`SELECT se.exam_id 
+                                                      FROM student_exam AS se, exam AS e 
+                                                      WHERE se.exam_id = e.id AND se.student_id = ${queryStudent.id} 
+                                                      AND e.section_id = ${sectionid} 
+                                                      AND se.status = 'In Progress'`;
       const examIds = queryStudentExam.map((exam) => exam.exam_id);
       const queryExam = await prisma.exam.findMany({
         where: {

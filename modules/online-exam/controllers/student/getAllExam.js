@@ -26,14 +26,12 @@ export default async function getAllExam(req, res) {
           SELECT exam_id 
           FROM student_exam 
           WHERE student_id = ${queryStudentData.id})
-      AND (
-          NOT EXISTS (
+      AND NOT EXISTS (
               SELECT 1 
               FROM enrollment_detail 
               WHERE student_id = ${queryStudentData.id} 
               AND section_id = ${sectionid} 
-              AND status = 'Withdraw'
-          ))`;
+              AND status = 'Withdraw')`;
     const examIds = queryStudentExam.map((exam) => exam.id);
     const queryExam = await prisma.exam.findMany({
       where: {

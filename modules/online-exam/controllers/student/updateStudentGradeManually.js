@@ -44,8 +44,6 @@ export default async function updateStudentGradeManually(req, res) {
         const endDate = new Date(semesterEndDate[0].end_date);
         const gradingDate = new Date(endDate);
         gradingDate.setDate(endDate.getDate() + 15);
-console.log(gradingDate)
-console.log(dbCurrentDate)
         // Check if the database current date is past the grading date
         if (currentDate < gradingDate) {
           return res.status(400).json({
@@ -90,7 +88,7 @@ console.log(dbCurrentDate)
           else if (percentage >= 50) grade = parseInt(1007);
           else grade = parseInt(1008);
 
-          const updateEnrollment = await prisma.$queryRaw`
+          await prisma.$queryRaw`
               UPDATE enrollment_detail
               SET grade_id = ${grade}
               WHERE student_id = ${queryStudentData.id}
@@ -103,7 +101,7 @@ console.log(dbCurrentDate)
                   AND status = 'Withdraw'
         )`;
 
-          const updateSection = await prisma.$queryRaw`
+          await prisma.$queryRaw`
               UPDATE section
               SET grade_announce_status = true
               WHERE id = ${sectionid}`;
