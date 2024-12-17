@@ -1,6 +1,6 @@
 import { SessionsClient } from "@google-cloud/dialogflow-cx";
 import prisma from "../../../core/db/prismaInstance.js";
-import { globalParameters, trips_data } from "./webhookReqController.js";
+import { globalParameters, trips_data, book_data} from "./webhookReqController.js";
 
 const client = new SessionsClient({
   credentials: {
@@ -105,7 +105,7 @@ const detectIntentText = async(projectId, inputText, sessionId, bearerToken) => 
           console.error("Error fetching next questions: " + error);
       }
     }
-    return {replyText: responseText, nextQuestions: nextQues, trips: trips_data};
+    return {replyText: responseText, nextQuestions: nextQues, trips: trips_data, book: book_data};
   } catch (err) {
     console.error('Error during detectIntent: ', err);
     return {error: "Internal Server Error"};

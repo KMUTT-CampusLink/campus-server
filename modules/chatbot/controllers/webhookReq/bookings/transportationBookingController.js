@@ -46,7 +46,7 @@ export const transportationBookingController = async(startStop, endStop, day)=>{
         orderBy: {
           trip_date: 'asc', // Sort by trip_date in ascending order
         },
-        take: 4, // Limit to 4 rows
+        take: 3, // Limit to 4 rows
       });           
     return trips;
 }

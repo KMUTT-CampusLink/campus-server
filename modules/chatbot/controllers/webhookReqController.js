@@ -25,6 +25,7 @@ import { transportationBookingController } from "./webhookReq/bookings/transport
 
 let globalParameters = {};
 let trips_data = [];
+let book_data = [];
 
 export const webhookReqController = async(req, res) => {
   const pageName = req.body.pageInfo.displayName;
@@ -86,7 +87,10 @@ export const webhookReqController = async(req, res) => {
     result = await futureExamController(studentId);
   }else if(pageName === "Search Book"){
     const title = req.body.sessionInfo.parameters.books.trim();
-    result = await checkBookController(title);
+    book_data = await checkBookController(title);
+    if(!book_data || book_data.length === 0){
+      result = `I'm sorry. The book "${title}" is not available at the library at the moment.`
+    }else result = "book";
     parameters = {
       "books": null,
     }
@@ -172,7 +176,7 @@ export const webhookReqController = async(req, res) => {
     }
     if(!trips_data || trips_data.length === 0){
       result = `I'm sorry. There is no route available from ${startStop} to ${endStop}.`
-    }else result = "-";
+    }else result = "trip";
   }
   // console.log(result);
   res.json({
@@ -191,4 +195,4 @@ export const webhookReqController = async(req, res) => {
   });
 }
 
-export {globalParameters, trips_data}
+export {globalParameters, trips_data, book_data}
