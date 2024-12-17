@@ -2,15 +2,14 @@ import prisma from "../../../core/db/prismaInstance.js";
 
 const postCheckout = async (req, res) => {
         const user = req.user
-        const { reservation_id, checkout_time } = req.body;
-    
-        // Check if checkout_time is provided
-        if (!checkout_time || typeof checkout_time !== "string") {
-            return res.status(400).json({ error: "checkout_time is required and must be in HH:mm format." });
-        }
+        const { qrcode, reservation_id, checkout_time } = req.body;
     
         try {
-            // Rest of your code
+
+            if (!qrcode) {
+                return res.status(400).json({ error: "The QR code is required." });
+            }
+            
             const unpaidInvoice = await prisma.invoice.findFirst({
                 where: {
                     user_id: user.id,
@@ -68,7 +67,7 @@ const postCheckout = async (req, res) => {
                 };
             }
     
-            await prisma.invoice.create({
+            const invoice = await prisma.invoice.create({
                 data: {
                     user_id: reservation.verified_car.user_id,
                     issued_by: "parking-and-bike",
@@ -81,7 +80,10 @@ const postCheckout = async (req, res) => {
     
             await prisma.parking_reservation.update({
                 where: { id: reservation_id },
-                data: { status: 'Completed' }
+                data: {
+                    status: 'Completed',
+                    invoice_id: invoice.id,
+                },
             });
     
             await prisma.parking_slot.update({
