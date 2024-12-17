@@ -10,6 +10,7 @@ import express from "express";
 import getCourseDetail from "../controllers/getCourseHeader.js";
 import getEnrollStudent from "../controllers/getStudentEnroll.js";
 import updateAttendance from "../controllers/updateAttendance.js";
+import getStudentAttendance from "../controllers/getStudentAttendance.js";
 // import your logics from controllers here
 
 const attendRouter = Router();
@@ -41,6 +42,7 @@ attendRouter.post("/faceGen/:secId", generateFaceRecAttendance)
 attendRouter.post("/markAttendance", markAttendance)
 attendRouter.post("/update", updateAttendance)
 attendRouter.get("/attendData/:sectionID",getAttendanceBySecId)
+attendRouter.get("/student/:sectionID",getStudentAttendance)
 attendRouter.get("/search", searchName)
 attendRouter.get("/course/:sectionID", getCourseDetail)
 attendRouter.get("/getStudentBySecId/:sectionID", getEnrollStudent)
