@@ -116,7 +116,7 @@ const createReservation = async (req, res) => {
         unlock_id: unlock_code, // Save the generated unlock code
       },
     });
-
+    
     // Update book_duplicate status to false
     await prisma.book_duplicate.update({
       where: {

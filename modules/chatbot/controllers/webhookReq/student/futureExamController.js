@@ -6,6 +6,7 @@ import prisma from "../../../../../core/db/prismaInstance.js";
         from exam as e,section as s,student as stu ,course as c
         where e.section_id=s.id
         and s.semester_id=stu.semester_id
+        and s.semester_id=stu.semester_id
         and s.course_code=c.code
         and e.start_date > current_date
         and stu.id=${studentId}
