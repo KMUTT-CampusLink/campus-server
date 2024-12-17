@@ -41,13 +41,15 @@ import {
   getPendingRequests,
   updateJoinRequestStatus,
 } from "../controllers/request.js";
-import { reserveSeat, getReservationStatus, getJoinedEvents } from "../controllers/reservation.js";
+import { reserveSeat, getReservationStatus, getJoinedEvents, cancelReservation, getEventParticipants } from "../controllers/reservation.js";
 import multerErrorHandler from "../../../core/middleware/multerErrorHandler.js";
 import file_uploader from "../../../core/middleware/multerUploader.js";
 
 const router = Router();
 
+router.get("/announcements/:id/participants", getEventParticipants); // Add route for event participants,
 router.post("/events/status", getReservationStatus);
+router.post("/events/cancel", cancelReservation);
 router.get("/member/:memberId/joined-events", getJoinedEvents); // Add route for joined events
 
 // Update lineID in club_member table
