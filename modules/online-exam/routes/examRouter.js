@@ -1,4 +1,4 @@
-import { Router } from "express";
+import e, { Router } from "express";
 
 import validateRoles from "../middleware/validateRoles.js";
 import validateSection from "../middleware/validateSection.js";
@@ -22,7 +22,9 @@ import updateStudentScore from "../controllers/professor/studentScoring/updateSt
 import updateExamAnnouncement from "../controllers/professor/examModification/updateExamAnnoucement.js";
 import dashboard from "../controllers/professor/studentScoring/dashboard.js";
 import getAllStudentInSection from "../controllers/professor/examModification/getAllStudentInSection.js";
-import checkHasParticiipant from "../controllers/professor/examModification/checkHasParticiipant.js";
+// import checkHasParticiipant from "../controllers/professor/examModification/checkHasParticiipant.js";
+import getGradingDate from "../controllers/professor/studentScoring/getGradingDate.js";
+import updateAnnouceGrades from "../controllers/professor/studentScoring/updateAnnouceGrades.js";
 // student import
 import getAllExam from "../controllers/student/getAllExam.js";
 import getHistoryExams from "../controllers/student/getHistoryExam.js";
@@ -42,6 +44,8 @@ import studentGetStudentScoreById from "../controllers/student/studentGetStudent
 import studentGetQuestionScore from "../controllers/student/studentGetQuestionScore.js";
 import studentGetStudentAnswerById from "../controllers/student/studentGetStudentAnswerById.js";
 import getStudentExamReviewData from "../controllers/student/getStudentExamReviewData.js";
+import updateExpandDays from "../controllers/professor/studentScoring/updateExpandDays.js";
+
 const examRouter = Router();
 
 examRouter.get("/", (req, res) => {
@@ -70,7 +74,9 @@ examRouter.get("/professor/getStudentScoreById", getStudentScoreById);
 examRouter.put("/professor/updateStudentScore", updateStudentScore);
 examRouter.put("/professor/updateExamAnnouncement", updateExamAnnouncement);
 examRouter.get("/professor/getAllStudentInSection", getAllStudentInSection);
-examRouter.get("/professor/checkHasParticiipant", checkHasParticiipant);
+examRouter.get("/professor/getGradingDate", getGradingDate);
+examRouter.put("/professor/updateExpandDays", updateExpandDays);
+examRouter.put("/professor/updateAnnouceGrades", updateAnnouceGrades);
 //student router
 examRouter.get("/student/getAllExam", getAllExam);
 examRouter.get("/student/getHistoryExams", getHistoryExams);
