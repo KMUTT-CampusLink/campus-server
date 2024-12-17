@@ -180,10 +180,38 @@ export const toggleAnnouncementPin = async (req, res) => {
 };
 
 // Delete an announcement
+// export const deleteAnnouncement = async (req, res) => {
+//   const { id } = req.params;
+
+//   try {
+//     const announcement = await prisma.club_announcement.findUnique({
+//       where: { id: parseInt(id) },
+//     });
+
+//     if (!announcement) {
+//       return res.status(404).json({ success: false, message: "Announcement not found" });
+//     }
+
+//     await prisma.club_announcement.delete({
+//       where: { id: parseInt(id) },
+//     });
+
+//     return res.status(200).json({ success: true, message: "Announcement deleted successfully" });
+//   } catch (error) {
+//     console.error("Error deleting announcement:", error);
+//     return res.status(500).json({
+//       success: false,
+//       message: "Failed to delete announcement",
+//       error: error.message,
+//     });
+//   }
+// };
+
 export const deleteAnnouncement = async (req, res) => {
   const { id } = req.params;
 
   try {
+    // Check if the announcement exists
     const announcement = await prisma.club_announcement.findUnique({
       where: { id: parseInt(id) },
     });
@@ -192,11 +220,31 @@ export const deleteAnnouncement = async (req, res) => {
       return res.status(404).json({ success: false, message: "Announcement not found" });
     }
 
+    // Step 1: Fetch related event_reservations for this announcement
+    const reservations = await prisma.event_reservation.findMany({
+      where: { club_announcement_id: parseInt(id) },
+      select: { invoice_id: true },
+    });
+
+    // Step 4: Delete the announcement itself
     await prisma.club_announcement.delete({
       where: { id: parseInt(id) },
     });
 
-    return res.status(200).json({ success: true, message: "Announcement deleted successfully" });
+    // Step 3: Delete related event_reservations
+    await prisma.event_reservation.deleteMany({
+      where: { club_announcement_id: parseInt(id) },
+    });
+
+     // Step 2: Delete related invoices
+     const invoiceIds = reservations.map(res => res.invoice_id).filter(id => id); // Remove nulls
+     if (invoiceIds.length > 0) {
+       await prisma.invoice.deleteMany({
+         where: { id: { in: invoiceIds } },
+       });
+     }
+
+    return res.status(200).json({ success: true, message: "Announcement and related data deleted successfully" });
   } catch (error) {
     console.error("Error deleting announcement:", error);
     return res.status(500).json({
@@ -206,6 +254,7 @@ export const deleteAnnouncement = async (req, res) => {
     });
   }
 };
+
 
 // Update an announcement
 export const updateAnnouncement = async (req, res) => {
