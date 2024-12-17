@@ -2,59 +2,93 @@ import prisma from "../../../core/db/prismaInstance.js";
 
 const createSection = async (req, res) => {
   const {
-    emp_id,
+    firstname,
+    midname,
+    lastname,
+    id,
     name,
     day,
     start_time,
     end_time,
-    room_id,
+    room_name,
     semester_id,
   } = req.body;
-  const { id: course_code } = req.params;
+  const { code } = req.params;
+  console.log("btihc", req.body);
 
   try {
     // Validate that the course exists
     const courseExists = await prisma.course.findUnique({
-      where: { code: course_code },
+      where: { code },
     });
     if (!courseExists) {
       return res.status(404).json({ error: "Course not found" });
     }
 
-    // Validate that the semester exists
-    const semesterExists = await prisma.semester.findUnique({
-      where: { id: semester_id },
+    // Check if a professor entry already exists for this emp_id
+    let professor = await prisma.employee.findUnique({
+      where: { id },
     });
-    if (!semesterExists) {
-      return res.status(404).json({ error: "Semester not found" });
+
+    const room = await prisma.room.findFirst({
+      where: { name: room_name },
+      select: { id: true },
+    });
+
+    if (!room) {
+      return res
+        .status(404)
+        .json({ error: `Room with name '${room_name}' not found` });
     }
 
-    // Check if a professor entry already exists for this emp_id
-    let professor = await prisma.professor.findFirst({
-      where: { emp_id },
-    });
+    const room_id = room.id;
+    const combineTimeWithDate = (timeString) => {
+      const today = new Date().toISOString().split("T")[0]; // Get today's date (YYYY-MM-DD)
+      const [hours, minutes, seconds] = timeString.split(":"); // Split time string into components
+
+      // Create a UTC Date object with today's date and specified time
+      const utcDate = new Date(
+        Date.UTC(
+          parseInt(today.split("-")[0]), // Year
+          parseInt(today.split("-")[1]) - 1, // Month (0-indexed)
+          parseInt(today.split("-")[2]), // Day
+          parseInt(hours), // Hours
+          parseInt(minutes), // Minutes
+          parseInt(seconds || "0") // Seconds (default to 0 if not provided)
+        )
+      );
+
+      return utcDate.toISOString(); // Return ISO string in UTC format
+    };
+
+    // Example usage:
+    const startTime = combineTimeWithDate(start_time); // "2024-06-17T11:00:00.000Z"
+    const endTime = combineTimeWithDate(end_time);
 
     const result = await prisma.$transaction(async (prisma) => {
       // Create the section
       const newSection = await prisma.section.create({
         data: {
-          course: { connect: { code: course_code } },
+          course: { connect: { code } },
           name,
           day: day,
-          start_time: new Date(start_time),
-          end_time: new Date(end_time),
-          semester: { connect: { id: semester_id } },
-          room: room_id ? { connect: { id: room_id } } : undefined,
+          start_time: startTime,
+          end_time: endTime,
+          semester: { connect: { id: 1165 } },
+          room: {
+            connect: { id: room_id },
+          },
         },
       });
 
       // Create a new professor linked to the section
       const newProfessor = await prisma.professor.create({
         data: {
-          emp_id,
-          section_id: newSection.id,
+          emp_id: id,
+          section_id: parseInt(newSection.id),
         },
       });
+      console.log(newProfessor);
 
       return { newSection, newProfessor };
     });

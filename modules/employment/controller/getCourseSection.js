@@ -43,6 +43,7 @@ const getCourseSection = async (req, res) => {
           select: {
             employee: {
               select: {
+                id: true,
                 firstname: true,
                 lastname: true,
               },
@@ -51,8 +52,21 @@ const getCourseSection = async (req, res) => {
         },
       },
     });
+    const formatTime24Hour = (dateTime) => {
+      const date = new Date(dateTime);
+      const hours = String(date.getUTCHours()).padStart(2, "0");
+      const minutes = String(date.getUTCMinutes()).padStart(2, "0");
+      return `${hours}:${minutes}`;
+    };
 
-    res.json(data);
+    // Format start_time and end_time for all sections
+    const formattedData = data.map((section) => ({
+      ...section,
+      start_time: formatTime24Hour(section.start_time),
+      end_time: formatTime24Hour(section.end_time),
+    }));
+
+    res.json(formattedData);
   } catch (error) {
     console.error("Error fetching course sections:", error);
     res.status(500).json({ error: "Internal Server Error" });

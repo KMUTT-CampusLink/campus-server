@@ -27,6 +27,7 @@ import getRoom from "../controller/getRoom.js";
 import getProgram from "../controller/getProgram.js";
 import getCourseDetail from "../controller/getCourseDetails.js";
 import fetchProfessor from "../controller/fetchProfessor.js";
+import fetchCourseOnly from "../controller/fetchCourseOnly.js";
 
 const employRouter = Router();
 
@@ -80,7 +81,7 @@ employRouter.delete("/deleteCourse/:code", deleteCourse);
 employRouter.get("/getCourseSection/:code", getCourseSection);
 
 employRouter.get("/getSection/:code/:id", getSection);
-employRouter.post("/postSection/:id", createSection);
+employRouter.post("/postSection/:code", createSection);
 employRouter.post("/updateSection/:code/:id", updateSection);
 employRouter.delete("/deleteSection/:code/:id", deleteSection);
 
@@ -90,6 +91,7 @@ employRouter.get("/getProgram", getProgram);
 employRouter.get("/getSemester", getSemester);
 employRouter.get("/getRoom", getRoom);
 employRouter.get("/getCourseDetail/:code", getCourseDetail);
+employRouter.get("/fetchCourseOnly/:code", fetchCourseOnly);
 employRouter.get("/fetchProfessor", fetchProfessor);
 
 export { employRouter };
