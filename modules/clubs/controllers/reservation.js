@@ -268,34 +268,104 @@ export const getJoinedEvents = async (req, res) => {
   }
 };
 
+// export const getEventParticipants = async (req, res) => {
+//   const { id } = req.params; // Extract the announcement ID
+//   console.log(`Announcement ID: ${id}`);
+  
+//   try {
+//     const participants = await prisma.event_reservation.findMany({
+//       where: { club_announcement_id: parseInt(id) }, // Filter by announcement ID
+//       include: {
+//         invoice: {
+//           select: {
+//             status: true, // Fetch only the 'status' field from the related invoice table
+//           },
+//         },
+//         user: {
+//           include: { 
+//             student: {
+//               select: { firstname: true, midname: true, lastname: true },
+//             }, 
+//             employee: {
+//               select: { firstname: true, midname: true, lastname: true },
+//             }, 
+//           },
+//         },
+//       },
+//     });
+
+//     // Send response with participants and related invoice status
+//     res.status(200).json({ data: participants });
+//   } catch (error) {
+//     console.error("Error fetching participants:", error);
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// };
+
 export const getEventParticipants = async (req, res) => {
   const { id } = req.params; // Extract the announcement ID
   console.log(`Announcement ID: ${id}`);
   
   try {
+    // Fetch participants with their invoices and user info
     const participants = await prisma.event_reservation.findMany({
       where: { club_announcement_id: parseInt(id) }, // Filter by announcement ID
       include: {
         invoice: {
           select: {
-            status: true, // Fetch only the 'status' field from the related invoice table
+            status: true,
+            created_at: true, // Select the created_at field to determine the latest invoice
           },
         },
         user: {
-          include: { 
+          include: {
             student: {
-              select: { firstname: true, midname: true, lastname: true },
-            }, 
+              select: { firstname: true, midname: true, lastname: true, id: true },
+            },
             employee: {
-              select: { firstname: true, midname: true, lastname: true },
-            }, 
+              select: { firstname: true, midname: true, lastname: true, id: true },
+            },
           },
         },
       },
     });
 
-    // Send response with participants and related invoice status
-    res.status(200).json({ data: participants });
+    console.log('Participants fetched:', participants);  // Log participants
+
+    // Create a map to store the latest invoice per user
+    const uniqueParticipants = new Map();
+
+    participants.forEach((participant) => {
+      // Get the user ID (either student or employee)
+      const userId = participant.user?.student?.id || participant.user?.employee?.id;
+      
+      console.log(`Processing participant with userId: ${userId}`); // Log userId being processed
+
+      // Check if the participant already exists in the map
+      if (userId) {
+        if (
+          !uniqueParticipants.has(userId) || 
+          participant.invoice.created_at > uniqueParticipants.get(userId).invoice.created_at
+        ) {
+          // Update the map with the latest invoice for each user
+          uniqueParticipants.set(userId, participant);
+        }
+      }
+    });
+
+    console.log('Unique participants after filtering:', uniqueParticipants); // Log filtered data
+
+    // Convert the map to an array of unique participants
+    const filteredParticipants = Array.from(uniqueParticipants.values());
+
+    if (filteredParticipants.length > 0) {
+      // Send the response with filtered participants
+      res.status(200).json({ data: filteredParticipants });
+    } else {
+      console.log('No participants found after filtering');
+      res.status(404).json({ error: 'No participants found for this event.' });
+    }
+
   } catch (error) {
     console.error("Error fetching participants:", error);
     res.status(500).json({ error: "Internal server error" });
