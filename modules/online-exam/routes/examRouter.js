@@ -1,4 +1,4 @@
-import e, { Router } from "express";
+import { Router } from "express";
 
 import validateRoles from "../middleware/validateRoles.js";
 import validateSection from "../middleware/validateSection.js";
@@ -22,9 +22,10 @@ import updateStudentScore from "../controllers/professor/studentScoring/updateSt
 import updateExamAnnouncement from "../controllers/professor/examModification/updateExamAnnoucement.js";
 import dashboard from "../controllers/professor/studentScoring/dashboard.js";
 import getAllStudentInSection from "../controllers/professor/examModification/getAllStudentInSection.js";
-// import checkHasParticiipant from "../controllers/professor/examModification/checkHasParticiipant.js";
+import checkHasParticipant from "../controllers/professor/examModification/checkHasParticipant.js";
 import getGradingDate from "../controllers/professor/studentScoring/getGradingDate.js";
 import updateAnnouceGrades from "../controllers/professor/studentScoring/updateAnnouceGrades.js";
+import updateStudentGradeManually from "../controllers/student/updateStudentGradeManually.js";
 // student import
 import getAllExam from "../controllers/student/getAllExam.js";
 import getHistoryExams from "../controllers/student/getHistoryExam.js";
@@ -86,6 +87,7 @@ examRouter.get("/professor/getAllStudentInSection", getAllStudentInSection);
 examRouter.get("/professor/getGradingDate", getGradingDate);
 examRouter.put("/professor/updateExpandDays", updateExpandDays);
 examRouter.put("/professor/updateAnnouceGrades", updateAnnouceGrades);
+examRouter.get("/professor/checkHasParticipant", checkHasParticipant);
 //student router
 examRouter.get("/student/getAllExam", getAllExam);
 examRouter.get("/student/getHistoryExams", getHistoryExams);
@@ -107,6 +109,8 @@ examRouter.get(
   "/student/studentGetStudentAnswerById",
   studentGetStudentAnswerById
 );
+examRouter.get("/student/studentGetStudentAnswerById",studentGetStudentAnswerById);
 examRouter.get("/student/studentExamReview", getStudentExamReviewData);
+examRouter.put("/student/updateStudentGradeManually", updateStudentGradeManually);
 
 export { examRouter };

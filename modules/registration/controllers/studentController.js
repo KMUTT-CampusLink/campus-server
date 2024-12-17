@@ -52,6 +52,7 @@ export const studentProfileController = async (req, res) => {
         date_of_birth,
         identification_no,
         degree_level,
+        s.image,
         a.address,
         a.sub_district,
         a.district,
@@ -84,7 +85,7 @@ export const studentProfileController = async (req, res) => {
       WHERE 
         s.id = ${studentId}
       GROUP BY
-        u.personal_email, s.firstname, s.midname, s.lastname, s.phone, s.date_of_birth, s.identification_no, d.degree_level, a.address, a.sub_district, a.district, a.province, a.postal_code;
+        u.personal_email, s.firstname, s.midname, s.lastname, s.phone, s.date_of_birth, s.identification_no, d.degree_level, s.image, a.address, a.sub_district, a.district, a.province, a.postal_code;
     ;
     `;
 

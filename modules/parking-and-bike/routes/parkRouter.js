@@ -9,6 +9,8 @@ import { postCheckout } from "../controllers/postCheckout.js";
 import { postCheckin } from "../controllers/postCheckIn.js";
 import { postHelp } from "../controllers/postHelp.js";
 import { postRegisterCar } from "../controllers/postRegisterCar.js";
+import { getHistory } from "../controllers/getHistory.js";
+import { getChecking } from "../controllers/getChecking.js";
 
 const parkRouter = Router();
 
@@ -26,6 +28,9 @@ parkRouter.get(
 );
 // parkRouter.get("/getFloorById/:floor_id", checkUnpaidInvoices, getFloorById)
 parkRouter.get("/getCar/:license_no", checkUnpaidInvoices, getCar);
+parkRouter.get("/getHistory", checkUnpaidInvoices, getHistory);
+parkRouter.get("/getChecking", checkUnpaidInvoices, getChecking);
+
 parkRouter.delete(
   "/deleteReservation/:reservation_id",
   checkUnpaidInvoices,
@@ -36,5 +41,6 @@ parkRouter.post("/postCheckin", checkUnpaidInvoices, postCheckin);
 parkRouter.post("/postCheckout", checkUnpaidInvoices, postCheckout);
 parkRouter.post("/postHelp", checkUnpaidInvoices, postHelp);
 parkRouter.post("/postRegisterCar", checkUnpaidInvoices, postRegisterCar);
+
 
 export { parkRouter };

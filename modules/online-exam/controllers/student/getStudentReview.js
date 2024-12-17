@@ -4,7 +4,6 @@ import { decodeToken } from "../../middleware/jwt.js";
 export default async function getStudentReview(req, res) {
   const examId = parseInt(req.query.examId);
   const token = req.cookies.token;
-
   try {
     if (isNaN(examId)) throw "Missing Required Parameters";
 
