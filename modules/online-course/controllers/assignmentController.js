@@ -330,3 +330,40 @@ export const editSubmissionStudent = async (req, res) => {
   }
 };
 
+export const checkAssignmentSubmission = async (req, res) => {
+  const { assignmentId, studentId } = req.params; // Extract params from the route
+
+  try {
+    // Find submission based on assignmentId and studentId
+    const submission = await prisma.assignment_submission.findFirst({
+      where: {
+        assignment_id: parseInt(assignmentId), // Ensure assignmentId is parsed to integer
+        student_id: studentId,
+      },
+      orderBy: {
+        create_at: "desc"
+      }
+    });
+
+    // Response based on whether submission exists or not
+    if (submission) {
+      return res.status(200).json({
+        success: true,
+        message: 'Submission found',
+        data: submission,
+      });
+    } else {
+      return res.status(404).json({
+        success: false,
+        message: 'No submission found for the given assignmentId and studentId',
+      });
+    }
+  } catch (error) {
+    console.error('Error fetching submission:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: error.message,
+    });
+  }
+};
