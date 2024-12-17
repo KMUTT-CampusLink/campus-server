@@ -8,6 +8,7 @@ import { createInstallmentPlan } from "../controller/Installments/createInstallm
 import { viewInstallmentDetails } from "../controller/Installments/viewInstallmentDetails.js";
 import { installmentPreview  } from "../controller/Installments/installmentPreview.js";
 import { getInvoiceInfo } from "../controller/getInvoiceInfo.js";
+import { getUserWallet } from "../controller/Wallet/getUserWallet.js";
 
 const paymentRouter = Router();
 
@@ -120,6 +121,15 @@ paymentRouter.get("/invoiceInfo/:invoiceId", async (req, res) => {
     }
   } else {
     res.status(400).json({ message: "Invoice ID is required" });
+  }
+});
+
+// Route สำหรับดึงข้อมูล Wallet
+paymentRouter.post("/fetchUserWallet", async (req, res) => {
+  try {
+    await getUserWallet(req, res);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 });
 
