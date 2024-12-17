@@ -10,12 +10,14 @@ export const getMemberByClubId = async (req, res) => {
       },
       select: {
         club_id: true,
+        line_id: true,
         student: {
           select: {
             id: true,
             firstname: true,
             midname: true,
             lastname: true,
+            image: true,
           },
         },
         employee: {
@@ -24,6 +26,12 @@ export const getMemberByClubId = async (req, res) => {
             firstname: true,
             midname: true,
             lastname: true,
+            image: true,
+            faculty: {
+              select: {
+                name: true, // Fetch faculty (department) name
+              },
+            },
           },
         },
         is_admin: true,
@@ -58,6 +66,7 @@ export const getClubByMemberId = async (req, res) => {
             midname: true,
             lastname: true,
             phone: true,
+            image: true,
             //line_id: true,
             // Omit `address` or any non-existent fields here
           },
@@ -69,6 +78,7 @@ export const getClubByMemberId = async (req, res) => {
             midname: true,
             lastname: true,
             phone: true,
+            image: true,
             //line_id: true,
             // Only include fields that exist in `employee`
           },
@@ -88,6 +98,7 @@ export const getClubByMemberId = async (req, res) => {
     const name = `${memberData.firstname} ${memberData.lastname}`;
     const phoneNumber = memberData.phone || "N/A";
     const lineID = clubs[0].line_id || "N/A";
+    const profileImage = memberData.image;
 
     const formattedClubs = clubs.map((entry) => ({
       clubId: entry.club.id,
@@ -96,8 +107,13 @@ export const getClubByMemberId = async (req, res) => {
       memberType: entry.student ? "student" : "employee",
       isAdmin: entry.is_admin,
     }));
-
-    res.json({ name, phoneNumber, lineID, joinedClubs: formattedClubs });
+    res.json({
+      name,
+      phoneNumber,
+      lineID,
+      joinedClubs: formattedClubs,
+      profileImage,
+    });
   } catch (error) {
     console.error("Error fetching clubs for member:", error); // Log error for inspection
     res.status(500).json({ error: "Failed to fetch clubs for the member" });
@@ -116,7 +132,10 @@ export const updateLineID = async (req, res) => {
 
   try {
     // Log the search criteria
-    console.log("Updating all instances of member with student_id or employee_id:", memberId);
+    console.log(
+      "Updating all instances of member with student_id or employee_id:",
+      memberId
+    );
 
     // Update line_id in all rows where student_id or employee_id matches memberId
     const updatedMembers = await prisma.club_member.updateMany({
@@ -132,8 +151,14 @@ export const updateLineID = async (req, res) => {
       return res.status(404).json({ message: "Member not found." });
     }
 
-    console.log("Line ID updated successfully for all matching members:", updatedMembers);
-    return res.json({ message: "Line ID updated successfully for all matching members.", updatedMembers });
+    console.log(
+      "Line ID updated successfully for all matching members:",
+      updatedMembers
+    );
+    return res.json({
+      message: "Line ID updated successfully for all matching members.",
+      updatedMembers,
+    });
   } catch (error) {
     console.error("Error updating line ID:", error);
     return res.status(500).json({ error: "Failed to update line ID." });
@@ -153,10 +178,7 @@ export const getMembershipStatus = async (req, res) => {
     const membership = await prisma.club_member.findFirst({
       where: {
         club_id: parseInt(clubId),
-        AND: [
-          { student_id: studentId },
-          { employee_id: empId },
-        ],
+        AND: [{ student_id: studentId }, { employee_id: empId }],
       },
       select: {
         is_admin: true,
@@ -179,6 +201,8 @@ export const getMembershipStatus = async (req, res) => {
     return res.status(200).json({ isAdmin, isMember, memberId });
   } catch (error) {
     console.error("Error fetching membership status:", error);
-    return res.status(500).json({ success: false, message: "Failed to fetch membership status" });
+    return res
+      .status(500)
+      .json({ success: false, message: "Failed to fetch membership status" });
   }
 };
