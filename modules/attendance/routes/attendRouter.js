@@ -3,8 +3,14 @@ import generateQrCode from "../controllers/qrGenerate.js";
 import { validateQrCodeController } from "../controllers/qrValidation.js";
 import generateFaceRecAttendance from "../controllers/faceAttendanceGenerate.js";
 import { markAttendance } from "../controllers/markAttendance.js";
+import getAttendanceBySecId from "../controllers/getAttendanceBySecId.js";
+import searchName from "../controllers/searchName.js";
 //import { loadFaceDescriptors, compareFace } from "../controllers/faceRecognition.js";
 import express from "express";
+import getCourseDetail from "../controllers/getCourseHeader.js";
+import getEnrollStudent from "../controllers/getStudentEnroll.js";
+import updateAttendance from "../controllers/updateAttendance.js";
+import getStudentAttendance from "../controllers/getStudentAttendance.js";
 // import your logics from controllers here
 
 const attendRouter = Router();
@@ -34,4 +40,10 @@ attendRouter.post("/qrGen/:secId", generateQrCode);
 attendRouter.get("/validate/:attendanceId", validateQrCodeController );
 attendRouter.post("/faceGen/:secId", generateFaceRecAttendance)
 attendRouter.post("/markAttendance", markAttendance)
+attendRouter.post("/update", updateAttendance)
+attendRouter.get("/attendData/:sectionID",getAttendanceBySecId)
+attendRouter.get("/student/:sectionID",getStudentAttendance)
+attendRouter.get("/search", searchName)
+attendRouter.get("/course/:sectionID", getCourseDetail)
+attendRouter.get("/getStudentBySecId/:sectionID", getEnrollStudent)
 export { attendRouter };
