@@ -14,7 +14,7 @@ export const checkBookController = async (title) => {
         LIMIT 1;
         `;
     
-        console.log(book);
+        // console.log(book);
         return book;
         // if (book.length > 0) {
         //     // res.status(200).json({ message: `Yes, the book titled "${book[0].title}", edition ${book[0].edition}: written by ${book.author}, is available at the library.` });

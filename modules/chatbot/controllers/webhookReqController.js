@@ -30,6 +30,7 @@ let trips_data = [];
 let book_data = [];
 
 export const webhookReqController = async(req, res) => {
+  // console.log(req.body);
   const pageName = req.body.pageInfo.displayName;
   // console.log(pageName);
   let result;
@@ -97,6 +98,8 @@ export const webhookReqController = async(req, res) => {
     }
     parameters = {
       "books": null,
+      "book_data": book_data,
+      "trips_data": null,
     }
   }else if(pageName === "Course"){
     const progName = req.body.sessionInfo.parameters.program.trim();
@@ -173,10 +176,13 @@ export const webhookReqController = async(req, res) => {
     const endStop = req.body.sessionInfo.parameters.stop.trim();
     const day = req.body.sessionInfo.parameters.day.trim();
     trips_data = await transportationBookingController(startStop, endStop, day);
+    // console.log(trips_data);
     parameters = {
       "start": null,
       "stop": null,
       "day": null,
+      "book_data": null,
+      "trips_data": trips_data,
     }
     if(!trips_data || trips_data.length === 0){
       result = `I'm sorry. There is no route available from ${startStop} to ${endStop}.`

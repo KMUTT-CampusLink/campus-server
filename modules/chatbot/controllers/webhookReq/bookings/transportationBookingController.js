@@ -47,6 +47,6 @@ export const transportationBookingController = async(startStop, endStop, day)=>{
           trip_date: 'asc', // Sort by trip_date in ascending order
         },
         take: 3, // Limit to 4 rows
-      });           
+      });
     return trips;
 }

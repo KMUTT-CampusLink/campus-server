@@ -39,9 +39,9 @@ const detectIntentText = async(projectId, inputText, sessionId, bearerToken) => 
   try {
     const [response] = await client.detectIntent(request);
     const globalparams = { ...globalParameters };
-    // console.log(response.queryResult.parameters.fields);
+    console.log(response.queryResult.parameters.fields);
     const params = globalparams
-    ? Object.values(Object.entries(globalparams).filter(([key]) => key !== 'bearerToken'))
+    ? Object.values(Object.entries(globalparams).filter(([key]) => key !== 'bearerToken' && key !== 'trips' && key !== 'book'))
     : [];
     const responseMessages = response.queryResult.responseMessages;
     let responseText = '';
@@ -105,7 +105,30 @@ const detectIntentText = async(projectId, inputText, sessionId, bearerToken) => 
           console.error("Error fetching next questions: " + error);
       }
     }
-    return {replyText: responseText, nextQuestions: nextQues, trips: trips_data, book: book_data};
+    const parametersList = response.queryResult.parameters.fields;
+
+// General function to extract structured list data
+function extractListData(params, fieldName) {
+  const listData = params[fieldName]?.listValue?.values || [];
+  return listData.map(item => {
+    const structFields = item.structValue?.fields || {};
+    const obj = {};
+    for (const key in structFields) {
+      const field = structFields[key];
+      if (field.stringValue !== undefined) obj[key] = field.stringValue;
+      else if (field.numberValue !== undefined) obj[key] = field.numberValue;
+      else if (field.nullValue !== undefined) obj[key] = null;
+    }
+    return obj;
+  });
+}
+
+  const tripsArray = extractListData(parametersList, 'trips_data');
+  const booksArray = extractListData(parametersList, 'books');
+
+  console.log("Trips Data:", tripsArray);
+  console.log("Books Data:", booksArray);
+    return {replyText: responseText, nextQuestions: nextQues, trips: tripsArray ? tripsArray: [], book: booksArray ? booksArray: []};
   } catch (err) {
     console.error('Error during detectIntent: ', err);
     return {error: "Internal Server Error"};
