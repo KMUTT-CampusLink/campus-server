@@ -22,6 +22,7 @@ import { professorContactController } from "./webhookReq/programs/professorConta
 import { availableParkingSlotController } from "./webhookReq/parking/availableParkingSlot.js";
 import { registeredCourseController } from "./webhookReq/student/registeredCourseController.js";
 import { transportationBookingController } from "./webhookReq/bookings/transportationBookingController.js";
+import { lostAndFoundController } from "./webhookReq/building and secruity/lostAndFoundController.js";
 
 let globalParameters = {};
 let trips_data = [];
@@ -177,6 +178,12 @@ export const webhookReqController = async(req, res) => {
     if(!trips_data || trips_data.length === 0){
       result = `I'm sorry. There is no route available from ${startStop} to ${endStop}.`
     }else result = "trip";
+  }else if(pageName === "Lost Found"){
+    const status = req.body.sessionInfo.parameters.lostandfound.trim();
+    result = await lostAndFoundController(status);
+    parameters = {
+      "status" : null,
+    }
   }
   // console.log(result);
   res.json({
