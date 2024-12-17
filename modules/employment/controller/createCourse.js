@@ -2,6 +2,8 @@ import prisma from "../../../core/db/prismaInstance.js";
 
 const createCourse = async (req, res) => {
   const { name, program_id, description, objective } = req.body;
+  const image = req.file;
+  console.log("Request body:", req.body);
 
   try {
     const newCourse = await prisma.course.create({

@@ -21,7 +21,7 @@ const createStudent = async (req, res) => {
     district,
     province,
     postal_code,
-  } = req.body.data;
+  } = req.body;
 
   const image = req.file;
 

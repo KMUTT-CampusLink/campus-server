@@ -1,15 +1,22 @@
 import prisma from "../../../core/db/prismaInstance.js";
 
 const updateSection = async (req, res) => {
-  const { emp_id, name, day, start_time, end_time, room_id, semester_id } =
-    req.body;
-  const { code, id } = req.params;
-  const sectionId = parseInt(id); // Parse section ID to an integer
-  console.log("code:", code);
-  console.log("sectionID:", sectionId);
+  const {
+    firstname,
+    midname,
+    lastname,
+    name,
+    day,
+    start_time,
+    end_time,
+    room_name,
+    id,
+  } = req.body;
 
   try {
-    // Validate that the section exists
+    const sectionId = parseInt(id); // Parse section ID to an integer
+
+    // Validate the section exists
     const sectionExists = await prisma.section.findUnique({
       where: { id: sectionId },
     });
@@ -17,66 +24,82 @@ const updateSection = async (req, res) => {
       return res.status(404).json({ error: "Section not found" });
     }
 
-    // Validate that the semester exists
-    if (semester_id) {
-      const semesterExists = await prisma.semester.findUnique({
-        where: { id: semester_id },
-      });
-      if (!semesterExists) {
-        return res.status(404).json({ error: "Semester not found" });
-      }
+    // Find emp_id using firstname, midname, and lastname
+    const employee = await prisma.employee.findFirst({
+      where: {
+        firstname,
+        midname: midname || undefined,
+        lastname,
+      },
+      select: { id: true },
+    });
+
+    if (!employee) {
+      return res
+        .status(404)
+        .json({ error: `Employee with name '${firstname} ${lastname}' not found` });
     }
 
-    // Check if the professor entry needs to be updated
-    let professor = emp_id
-      ? await prisma.professor.findFirst({
-          where: { emp_id, section_id: sectionId },
-        })
-      : null;
+    const emp_id = employee.id; // Extract the emp_id
 
+    // Find room_id using room_name
+    const room = await prisma.room.findFirst({
+      where: { name: room_name },
+      select: { id: true },
+    });
+
+    if (!room) {
+      return res
+        .status(404)
+        .json({ error: `Room with name '${room_name}' not found` });
+    }
+
+    const room_id = room.id; // Extract the room_id
+
+    // Perform the updates within a transaction
     const result = await prisma.$transaction(async (prisma) => {
-      // Update the section
+      // Update the section table
       const updatedSection = await prisma.section.update({
         where: { id: sectionId },
         data: {
           name: name || sectionExists.name,
           day: day || sectionExists.day,
-          start_time: start_time
-            ? new Date(start_time)
-            : sectionExists.start_time,
+          start_time: start_time ? new Date(start_time) : sectionExists.start_time,
           end_time: end_time ? new Date(end_time) : sectionExists.end_time,
-          semester: semester_id ? { connect: { id: semester_id } } : undefined,
-          room: room_id ? { connect: { id: room_id } } : undefined,
+          room: {
+            connect: { id: room_id },
+          },
         },
       });
 
-      // Update the professor if emp_id is provided
-      if (emp_id) {
-        if (professor) {
-          professor = await prisma.professor.update({
-            where: { id: professor.id },
-            data: { emp_id },
-          });
-        } else {
-          professor = await prisma.professor.create({
-            data: { emp_id, id: sectionId },
-          });
-        }
+      // Check if a professor entry exists for the section
+      let professor = await prisma.professor.findFirst({
+        where: { section_id: sectionId },
+      });
+
+      // Update or create the professor record
+      if (professor) {
+        professor = await prisma.professor.update({
+          where: { id: professor.id },
+          data: { emp_id },
+        });
+      } else {
+        professor = await prisma.professor.create({
+          data: { emp_id, section_id: sectionId },
+        });
       }
 
       return { updatedSection, professor };
     });
 
     res.json({
-      message: "Section updated successfully",
+      message: "Section and professor updated successfully",
       section: result.updatedSection,
       professor: result.professor,
     });
   } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .json({ error: "An error occurred while updating the section." });
+    console.error("Error updating section:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 

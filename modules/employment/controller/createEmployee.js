@@ -15,7 +15,6 @@ const createEmployee = async (req, res) => {
     date_of_birth,
     gender,
     identification_no,
-    passport_no,
     faculty_id,
     position,
     job_title,
@@ -25,6 +24,9 @@ const createEmployee = async (req, res) => {
     province,
     postal_code,
   } = req.body;
+
+  const image = req.file;
+  console.log("Request body:", req.body);
 
   try {
     const generatedCampusEmail = `${firstname.toLowerCase()}.${lastname.toLowerCase()}@campus.edu`;
@@ -55,7 +57,7 @@ const createEmployee = async (req, res) => {
           province: province,
           postal_code: postal_code,
         },
-      }); 
+      });
 
       const newUser = await prisma.user.create({
         data: {
@@ -82,6 +84,7 @@ const createEmployee = async (req, res) => {
           position,
           job_title,
           salary: salaryToUse,
+          image: image.objName,
         },
       });
 

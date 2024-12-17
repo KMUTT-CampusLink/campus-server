@@ -1,11 +1,15 @@
 import prisma from "../../../core/db/prismaInstance.js";
 
 const updateCourse = async (req, res) => {
-  const { id: code } = req.params; // Extract the `id` property from params
-  const { name, program_id, description, objective } = req.body;
+  const { id: code } = req.params;
+  const { data } = req.body;
+  const parsedData = JSON.parse(data);
+  const { name, program_id, description, objective } = parsedData;
 
   console.log("Request body:", req.body);
-  console.log("Request params:", req.params);
+  console.log("Request body:", parsedData);
+  const image = req.file;
+  console.log("pic", image);
 
   try {
     if (!code) {
@@ -25,11 +29,14 @@ const updateCourse = async (req, res) => {
     if (program_id) updatedFields.program_id = parseInt(program_id, 10);
     if (description) updatedFields.description = description;
     if (objective) updatedFields.objective = objective;
+    if (image) updatedFields.image = image.objName;
 
     const updatedCourse = await prisma.course.update({
       where: { code },
       data: updatedFields,
     });
+
+    console.log("Updated Student:", updatedFields);
 
     res.json({
       message: "Course updated successfully",

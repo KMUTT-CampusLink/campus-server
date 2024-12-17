@@ -1,22 +1,21 @@
 import prisma from "../../../core/db/prismaInstance.js";
 
-const getCourse = async (req, res) => {
+const getRoom = async (req, res) => {
   try {
-    const course = await prisma.course.findMany({
+    const room = await prisma.room.findMany({
       select: {
-        code: true,
+        id: true,
         name: true,
-        image: true,
       },
       orderBy: {
-        code: "asc",
+        id: "asc",
       },
     });
-    res.json(course);
+    res.json(room);
   } catch (error) {
-    console.error(error);
+    console.error("Error fetching room:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
-export default getCourse;
+export default getRoom;
