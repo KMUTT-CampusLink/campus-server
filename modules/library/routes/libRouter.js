@@ -13,6 +13,9 @@ import { getAllUser } from "../controllers/getAllUser.js";
 import { getEveryBook } from "../controllers/getEveryBook.js";
 import { reserveEventSeat } from "../controllers/reserveEventSeat.js";
 import { getEventReservations } from "../controllers/getEventReservations.js";
+import verifyRoles from "../../../core/middleware/verifyRoles.js";
+import { getUserRole } from "../controllers/getUserRole.js";
+
 const libRouter = Router();
 libRouter.get("/event", getAllLibraryEvents);
 libRouter.get("/announce", getAllLibraryAnnouncements);
@@ -26,6 +29,7 @@ libRouter.get("/user", getAllUser);
 libRouter.get("/everyBook", getEveryBook);
 libRouter.get("/eventReservation", getEventReservations);
 
+libRouter.get("/userRole", getUserRole);
 libRouter.post("/reservations", createReservation);
 libRouter.post("/returnBook", updateReturnBook);
 libRouter.post("/event/reserve", reserveEventSeat);

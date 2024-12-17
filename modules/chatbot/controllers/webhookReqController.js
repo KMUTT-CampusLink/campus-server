@@ -17,8 +17,17 @@ import { allaboutClubController } from "./webhookReq/clubs/allaboutClubControlle
 import { clubAnnouncementController } from "./webhookReq/clubs/clubAnnouncementController.js";
 import { buildingContactController } from "./webhookReq/building and secruity/buildingContactController.js";
 import { invoiceDetailController } from "./webhookReq/Invoices/invoiceDetailController.js";
+import { unPaidInvoicesController } from "./webhookReq/Invoices/UnPaidInvoicesController.js";
+import { professorContactController } from "./webhookReq/programs/professorContactController.js";
+import { availableParkingSlotController } from "./webhookReq/parking/availableParkingSlot.js";
+import { registeredCourseController } from "./webhookReq/student/registeredCourseController.js";
+import { transportationBookingController } from "./webhookReq/bookings/transportationBookingController.js";
+import { lostAndFoundController } from "./webhookReq/building and secruity/lostAndFoundController.js";
+import { statusCheckController } from "./webhookReq/building and secruity/statusCheckController.js"
 
 let globalParameters = {};
+let trips_data = [];
+let book_data = [];
 
 export const webhookReqController = async(req, res) => {
   const pageName = req.body.pageInfo.displayName;
@@ -80,9 +89,16 @@ export const webhookReqController = async(req, res) => {
     result = await futureExamController(studentId);
   }else if(pageName === "Search Book"){
     const title = req.body.sessionInfo.parameters.books.trim();
-    result = await checkBookController(title);
+    book_data = await checkBookController(title);
+    if(!book_data || book_data.length === 0){
+      result = `I'm sorry. The book "${title}" is not available at the library at the moment.`
+    }else {
+      result = "book";
+    }
     parameters = {
       "books": null,
+      "book_data": book_data,
+      "trips_data": null,
     }
   }else if(pageName === "Course"){
     const progName = req.body.sessionInfo.parameters.program.trim();
@@ -132,8 +148,54 @@ export const webhookReqController = async(req, res) => {
   }else if(pageName === "Invoice All"){
     const id = req.user.id;
     result = await invoiceDetailController(id);
+  }else if(pageName === "Unpaid Invoices"){
+    const id = req.user.id;
+    result = await unPaidInvoicesController(id);
+  }else if(pageName === "Contact"){
+    const courseName = req.body.sessionInfo.parameters.course.trim();
+    const sectionName = req.body.sessionInfo.parameters.section.trim();
+    result = await professorContactController(courseName, sectionName);
+    parameters = {
+      "course": null,
+      "section": null
+    }
+  }else if(pageName === "Slots"){
+    const building = req.body.sessionInfo.parameters.building.trim();
+    const floor = req.body.sessionInfo.parameters.floor.trim();
+    result = await availableParkingSlotController(building, floor);
+    parameters = {
+      "building": null,
+      "floor": null,
+    }
+  }else if(pageName === "Registered Course"){
+    const studId = req.user.studentId;
+    result = await registeredCourseController(studId);
+  }else if(pageName === "Transportation Trips"){
+    const startStop = req.body.sessionInfo.parameters.start.trim();
+    const endStop = req.body.sessionInfo.parameters.stop.trim();
+    const day = req.body.sessionInfo.parameters.day.trim();
+    trips_data = await transportationBookingController(startStop, endStop, day);
+    parameters = {
+      "start": null,
+      "stop": null,
+      "day": null,
+      "trips_data": trips_data,
+      "book_data": null,
+    }
+    if(!trips_data || trips_data.length === 0){
+      result = `I'm sorry. There is no route available from ${startStop} to ${endStop}.`
+    }else result = "trip";
+  }else if(pageName === "Lost Found"){
+    const status = req.body.sessionInfo.parameters.lostandfound.trim();
+    result = await lostAndFoundController(status);
+    parameters = {
+      "status" : null,
+    }
+  }else if(pageName === "LostItem Status"){
+    const userId = req.user.id;
+    result = await statusCheckController(userId);
   }
-  // console.log(parameters);
+  // console.log(trips_data);
   res.json({
     "fulfillmentResponse": {
       "messages": [
@@ -145,9 +207,9 @@ export const webhookReqController = async(req, res) => {
       ]
     },
     "sessionInfo": {
-      parameters
+      parameters,
     }
   });
 }
 
-export {globalParameters}
+export {globalParameters, trips_data, book_data}

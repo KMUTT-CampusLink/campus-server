@@ -72,8 +72,8 @@ const postReservation = async (req, res) => {
 
         if (new_reserve_time < current_time) {
             return res.status(400).json({ error: "Cannot make a reservation in the past." });
-        // }else if (existingReservation) {
-        //     return res.status(400).json({ error: `Car with ID ${verifiedCar.id} already has an active reservation.` }); // 1 car 1 slot
+        }else if (existingReservation) {
+            return res.status(400).json({ error: `Car with ID ${verifiedCar.id} already has an active reservation.` }); // 1 car 1 slot
         }else if (!verifiedCar) {
             return res.status(400).json({ error: `Car with ID ${verifiedCar.id} is not verified.` });
         }else if (!slot) {
@@ -134,8 +134,7 @@ const postReservation = async (req, res) => {
 
         const responseData = {
             reservation_id: postReservation.id,
-            car_id: verifiedCar.id,
-            slot_id: parking_slot_id
+            status: postReservation.status
         };
 
         const encryptedData = encrypt(responseData);

@@ -18,9 +18,13 @@ function encrypt(data) {
 
 const postCheckin = async (req, res) => {
     const user = req.user
-    const { reservation_id, checkin_time } = req.body;
+    const { qrcode, reservation_id, checkin_time } = req.body;
 
     try {
+
+        if (!qrcode) {
+            return res.status(400).json({ error: "The QR code is required." });
+        }
 
         const unpaidInvoice = await prisma.invoice.findFirst({
             where: {
@@ -32,7 +36,7 @@ const postCheckin = async (req, res) => {
         if (unpaidInvoice) {
             return res.status(403).json({ error: "Cannot make a new reservation due to unpaid invoices." });
         }
-        
+
         const reservation = await prisma.parking_reservation.findUnique({
             where: { id: reservation_id },
             include: {
@@ -79,8 +83,7 @@ const postCheckin = async (req, res) => {
 
         const responseData = {
             reservation_id: reservation_id,
-            car_id: reservation.car_id,
-            slot_id: reservation.parking_slot_id
+            status: reservation.status,
         };
         const encryptedData = encrypt(responseData);
 

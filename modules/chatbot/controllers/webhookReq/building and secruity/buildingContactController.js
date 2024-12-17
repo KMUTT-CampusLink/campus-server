@@ -21,4 +21,4 @@ import prisma from "../../../../../core/db/prismaInstance.js";
          return "Internal Server Error.";
         // res.status(500).json({ error: "Failed to fetch contact for the building" });
     }
- }
+}

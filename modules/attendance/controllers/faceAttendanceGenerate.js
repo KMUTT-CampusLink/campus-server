@@ -3,18 +3,23 @@ const prisma = new PrismaClient();
 
 const generateFaceRecAttendance = async (req, res) => {
   const secId = parseInt(req.params.secId);
-  const empId = req.user.employeeId;
+  const empId = req.user.empId;
+  console.log(empId);
   const professorId = await prisma.professor.findFirst({
     where: {
-      id: empId,
+      emp_id: empId,
+      section_id: secId
     },
     select: {
       id: true,
     },
   })
-
+  console.log(professorId)
 
   try {
+    if (!professorId) {
+      return res.status(400).json("Invalid Professor");
+    }
     // Check if the section exists
     const section = await prisma.section.findFirst({
       where: { id: secId },

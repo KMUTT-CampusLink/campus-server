@@ -9,6 +9,7 @@ const generateQrCode = async (req, res) => {
   const professorId = await prisma.professor.findFirst({
     where: {
       emp_id: empId,
+      section_id: secId
     },
     select: {
       id: true,

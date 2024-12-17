@@ -8,6 +8,8 @@ import { createInstallmentPlan } from "../controller/Installments/createInstallm
 import { viewInstallmentDetails } from "../controller/Installments/viewInstallmentDetails.js";
 import { installmentPreview  } from "../controller/Installments/installmentPreview.js";
 import { getInvoiceInfo } from "../controller/getInvoiceInfo.js";
+import { getUserWallet } from "../controller/Wallet/getUserWallet.js";
+import { useWallet } from '../controller/Wallet/useWallet.js';
 
 const paymentRouter = Router();
 
@@ -20,22 +22,20 @@ paymentRouter.get("/invoice", async (req, res) => {
 });
 
 
-paymentRouter.post("/pay", (req, res) => {
-  const { inv, ins } = req.body;
-  if (inv) {
-    try {
-      connectPaymentGateway(req, res);
-    } catch (error) {
-      res.status(500).json({ message: error.message });
+paymentRouter.post("/pay", async (req, res) => {
+  const { inv, ins, balance } = req.body; // เพิ่ม balance จาก body
+
+  try {
+    if (inv || ins) {
+      // เพิ่ม balance เข้าไปใน req.body ก่อนเรียกใช้ฟังก์ชัน
+      req.body.balance = balance ?? "No"; // ตั้งค่า default เป็น "No" หากไม่ได้ส่งมา
+      await connectPaymentGateway(req, res);
+    } else {
+      res.status(400).json({ message: "Invoice ID or Installment ID is required" });
     }
-  } else if (ins) {
-    try {
-      connectPaymentGateway(req, res);
-    } catch (error) {
-      res.status(500).json({ message: error.message });
-    }
-  } else {
-    res.status(400).json({ message: "Invoice ID or Installment ID is required" });
+  } catch (error) {
+    console.error("Error processing payment:", error);
+    res.status(500).json({ message: error.message });
   }
 });
 
@@ -123,8 +123,26 @@ paymentRouter.get("/invoiceInfo/:invoiceId", async (req, res) => {
   }
 });
 
+// Route สำหรับดึงข้อมูล Wallet
+paymentRouter.post("/fetchUserWallet", async (req, res) => {
+  try {
+    await getUserWallet(req, res);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 paymentRouter.get("/", (req, res) => {
   return res.send("Payment");
 });
+
+paymentRouter.post("/useWallet", async (req, res) => {
+  try {
+    await useWallet(req, res);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 
 export { paymentRouter };

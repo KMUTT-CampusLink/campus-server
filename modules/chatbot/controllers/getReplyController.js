@@ -1,6 +1,6 @@
 import { SessionsClient } from "@google-cloud/dialogflow-cx";
 import prisma from "../../../core/db/prismaInstance.js";
-import { globalParameters } from "./webhookReqController.js";
+import { globalParameters, trips_data, book_data} from "./webhookReqController.js";
 
 const client = new SessionsClient({
   credentials: {
@@ -34,12 +34,11 @@ const detectIntentText = async(projectId, inputText, sessionId, bearerToken) => 
         },
       }
     }
-  };
+  }; 
 
   try {
     const [response] = await client.detectIntent(request);
     const globalparams = { ...globalParameters };
-    // console.log(globalparams);
     const params = globalparams
     ? Object.values(Object.entries(globalparams).filter(([key]) => key !== 'bearerToken'))
     : [];
@@ -105,7 +104,73 @@ const detectIntentText = async(projectId, inputText, sessionId, bearerToken) => 
           console.error("Error fetching next questions: " + error);
       }
     }
-    return {replyText: responseText, nextQuestions: nextQues};
+
+    // Function to parse trips_data
+    function parseTripsData(tripsDataParam) {
+      if (!tripsDataParam || !tripsDataParam.listValue) {
+        // console.log("trips_data is undefined or invalid");
+        return [];
+      }
+    
+      return tripsDataParam.listValue.values.map(trip => {
+        const fields = trip.structValue.fields;
+    
+        return {
+          id: fields.id?.numberValue || null,
+          driver_id: fields.driver_id?.numberValue || null,
+          vehicle_id: fields.vehicle_id?.numberValue || null,
+          trip_date: fields.trip_date?.stringValue || null,
+          trip_schedule: {
+            day: fields.trip_schedule?.structValue?.fields?.day?.stringValue || null,
+            start_time: fields.trip_schedule?.structValue?.fields?.start_time?.stringValue || null,
+            end_time: fields.trip_schedule?.structValue?.fields?.end_time?.stringValue || null,
+          },
+        };
+      });
+    }
+    
+// Parsing trips_data
+  const trips = response.queryResult.parameters.fields.trips_data;
+  const cleanTripsData = trips ? parseTripsData(response.queryResult.parameters.fields.trips_data) : [];
+
+// Function to parse book_data
+function parseBookData(bookDataParam) {
+  if (!bookDataParam || !bookDataParam.listValue) {
+    // console.log("book_data is undefined or invalid");
+    return [];
+  }
+
+  return bookDataParam.listValue.values.map(book => {
+    const fields = book.structValue.fields;
+
+    return {
+      id: fields.id?.numberValue || null,
+      category_id: fields.category_id?.numberValue || null,
+      status: fields.status?.boolValue || null,
+      isbn: fields.isbn?.stringValue || null,
+      cover_image: fields.cover_image?.stringValue || null,
+      title: fields.title?.stringValue || null,
+      edition: fields.edition?.numberValue || null,
+      author: fields.author?.stringValue || null,
+      no_of_page: fields.no_of_page?.numberValue || null,
+      publisher: fields.publisher?.stringValue || null,
+      publish_date: fields.publish_date?.stringValue || null,
+      created_at: fields.created_at?.stringValue || null,
+      updated_at: fields.updated_at?.stringValue || null,
+      description: fields.description?.stringValue || null,
+      bdid: fields.bdid?.numberValue || null,
+    };
+  });
+}
+
+// Parsing book_data
+const cleanBookData = parseBookData(response.queryResult.parameters.fields.book_data);
+
+// console.log("Clean Book Data:", cleanBookData);
+
+// console.log("Clean Trips Data:", cleanTripsData);
+
+    return {replyText: responseText, nextQuestions: nextQues, trips: cleanTripsData, book: cleanBookData};
   } catch (err) {
     console.error('Error during detectIntent: ', err);
     return {error: "Internal Server Error"};

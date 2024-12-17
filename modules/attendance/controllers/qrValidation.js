@@ -15,17 +15,6 @@ const validateQrCodeController = async (req, res) => {
         id: studentId,
       },
     });
-    const enrollStudent = await prisma.enrollment_detail.findFirst({
-      where: {
-        student_id: studentId,
-        section_id: secId
-      }
-    })
-    if (!student && !enrollStudent) {
-      return res.status(400).json({ success: false, message: "Student Not Found" });
-    }
-
-    
     const attendances = await prisma.attendance.findFirst({
       where: {
         id: attendanceId,
@@ -36,6 +25,18 @@ const validateQrCodeController = async (req, res) => {
       }
     });
     const secId = attendances.section_id;
+    const enrollStudent = await prisma.enrollment_detail.findFirst({
+      where: {
+        student_id: studentId,
+        section_id: secId
+      }
+    })
+    if (!student || !enrollStudent) {
+      return res.status(400).json({ success: false, message: "Student Not Found" });
+    }
+
+    
+    
     const isStudentExist = await prisma.class_attendance.findFirst({
       where: {
         attendance_id: attendanceId,
