@@ -1,7 +1,9 @@
 import prisma from "../../../core/db/prismaInstance.js";
- 
+
 const updateEmployee = async (req, res) => {
-  const { id } = req.params; // Employee ID from the request parameters
+  const { id } = req.params;
+  const { data } = req.body;
+  const parsedData = JSON.parse(data);
   const {
     firstname,
     midname,
@@ -19,29 +21,32 @@ const updateEmployee = async (req, res) => {
     district,
     province,
     postal_code,
-  } = req.body; // Assume these are provided in the request body.
- 
-  // Log the request body for debugging
+  } = parsedData;
+
+  console.log("Request body:", parsedData);
+  const image = req.file;
+
   console.log("Request body:", req.body);
- 
+  console.log("Request body:", req.params);
+
   try {
     // Validate that 'id' is provided
     if (!id) {
       return res.status(400).json({ error: "Employee ID is required." });
     }
- 
+
     // Check if the employee exists
     const existingEmployee = await prisma.employee.findUnique({
       where: { id },
     });
- 
+
     if (!existingEmployee) {
       return res.status(404).json({ error: "Employee not found" });
     }
- 
+
     // Prepare the data to update, only include fields that are provided
     const updatedEmployeeData = {};
- 
+
     // Conditionally add fields to the update object
     if (firstname) updatedEmployeeData.firstname = firstname;
     if (midname) updatedEmployeeData.midname = midname;
@@ -53,12 +58,13 @@ const updateEmployee = async (req, res) => {
     if (faculty_id) updatedEmployeeData.faculty_id = parseInt(faculty_id);
     if (position) updatedEmployeeData.position = position;
     if (job_title) updatedEmployeeData.job_title = job_title;
- 
+    if (image) updatedEmployeeData.image = image.objName;
+
     // Handle date_of_birth field
     if (date_of_birth) {
       updatedEmployeeData.date_of_birth = new Date(date_of_birth); // Ensure date format is correct
     }
- 
+
     // Handle salary field
     if (salary !== undefined) {
       // Explicitly check for undefined to allow 0 as a valid value
@@ -70,7 +76,7 @@ const updateEmployee = async (req, res) => {
       }
       updatedEmployeeData.salary = salaryToUse;
     }
- 
+
     const uId = await prisma.employee.findUnique({
       where: {
         id: id,
@@ -85,14 +91,14 @@ const updateEmployee = async (req, res) => {
       },
     });
     console.log(uId, typeof uId);
- 
+
     const newUser = await prisma.user.update({
       where: { id: uId.user.id },
       data: {
         role: job_title,
       },
     });
- 
+
     const updateAddressId = await prisma.employee.findUnique({
       where: {
         id: id,
@@ -111,9 +117,9 @@ const updateEmployee = async (req, res) => {
         },
       },
     });
- 
+
     console.log(updateAddressId, typeof updateAddressId);
- 
+
     const newAddress = await prisma.address.update({
       where: { id: updateAddressId.address.id },
       data: {
@@ -124,13 +130,15 @@ const updateEmployee = async (req, res) => {
         postal_code: postal_code,
       },
     });
- 
+
     // Update the employee record
     const updatedEmployee = await prisma.employee.update({
       where: { id },
       data: updatedEmployeeData,
     });
- 
+
+    console.log("Updated Student:", updatedEmployeeData);
+
     // Respond with the updated employee
     res.json({
       message: "Employee updated successfully",
@@ -143,5 +151,5 @@ const updateEmployee = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
- 
+
 export default updateEmployee;
