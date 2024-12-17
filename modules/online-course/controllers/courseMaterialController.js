@@ -105,3 +105,50 @@ export const addCourseMaterials = async (req, res) => {
       .json({ message: "Server error", error: error.message });
   }
 };
+
+//edit and delete courseMaterial
+
+export const editCourseMaterial = async (req, res) => {
+  const { id } = req.params;
+  const { title } = req.body;
+
+  try {
+    // Check if new video file is uploaded
+    const videoFile = req.file?.objName;
+
+    const updatedMaterial = await prisma.course_video.update({
+      where: { id: parseInt(id) },
+      data: {
+        title,
+        video_url: videoFile || undefined, // Update only if a new file is uploaded
+        updated_at: new Date(),
+      },
+    });
+
+    return res.status(200).json(updatedMaterial);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Failed to update material", error });
+  }
+};
+
+export const deleteCourseMaterial = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Delete attachments first to maintain referential integrity
+    await prisma.course_attachment.deleteMany({
+      where: { course_video_id: parseInt(id) },
+    });
+
+    // Delete the video record
+    await prisma.course_video.delete({
+      where: { id: parseInt(id) },
+    });
+
+    return res.status(200).json({ message: "Course material deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Failed to delete material", error });
+  }
+};
