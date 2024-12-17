@@ -28,10 +28,15 @@ export default async function getExams(req, res) {
         WHERE section_id = ${sectionid} AND end_date < NOW()`;
     const course =
       await prisma.$queryRaw`SELECT c.name FROM course AS c, section AS s WHERE s.id = ${sectionid} AND s.course_code = c.code`;
+    const section = await prisma.$queryRaw`
+      SELECT is_grading_expand,grade_announce_status
+      FROM section
+      WHERE id = ${sectionid}`;
     return res.json({
       courseTitle: course,
       exam: exams,
       historyExam: historyExams,
+      section: section,
     });
   } catch (error) {
     console.error(error);
