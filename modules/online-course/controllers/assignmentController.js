@@ -409,3 +409,55 @@ export const checkAssignmentSubmission = async (req, res) => {
     });
   }
 };
+
+// Update Feedback and Score for Assignment Submission by AssignmentId
+export const updateFeedbackAndScore = async (req, res) => {
+  const { submissionId } = req.params; // Extract only assignmentId
+  const { feedback, score } = req.body; // Extract feedback and score from body
+
+  try {
+    // Validate input
+    if (!feedback || score === undefined) {
+      return res.status(400).json({
+        success: false,
+        message: "Feedback and score are required fields.",
+      });
+    }
+
+    // Update submissions matching the given assignmentId
+    const updatedSubmission = await prisma.assignment_submission.update({
+      where: {
+        id: parseInt(submissionId),
+      },
+      data: {
+        feedback: feedback,
+        updated_at: new Date(),
+        score: parseFloat(score), // Ensure score is a float if required
+      },
+    });
+
+    // Check if any records were updated
+    if (updatedSubmission.count === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No submission found for the provided assignmentId.",
+      });
+    }
+
+    // Respond with success
+    return res.status(200).json({
+      success: true,
+      message: "Feedback and score updated successfully.",
+      updatedCount: updatedSubmission.count, // Number of updated records
+    });
+  } catch (error) {
+    console.error("Error updating feedback and score:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  } finally {
+    await prisma.$disconnect();
+  }
+};
