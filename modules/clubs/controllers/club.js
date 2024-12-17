@@ -9,7 +9,7 @@ export const getAllStudents = async (req, res) => {
         firstname: true,
         midname: true,
         lastname: true,
-        //image: true
+        image: true,
       },
     });
     return res.status(200).json({ success: true, data: students });
@@ -33,6 +33,7 @@ export const getAllProfessors = async (req, res) => {
         firstname: true,
         midname: true,
         lastname: true,
+        image: true,
       },
     });
     res.status(200).json({ success: true, data: professors });
