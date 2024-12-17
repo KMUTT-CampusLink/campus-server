@@ -92,6 +92,7 @@ router.post(
 );
 router.post("/admin/announcements/:clubId", createAnnouncement);
 
+router.get("/notifications", getNotifications);
 // Club-specific routes
 router.get("/", getAllClubs);
 router.get("/:id", getClubbyId);
@@ -104,8 +105,7 @@ router.post(
 );
 router.delete("/:id", deleteClub); // Placed last to avoid conflicts with other /:id routes
 
-// Notifications and pending requests
-router.get("/notifications", getNotifications);
+// Pending requests
 router.get("/:clubId/pending-requests", getPendingRequests);
 
 export { router as clubRouter };
