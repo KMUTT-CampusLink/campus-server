@@ -193,9 +193,9 @@ export const getAllAssignments = async (req, res) => {
   }
 };
 
-// Controller to add a submission for an assignment
 export const addSubmissionStudent = async (req, res) => {
-  const { assignment_id, student_id, file } = req.body;
+
+  const { assignment_id, student_id } = req.body;
 
   try {
     // Validate required fields
@@ -212,10 +212,17 @@ export const addSubmissionStudent = async (req, res) => {
     }
 
     // Extract the uploaded file
-
+    const file = req.file;
     if (!file) {
       return res.status(400).json({ message: "File is required." });
     }
+
+    const filePath = file.objName || file.path; // Use file path if objName is undefined
+
+    if (!filePath) {
+      return res.status(400).json({ message: "File path is missing." });
+    }
+
 
     // Prepare file data
     const fileData = {
@@ -245,7 +252,6 @@ export const addSubmissionStudent = async (req, res) => {
     return res.status(500).json({ message: "Server error", error: error.message });
   }
 };
-
 
 // COntroller to edit a assignemnt submission file
 export const editSubmissionStudent = async (req, res) => {
@@ -329,20 +335,26 @@ export const getAllStudentSubmission = async (req, res) => {
     const sections = await prisma.$queryRaw`
     SELECT
     ed.section_id,
-    s.id,
-    s.firstname,
-    s.midname,
-    s.lastname,
+    s.id AS student_id,
+    CONCAT(
+        COALESCE(s.firstname, ''), ' ',
+        COALESCE(s.midname, ''), ' ',
+        COALESCE(s.lastname, '')
+    ) AS name,
     asub.*
-    FROM enrollment_detail ed
-    JOIN student s
-      ON ed.student_id = s.id
-    LEFT JOIN assignment_submission asub
-      ON s.id = asub.student_id
-    WHERE ed.section_id = ${parseInt(sectionID, 10)} AND asub.assignment_id = ${parseInt(assignmentID, 10)};
-    `;
-
-    console.log(sections);
+FROM enrollment_detail ed
+JOIN student s
+    ON ed.student_id = s.id
+LEFT JOIN assignment_submission asub
+    ON s.id = asub.student_id
+    AND asub.assignment_id = ${parseInt(assignmentID, 10)}
+    AND asub.create_at = (
+        SELECT MAX(create_at)
+        FROM assignment_submission
+        WHERE student_id = s.id AND assignment_id = ${parseInt(assignmentID, 10)}
+    )
+WHERE ed.section_id = ${parseInt(sectionID, 10)}
+ORDER BY s.id;`;
 
     // Send successful response
     return res.status(200).json({
@@ -355,6 +367,44 @@ export const getAllStudentSubmission = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "An error occurred while fetching student submissions.",
+      error: error.message,
+    });
+  }
+};
+
+export const checkAssignmentSubmission = async (req, res) => {
+  const { assignmentId, studentId } = req.params; // Extract params from the route
+
+  try {
+    // Find submission based on assignmentId and studentId
+    const submission = await prisma.assignment_submission.findFirst({
+      where: {
+        assignment_id: parseInt(assignmentId), // Ensure assignmentId is parsed to integer
+        student_id: studentId,
+      },
+      orderBy: {
+        create_at: "desc"
+      }
+    });
+
+    // Response based on whether submission exists or not
+    if (submission) {
+      return res.status(200).json({
+        success: true,
+        message: 'Submission found',
+        data: submission,
+      });
+    } else {
+      return res.status(404).json({
+        success: false,
+        message: 'No submission found for the given assignmentId and studentId',
+      });
+    }
+  } catch (error) {
+    console.error('Error fetching submission:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error',
       error: error.message,
     });
   }
