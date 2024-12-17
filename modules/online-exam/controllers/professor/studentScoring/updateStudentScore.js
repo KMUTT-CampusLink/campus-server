@@ -25,7 +25,8 @@ export default async function updateStudentScore(req, res) {
     const studentScore = await prisma.$queryRaw`SELECT total_score FROM student_exam WHERE id = ${id}`;
     const newStudentScore = parseFloat(studentScore[0].total_score) + parseFloat(score);
     await prisma.$queryRaw`UPDATE student_exam SET total_score = ${parseFloat(newStudentScore)}, is_checked = true WHERE id = ${id}`;
-    return res.status(200).json({ message: "Student score updated" });
+    const sectionId = await prisma.$queryRaw`SELECT e.section_id FROM exam AS e, student_exam AS se WHERE se.id = ${id} AND e.id = se.exam_id`;
+    return res.status(200).json({ message: "Student score updated", data: sectionId[0].section_id});
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: error.message });
