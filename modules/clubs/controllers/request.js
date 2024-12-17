@@ -271,7 +271,7 @@ export const requestToJoinClub = async (req, res) => {
 
       const club = await prisma.club.findUnique({
         where: { id: Number(clubId) },
-        select: { owner_id: true },
+        select: { owner_id: true, name: true },
       });
 
       if (!club || !club.owner_id) {
@@ -294,11 +294,12 @@ export const requestToJoinClub = async (req, res) => {
       // Check if the sender exists and get the sender's ID
       const recipientId = member.student ? member.student.id : member.employee.id;
       const recipientIsStudent = !!member.student;
-  
+      const club_name = club.name;
+      console.log(club_name);
       const notificationData = {
         club_id: Number(clubId),
         type: status === "Accepted" ? "Request Accepted" : "Request Rejected",
-        message: `Your request to join the club has been ${status.toLowerCase()}.`,
+        message: `Your request to join the ${club_name} has been ${status.toLowerCase()}.`,
         is_read: false,
         ...(recipientIsStudent ? { stu_recipient: recipientId } : { emp_recipient: recipientId }),
         ...(adminIsStudent ? { stu_sender: adminId } : { emp_sender: adminId }),
@@ -308,13 +309,13 @@ export const requestToJoinClub = async (req, res) => {
 
   
       // Optionally, delete the member if the request was declined
-      if (status === "Rejected") {
-        await prisma.club_member.delete({
-          where: {
-            id: member.id,
-          },
-        });
-      }
+      // if (status === "Rejected") {
+      //   await prisma.club_member.delete({
+      //     where: {
+      //       id: member.id,
+      //     },
+      //   });
+      // }
   
       return res.status(200).json({
         success: true,
