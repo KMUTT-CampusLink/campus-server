@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { addAssignmentFile, addSubmissionStudent, deleteAssignment, editAssignment, editSubmissionStudent, getAllAssignments } from "../controllers/assignmentController.js";
+import { addAssignmentFile, addSubmissionStudent, deleteAssignment, editAssignment, editSubmissionStudent, getAllAssignments,getAllStudentSubmission } from "../controllers/assignmentController.js";
 import multerErrorHandler from "../../../core/middleware/multerErrorHandler.js";
 import file_uploader from "../../../core/middleware/multerUploader.js";
 
@@ -31,6 +31,8 @@ assignmentRouter.put(
     file_uploader.single("file_path"), // Middleware for handling the file upload
     editSubmissionStudent
 );
+
+assignmentRouter.get("/studentSubmission/:sectionID/:assignmentID", getAllStudentSubmission);
 
 
 export { assignmentRouter };

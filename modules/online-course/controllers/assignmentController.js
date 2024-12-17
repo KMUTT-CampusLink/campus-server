@@ -195,7 +195,7 @@ export const getAllAssignments = async (req, res) => {
 
 // Controller to add a submission for an assignment
 export const addSubmissionStudent = async (req, res) => {
-  const { assignment_id, student_id } = req.body;
+  const { assignment_id, student_id, file } = req.body;
 
   try {
     // Validate required fields
@@ -212,7 +212,7 @@ export const addSubmissionStudent = async (req, res) => {
     }
 
     // Extract the uploaded file
-    const file = req.file;
+
     if (!file) {
       return res.status(400).json({ message: "File is required." });
     }
@@ -323,3 +323,39 @@ export const editSubmissionStudent = async (req, res) => {
   }
 };
 
+export const getAllStudentSubmission = async (req, res) => {
+  const { sectionID, assignmentID } = req.params;
+  try {
+    const sections = await prisma.$queryRaw`
+    SELECT
+    ed.section_id,
+    s.id,
+    s.firstname,
+    s.midname,
+    s.lastname,
+    asub.*
+    FROM enrollment_detail ed
+    JOIN student s
+      ON ed.student_id = s.id
+    LEFT JOIN assignment_submission asub
+      ON s.id = asub.student_id
+    WHERE ed.section_id = ${parseInt(sectionID, 10)} AND asub.assignment_id = ${parseInt(assignmentID, 10)};
+    `;
+
+    console.log(sections);
+
+    // Send successful response
+    return res.status(200).json({
+      success: true,
+      data: sections,
+    });
+  } catch (error) {
+    // Handle errors and send error response
+    console.error("Error fetching student submissions:", error);
+    return res.status(500).json({
+      success: false,
+      message: "An error occurred while fetching student submissions.",
+      error: error.message,
+    });
+  }
+};
