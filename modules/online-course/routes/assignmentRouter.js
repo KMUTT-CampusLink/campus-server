@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { addAssignmentFile, addSubmissionStudent, deleteAssignment, editAssignment, editSubmissionStudent, getAllAssignments, getAllStudentSubmission, checkAssignmentSubmission, updateFeedbackAndScore } from "../controllers/assignmentController.js";
+import { addAssignmentFile, addSubmissionStudent, deleteAssignment, editAssignment, editSubmissionStudent, getAllAssignments, getAllStudentSubmission, checkAssignmentSubmission, updateFeedbackAndScore, getStudentFeedbackAndScore } from "../controllers/assignmentController.js";
 import multerErrorHandler from "../../../core/middleware/multerErrorHandler.js";
 import file_uploader from "../../../core/middleware/multerUploader.js";
 
@@ -40,6 +40,7 @@ assignmentRouter.get(
 );
 
 assignmentRouter.put('/feedback/:submissionId', updateFeedbackAndScore);
+assignmentRouter.get("/feedback/:studentId", getStudentFeedbackAndScore);
 
 export { assignmentRouter };
 

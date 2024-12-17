@@ -461,3 +461,64 @@ export const updateFeedbackAndScore = async (req, res) => {
     await prisma.$disconnect();
   }
 };
+
+export const getStudentFeedbackAndScore = async (req, res) => {
+  const { studentId } = req.params;
+
+  try {
+    // Validate input
+    if (!studentId) {
+      return res.status(400).json({
+        success: false,
+        message: "Student ID is required.",
+      });
+    }
+
+    // Fetch feedback and score for the student's assignments
+    const studentAssignments = await prisma.assignment_submission.findMany({
+      where: {
+        student_id: studentId, // Match submissions for the given student
+      },
+      select: {
+        assignment_id: true,
+        feedback: true,
+        score: true,
+        assignment: {
+          select: {
+            title: true, // Fetch the assignment title
+            description: true,
+          },
+        },
+      },
+    });
+
+    // Check if no data was found
+    if (studentAssignments.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No feedback or scores found for this student.",
+      });
+    }
+
+    // Format and send the response
+    const formattedAssignments = studentAssignments.map((submission) => ({
+      assignment_id: submission.assignment_id,
+      title: submission.assignment.title || "No Title",
+      description: submission.assignment.description || "No Description",
+      score: submission.score !== null ? submission.score : "Not graded",
+      feedback: submission.feedback || "No feedback provided",
+    }));
+
+    return res.status(200).json({
+      success: true,
+      data: formattedAssignments,
+    });
+  } catch (error) {
+    console.error("Error retrieving feedback and scores:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error.",
+      error: error.message,
+    });
+  }
+};
