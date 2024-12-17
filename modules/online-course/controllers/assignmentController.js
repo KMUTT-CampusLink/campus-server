@@ -254,7 +254,6 @@ if (!filePath) {
   }
 };
 
-
 // COntroller to edit a assignemnt submission file
 export const editSubmissionStudent = async (req, res) => {
   const { assignmentSubmissionID } = req.params; // Corrected parameter name
