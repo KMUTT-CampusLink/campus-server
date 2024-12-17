@@ -1,16 +1,27 @@
 import { PrismaClient } from "@prisma/client";
 import QRCode from "qrcode"; //npm i qrcode
-
 const prisma = new PrismaClient();
 
 const generateQrCode = async (req, res) => {
   const secId = parseInt(req.params.secId);
+  const empId = req.user.empId;
+  console.log(empId);
+  const professorId = await prisma.professor.findFirst({
+    where: {
+      emp_id: empId,
+    },
+    select: {
+      id: true,
+    },
+  })
+  console.log(professorId);
 
-  // Mock profesor token value
-  const professorId = 1001;
   // TODO: get profesor token from client cookies
-
+  
   try {
+    if (!professorId) {
+      return res.status(400).json("Invalid Professor");
+    }
     // const expiredAt = new Date(availableAt.getTime() + 15 * 60 * 1000); // QR expires in 15 minutes
     const section = await prisma.section.findFirst({
       where: {
@@ -22,10 +33,10 @@ const generateQrCode = async (req, res) => {
       return res.status(400).json("Invalid Section Id");
     }
 
-    const onGoing = await prisma.attendance_qr_code.findFirst({
+    const onGoing = await prisma.attendance.findFirst({
       where: {
         section_id: secId,
-        professor_id: professorId,
+        professor_id: parseInt(professorId.id),
         end_at: {
           gt: new Date(),
         },
@@ -40,10 +51,10 @@ const generateQrCode = async (req, res) => {
       });
     }
 
-    const newAttendance = await prisma.attendance_qr_code.create({
+    const newAttendance = await prisma.attendance.create({
       data: {
         section_id: secId, // Ensure these fields match your Prisma schema
-        professor_id: professorId,
+        professor_id: parseInt(professorId.id),
         //location,
         start_at: new Date(),
         end_at: new Date(new Date().getTime() + 2 * 60 * 1000),

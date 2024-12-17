@@ -1,7 +1,9 @@
 import prisma from "../../../core/db/prismaInstance.js";
 
 const updateEmployee = async (req, res) => {
-  const { id } = req.params; // Employee ID from the request parameters
+  const { id } = req.params;
+  const { data } = req.body;
+  const parsedData = JSON.parse(data);
   const {
     firstname,
     midname,
@@ -19,10 +21,13 @@ const updateEmployee = async (req, res) => {
     district,
     province,
     postal_code,
-  } = req.body; // Assume these are provided in the request body.
+  } = parsedData;
 
-  // Log the request body for debugging
+  console.log("Request body:", parsedData);
+  const image = req.file;
+
   console.log("Request body:", req.body);
+  console.log("Request body:", req.params);
 
   try {
     // Validate that 'id' is provided
@@ -53,6 +58,7 @@ const updateEmployee = async (req, res) => {
     if (faculty_id) updatedEmployeeData.faculty_id = parseInt(faculty_id);
     if (position) updatedEmployeeData.position = position;
     if (job_title) updatedEmployeeData.job_title = job_title;
+    if (image) updatedEmployeeData.image = image.objName;
 
     // Handle date_of_birth field
     if (date_of_birth) {
@@ -130,6 +136,8 @@ const updateEmployee = async (req, res) => {
       where: { id },
       data: updatedEmployeeData,
     });
+
+    console.log("Updated Student:", updatedEmployeeData);
 
     // Respond with the updated employee
     res.json({

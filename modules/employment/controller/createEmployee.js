@@ -1,5 +1,5 @@
 import prisma from "../../../core/db/prismaInstance.js";
-import bcrypt from "bcrypt"; 
+import bcrypt from "bcrypt";
 import crypto from "crypto";
 
 const createEmployee = async (req, res) => {
@@ -15,7 +15,6 @@ const createEmployee = async (req, res) => {
     date_of_birth,
     gender,
     identification_no,
-    passport_no,
     faculty_id,
     position,
     job_title,
@@ -25,6 +24,9 @@ const createEmployee = async (req, res) => {
     province,
     postal_code,
   } = req.body;
+
+  const image = req.file;
+  console.log("Request body:", req.body);
 
   try {
     const generatedCampusEmail = `${firstname.toLowerCase()}.${lastname.toLowerCase()}@campus.edu`;
@@ -63,7 +65,7 @@ const createEmployee = async (req, res) => {
           personal_email: personalEmailToUse,
           password: hashedPassword,
           role: job_title,
-          is_activated: true,
+          is_activated: false,
         },
       });
 
@@ -82,6 +84,7 @@ const createEmployee = async (req, res) => {
           position,
           job_title,
           salary: salaryToUse,
+          image: image.objName,
         },
       });
 

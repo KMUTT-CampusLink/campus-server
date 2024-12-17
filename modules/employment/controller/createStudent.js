@@ -1,7 +1,6 @@
 import prisma from "../../../core/db/prismaInstance.js";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
-import { connect } from "http2";
 
 const createStudent = async (req, res) => {
   const {
@@ -23,6 +22,10 @@ const createStudent = async (req, res) => {
     province,
     postal_code,
   } = req.body;
+
+  const image = req.file;
+
+  console.log("Request body:", req.body);
 
   const degree_Id = parseInt(degree_id, 10);
 
@@ -46,6 +49,8 @@ const createStudent = async (req, res) => {
       return res.status(400).json({ error: "University batch not found." });
     }
 
+    console.log("unibatch: ", uniBatch);
+
     const programBatch = await prisma.program_batch.findFirst({
       where: {
         degree_id: degree_Id,
@@ -53,6 +58,8 @@ const createStudent = async (req, res) => {
       },
       select: { id: true },
     });
+    console.log("programbatch : ", programBatch);
+    console.log("degreeId : ", degree_Id);
 
     if (!programBatch) {
       return res.status(400).json({
@@ -89,7 +96,7 @@ const createStudent = async (req, res) => {
           personal_email: personalEmailToUse,
           password: hashedPassword,
           role: "Student",
-          is_activated: true,
+          is_activated: false,
         },
       });
 
@@ -99,6 +106,7 @@ const createStudent = async (req, res) => {
           midname,
           lastname,
           phone,
+          image: image.objName,
           address: {
             connect: {
               id: newAddress.id,
@@ -137,7 +145,7 @@ const createStudent = async (req, res) => {
 
       return { newStudent, newUser, newAddress };
     });
-
+    console.log(result.newUser);
     res.json({
       message: "Student created successfully",
       student: result.newStudent,

@@ -12,28 +12,32 @@ export default async function dashboard(req, res) {
     const examMin = await prisma.$queryRaw`
         SELECT MIN(total_score) AS minScore 
         FROM student_exam
+        WHERE exam_id = ${examId}
     `;
     const examMax = await prisma.$queryRaw`
         SELECT MAX(total_score) AS maxScore 
         FROM student_exam
+        WHERE exam_id = ${examId}
     `;
     const examAverage = await prisma.$queryRaw`
         SELECT AVG(total_score) AS avgScore 
         FROM student_exam
+        WHERE exam_id = ${examId}
     `;
     const passMark = await prisma.$queryRaw`
         SELECT pass_mark 
         FROM exam
+        WHERE id = ${examId}
     `;
     const examPass = await prisma.$queryRaw`
         SELECT COUNT(*) as passAmount
         FROM student_exam
-        WHERE total_score >= ${passMark[0].pass_mark}
+        WHERE total_score >= ${passMark[0].pass_mark} AND exam_id = ${examId}
     `;
     const mostIncorrectQuestion = await prisma.$queryRaw`
       SELECT question_id, COUNT(DISTINCT student_id) AS incorrect
       FROM student_answer
-      WHERE ans_correct = false
+      WHERE ans_correct = false AND exam_id = ${examId}
       GROUP BY question_id
       ORDER BY incorrect DESC
       ;
@@ -49,6 +53,7 @@ export default async function dashboard(req, res) {
       WHERE eq.id=ec.question_id
       AND eq.id = ANY (${incorrectQuestionIDs})
     `;
+    // console.log(mostIncorrectQuestionData);
     const groupedData = mostIncorrectQuestionData.reduce((acc, item) => {
       if (!acc[item.id]) {
         acc[item.id] = {
@@ -58,11 +63,10 @@ export default async function dashboard(req, res) {
           choice_text: [],
         };
       }
-      acc[item.id].choice_text.push(Number(item.choice_text)); // แปลงเป็น Number ถ้าต้องการเป็นตัวเลข
+      acc[item.id].choice_text.push(item.choice_text);
       return acc;
     }, {});
     const groupedDataArr = Object.values(groupedData);
-    //console.log(groupedDataArr);
 
     res.status(200).json({
       data: {

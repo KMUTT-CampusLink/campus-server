@@ -1,14 +1,24 @@
 import prisma from "../../../../../core/db/prismaInstance.js";
 
+import { decodeToken } from "../../../middleware/jwt.js";
+
 export default async function createExam(req, res) {
-  const { exam } = req.body;
-  const title = exam.title;
-  const description = exam.description;
+  const title = req.body.exam.title;
+  const description = req.body.exam.description;
+  const sectionId = parseInt(req.body.sectionId);
+  const token = req.cookies.token;
+  const exam = req.body.exam;
   try {
+    const decoded = decodeToken(token);
+    const userId = decoded.empId;
+    const totalScore = exam.questions.map((question) => parseInt(question.score)).reduce((a, b) => a + b, 0);
     const queryExamRaw = await prisma.exam.create({
       data: {
-        title,
-        description
+        title: title,
+        description: description,
+        professor_id: userId,
+        section_id: sectionId,
+        full_mark: totalScore
       },
       select: {
         id: true
@@ -18,7 +28,7 @@ export default async function createExam(req, res) {
     for (const [index, question] of exam.questions.entries()) {
       let score = question.score;
       if (question.type === "Checklist"){
-          score = question.score / question.answer.length;
+          score = question.score / question.options.length;
       }
       const queryQuestionRaw = await prisma.$queryRaw`INSERT INTO "exam_question" ("exam_id", "type", "title", "mark") 
                                                       VALUES (${examId}, ${question.type}::question_type_enum, ${question.questionText}, ${score}) 
