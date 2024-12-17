@@ -10,8 +10,11 @@ const updateSection = async (req, res) => {
     start_time,
     end_time,
     room_name,
-    id,
+    emp_id,
   } = req.body;
+  const { code, id } = req.params;
+  console.log("opara", req.params);
+  console.log("opara", req.body);
 
   try {
     const sectionId = parseInt(id); // Parse section ID to an integer
@@ -24,25 +27,6 @@ const updateSection = async (req, res) => {
       return res.status(404).json({ error: "Section not found" });
     }
 
-    // Find emp_id using firstname, midname, and lastname
-    const employee = await prisma.employee.findFirst({
-      where: {
-        firstname,
-        midname: midname || undefined,
-        lastname,
-      },
-      select: { id: true },
-    });
-
-    if (!employee) {
-      return res
-        .status(404)
-        .json({ error: `Employee with name '${firstname} ${lastname}' not found` });
-    }
-
-    const emp_id = employee.id; // Extract the emp_id
-
-    // Find room_id using room_name
     const room = await prisma.room.findFirst({
       where: { name: room_name },
       select: { id: true },
@@ -54,9 +38,24 @@ const updateSection = async (req, res) => {
         .json({ error: `Room with name '${room_name}' not found` });
     }
 
-    const room_id = room.id; // Extract the room_id
+    const room_id = room.id;
 
-    // Perform the updates within a transaction
+    const convertTimeToISODateTime = (timeString) => {
+      const [hours, minutes, seconds] = timeString.split(":");
+      const date = new Date();
+      date.setUTCHours(
+        parseInt(hours, 10),
+        parseInt(minutes, 10),
+        parseInt(seconds || 0, 10),
+        0
+      ); // Set time
+      return date.toISOString(); // Converts to "1970-01-01T16:00:00.000Z"
+    };
+
+    // Example Usage
+    const startTime = convertTimeToISODateTime(start_time);
+    const endTime = convertTimeToISODateTime(end_time);
+
     const result = await prisma.$transaction(async (prisma) => {
       // Update the section table
       const updatedSection = await prisma.section.update({
@@ -64,31 +63,39 @@ const updateSection = async (req, res) => {
         data: {
           name: name || sectionExists.name,
           day: day || sectionExists.day,
-          start_time: start_time ? new Date(start_time) : sectionExists.start_time,
-          end_time: end_time ? new Date(end_time) : sectionExists.end_time,
+          start_time: startTime ? startTime : sectionExists.start_time,
+          end_time: endTime ? endTime : sectionExists.end_time,
           room: {
             connect: { id: room_id },
           },
         },
       });
 
-      // Check if a professor entry exists for the section
-      let professor = await prisma.professor.findFirst({
-        where: { section_id: sectionId },
+      const existingProfessor = await prisma.professor.findFirst({
+        where: {
+          emp_id: sectionExists.emp_id,
+          section_id: sectionId,
+        },
       });
 
-      // Update or create the professor record
-      if (professor) {
+      let professor;
+
+      if (existingProfessor) {
+        // Update the existing professor record
         professor = await prisma.professor.update({
-          where: { id: professor.id },
-          data: { emp_id },
+          where: { id: existingProfessor.id }, // Use the unique primary key
+          data: { emp_id: emp_id, section_id: sectionId },
         });
       } else {
+        // Create a new professor record
         professor = await prisma.professor.create({
           data: { emp_id, section_id: sectionId },
         });
       }
 
+      console.log(updatedSection);
+      console.log("exis", existingProfessor);
+      console.log("updataed", professor);
       return { updatedSection, professor };
     });
 

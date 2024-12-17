@@ -42,6 +42,7 @@ const getSection = async (req, res) => {
         },
         section: {
           select: {
+            id: true,
             name: true,
             day: true,
             start_time: true,
@@ -60,6 +61,18 @@ const getSection = async (req, res) => {
         },
       },
     });
+
+    const formatTime24Hour = (dateTime) => {
+      const date = new Date(dateTime);
+      const hours = String(date.getUTCHours()).padStart(2, "0");
+      const minutes = String(date.getUTCMinutes()).padStart(2, "0");
+      return `${hours}:${minutes}`;
+    };
+
+    if (data && data.section) {
+      data.section.start_time = formatTime24Hour(data.section.start_time);
+      data.section.end_time = formatTime24Hour(data.section.end_time);
+    }
 
     res.json(data);
   } catch (error) {
