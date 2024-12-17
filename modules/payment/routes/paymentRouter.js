@@ -9,6 +9,7 @@ import { viewInstallmentDetails } from "../controller/Installments/viewInstallme
 import { installmentPreview  } from "../controller/Installments/installmentPreview.js";
 import { getInvoiceInfo } from "../controller/getInvoiceInfo.js";
 import { getUserWallet } from "../controller/Wallet/getUserWallet.js";
+import { useWallet } from '../controller/Wallet/useWallet.js';
 
 const paymentRouter = Router();
 
@@ -136,5 +137,14 @@ paymentRouter.post("/fetchUserWallet", async (req, res) => {
 paymentRouter.get("/", (req, res) => {
   return res.send("Payment");
 });
+
+paymentRouter.post("/useWallet", async (req, res) => {
+  try {
+    await useWallet(req, res);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 
 export { paymentRouter };
