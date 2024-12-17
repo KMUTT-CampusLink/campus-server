@@ -8,7 +8,34 @@ import {
   getBooked,
   getAvailableTimes,
   deleteBooking,
+  getGuards,
+  getGBuildings,
+  createNewGBooking,
 } from "./buildingService.js";
+
+export const fetchGBuildingData = async (req, res) => {
+  try {
+    const buildings = await getGBuildings();
+    res.status(200).json(buildings);
+  } catch (error) {
+    console.error("Error in building controller:", error);
+    res
+      .status(500)
+      .json({ message: "An error occurred while fetching building data." });
+  }
+};
+
+export const fetchGuardData = async (req, res) => {
+  try {
+    const guards = await getGuards();
+    console.log("Guards fetched:", guards);
+    res.status(200).json(guards);
+  } catch (error) {
+    console.error("Error in guard controller:", error);
+    res.status(500).json({ message: "An error occurred while fetching guard data." });
+  }
+};
+
 
 export const fetchBuildingData = async (req, res) => {
   try {
@@ -142,3 +169,39 @@ export const createBooking = async (req, res) => {
     res.status(500).json({ message: "An error occurred while creating the booking." });
   }
 };
+
+export const createGBooking = async (req, res) => {
+  const { buildingId, guardId, details } = req.body;
+
+  try {
+    const userId = req.user.id;
+
+    if (!buildingId || !guardId || !details) {
+      return res.status(400).json({
+        message: "All fields (buildingId, guardId, details) are required.",
+      });
+    }
+
+    console.log("Booking Data Received:", {
+      buildingId,
+      guardId,
+      details,
+    });
+
+    // Call the service to create the booking, update guard status, and update building status
+    const result = await createNewGBooking(userId, buildingId, guardId, details);
+    res.status(201).json(result);
+
+  } catch (error) {
+    // Log the error and send more details in the response for debugging
+    console.error("Error in createBooking function:", error.message);
+    res.status(500).json({
+      message: "An error occurred while creating the booking.",
+      error: error.message,  // Send the error message in the response to debug
+      stack: error.stack,    // Include stack trace for more detailed debugging
+    });
+  }
+};
+
+
+
