@@ -25,7 +25,6 @@ export default async function getHistoryExam(req, res) {
     AND (se.is_checked = true OR (se.exam_id NOT IN (SELECT exam_id 
                                                      FROM exam_question 
                                                      WHERE type = 'Multiple Choice')))`;
-    console.log(queryStudent);
     const examIds = queryStudent.map((exam) => exam.exam_id);
     if (examIds.length < 1) {
       return res.status(404).json({ message: "No exam found" });
