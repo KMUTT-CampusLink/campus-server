@@ -14,16 +14,17 @@ export const checkBookController = async (title) => {
         LIMIT 1;
         `;
     
-        // console.log(book);
-        if (book.length > 0) {
-            // res.status(200).json({ message: `Yes, the book titled "${book[0].title}", edition ${book[0].edition}: written by ${book.author}, is available at the library.` });
-        //    return `Yes, the book titled "${book[0].title}", edition ${book[0].edition}: written by ${book[0].author}, is available at the library.\nDescription: "${book[0].description}"\n
-        //    Do you want to reserve the book?`;
-            return book;
-        } else {
-        //    res.status(404).json({ message: 'There is no such book available at the library.' });
-            return book;
-        }
+        console.log(book);
+        return book;
+        // if (book.length > 0) {
+        //     // res.status(200).json({ message: `Yes, the book titled "${book[0].title}", edition ${book[0].edition}: written by ${book.author}, is available at the library.` });
+        // //    return `Yes, the book titled "${book[0].title}", edition ${book[0].edition}: written by ${book[0].author}, is available at the library.\nDescription: "${book[0].description}"\n
+        // //    Do you want to reserve the book?`;
+        //     return book;
+        // } else {
+        // //    res.status(404).json({ message: 'There is no such book available at the library.' });
+        //     return book;
+        // }
     } catch (error) {
         console.error('Error fetching book availability'+ error);
     //    res.status(500).json({ error: 'Failed to fetch book avalibility' });

@@ -23,6 +23,7 @@ import { availableParkingSlotController } from "./webhookReq/parking/availablePa
 import { registeredCourseController } from "./webhookReq/student/registeredCourseController.js";
 import { transportationBookingController } from "./webhookReq/bookings/transportationBookingController.js";
 import { lostAndFoundController } from "./webhookReq/building and secruity/lostAndFoundController.js";
+import { statusCheckController } from "./webhookReq/building and secruity/statusCheckController.js"
 
 let globalParameters = {};
 let trips_data = [];
@@ -91,7 +92,9 @@ export const webhookReqController = async(req, res) => {
     book_data = await checkBookController(title);
     if(!book_data || book_data.length === 0){
       result = `I'm sorry. The book "${title}" is not available at the library at the moment.`
-    }else result = "book";
+    }else {
+      result = "book";
+    }
     parameters = {
       "books": null,
     }
@@ -184,6 +187,9 @@ export const webhookReqController = async(req, res) => {
     parameters = {
       "status" : null,
     }
+  }else if(pageName === "LostItem Status"){
+    const userId = req.user.id;
+    result = await statusCheckController(userId);
   }
   // console.log(result);
   res.json({

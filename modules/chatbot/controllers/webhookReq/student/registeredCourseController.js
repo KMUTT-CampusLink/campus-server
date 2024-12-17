@@ -11,7 +11,8 @@ export const registeredCourseController = async (studId) => {
       and c.code = s.course_code  
       and eh.student_id=${studId}
       and stu.id=${studId}
-      and adc.current_period=cal.id;
+      and adc.current_period=cal.id
+      and eh.semester_id = stu.semester_id;
       `;
     // console.log(courses)
     
