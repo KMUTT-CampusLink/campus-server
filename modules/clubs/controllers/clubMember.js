@@ -66,6 +66,7 @@ export const getClubByMemberId = async (req, res) => {
             midname: true,
             lastname: true,
             phone: true,
+            image: true,
             //line_id: true,
             // Omit `address` or any non-existent fields here
           },
@@ -77,6 +78,7 @@ export const getClubByMemberId = async (req, res) => {
             midname: true,
             lastname: true,
             phone: true,
+            image: true,
             //line_id: true,
             // Only include fields that exist in `employee`
           },
@@ -96,6 +98,7 @@ export const getClubByMemberId = async (req, res) => {
     const name = `${memberData.firstname} ${memberData.lastname}`;
     const phoneNumber = memberData.phone || "N/A";
     const lineID = clubs[0].line_id || "N/A";
+    const profileImage = memberData.image;
 
     const formattedClubs = clubs.map((entry) => ({
       clubId: entry.club.id,
@@ -104,8 +107,13 @@ export const getClubByMemberId = async (req, res) => {
       memberType: entry.student ? "student" : "employee",
       isAdmin: entry.is_admin,
     }));
-
-    res.json({ name, phoneNumber, lineID, joinedClubs: formattedClubs });
+    res.json({
+      name,
+      phoneNumber,
+      lineID,
+      joinedClubs: formattedClubs,
+      profileImage,
+    });
   } catch (error) {
     console.error("Error fetching clubs for member:", error); // Log error for inspection
     res.status(500).json({ error: "Failed to fetch clubs for the member" });
