@@ -73,7 +73,7 @@ app.use("/api/attend", verifyAccessToken, attendRouter);
 app.use("/api/security", verifyAccessToken, secureRouter);
 app.use("/api/botastra", verifyAccessToken, botRouter);
 app.use("/api/clubs", verifyAccessToken, clubRouter);
-app.use("/api/employ", verifyAccessToken, employRouter);
+app.use("/api/employ", employRouter);
 app.use("/api/library", verifyAccessToken, libRouter);
 app.use("/api/map", mapRouter);
 app.use("/api/courses", verifyAccessToken, courseRouter);
