@@ -1,17 +1,14 @@
 import prisma from "../../../../core/db/prismaInstance.js";
-import { decodeToken } from "../../middleware/jwt.js";
 
 export default async function toggleAnswer(req, res) {
   const examId = parseInt(req.query.examId);
-  const token = req.cookies.token;
+  const studentId = "66130500850";
+
   try {
-    const decoded = decodeToken(token);
-    const userId = decoded.id;
-    const studentQuery = await prisma.$queryRaw`SELECT id FROM student WHERE user_id = ${userId}::uuid`;
     const studentAns = await prisma.student_answer.findMany({
       where: {
         exam_id: examId,
-        student_id: studentQuery[0].id,
+        student_id: studentId,
       },
       select: {
         id: true,

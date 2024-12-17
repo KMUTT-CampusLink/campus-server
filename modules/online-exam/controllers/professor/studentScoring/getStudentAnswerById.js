@@ -13,7 +13,6 @@ export default async function getStudentAnswerById(req, res) {
             question_id: true,
             answer: true,
             ans_correct: true,
-            essay_comment: true,
         },
     })
     res.status(200).json({

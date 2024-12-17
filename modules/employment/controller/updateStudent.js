@@ -2,8 +2,6 @@ import prisma from "../../../core/db/prismaInstance.js";
 
 const updateStudent = async (req, res) => {
   const { id } = req.params;
-  const { data } = req.body;
-  const parsedData = JSON.parse(data);
   const {
     firstname,
     midname,
@@ -19,9 +17,8 @@ const updateStudent = async (req, res) => {
     district,
     province,
     postal_code,
-  } = parsedData;
-  console.log("Request body:", parsedData);
-  const image = req.file;
+  } = req.body;
+  console.log("Request body:", req.body);
 
   try {
     if (!id) {
@@ -47,7 +44,6 @@ const updateStudent = async (req, res) => {
     if (date_of_birth) {
       updateStudentData.date_of_birth = new Date(date_of_birth);
     }
-    if (image) updateStudentData.image = image.objName;
 
     const updateAddressId = await prisma.student.findUnique({
       where: {
@@ -68,7 +64,7 @@ const updateStudent = async (req, res) => {
       },
     });
 
-    //console.log("update"updateAddressId, typeof updateAddressId);
+    console.log(updateAddressId, typeof updateAddressId);
 
     const newAddress = await prisma.address.update({
       where: { id: updateAddressId.address.id },
@@ -85,8 +81,6 @@ const updateStudent = async (req, res) => {
       where: { id },
       data: updateStudentData,
     });
-
-    console.log("Updated Student:", updateStudentData);
 
     res.json({
       message: "Student updated successfully",

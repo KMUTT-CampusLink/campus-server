@@ -1,51 +1,30 @@
 import prisma from "../../../core/db/prismaInstance.js";
 
 export const addLostAndFoundList = async (req, res) => {
-    const user = req.user
-    
     const {
-        floor_id,
+        reporter_id,
+        name,
         description,
+        found_location,
         status,
         owner_id
     } = req.body;
-   try {
-        const nameData = await prisma.student.findFirst({
-            select: {
-                firstname: true,
-                lastname: true,
-            },
-            where: {
-                user_id: user.id,
-            },
-        }) || await prisma.employee.findFirst({
-            select: {
-                firstname: true,
-                lastname: true,
-            },
-            where: {
-                user_id: user.id,
-            },
-        });
 
-        // Extract the name if found
-        const name = nameData?.firstname+" "+nameData?.lastname || null;
-
-        if (!name) {
-            return res.status(404).json({
-                success: false,
-                message: "User not found in both student and employee records",
-            });
-        }
-
+    try {
+        const getThailandTime = () => {
+            const now = new Date();
+            return new Date(now.getTime() + 7 * 60 * 60 * 1000); // Add 7 hours for ICT
+        };
         const newLostAndFound = await prisma.lost_and_found.create({
             data: {
-                reporter_id: user.id,
-                name: name,
+                reporter_id,
+                name,
                 description,
+                found_location,
                 status,
                 owner_id,
-                floor_id,
+                created_at: getThailandTime(), // Set current time as creation time
+                updated_at: getThailandTime()  // Set current time as updated time
             },
         });
 

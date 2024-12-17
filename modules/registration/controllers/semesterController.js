@@ -54,23 +54,3 @@ export const getSemesterByStudentId = async (req, res) => {
         res.status(500).json({ error: "Failed to fetch student data" });
     }
 };
-
-export const getPeriodBySemesterId = async (req, res) => {
-    const { semesterId } = req.params;
-    try {
-        const periods = await prisma.$queryRaw`
-      SELECT *
-      FROM calendar
-      WHERE semester_id = ${Number(semesterId)};
-    `;
-
-        if (periods.length === 0) {
-            return res.status(200).json([]);
-        }
-
-        res.json(periods);
-    } catch (error) {
-        console.error("Error fetching student data:", error);
-        res.status(500).json({ error: "Failed to fetch student data" });
-    }
-};

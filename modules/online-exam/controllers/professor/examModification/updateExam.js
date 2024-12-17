@@ -3,30 +3,30 @@ import prisma from "../../../../../core/db/prismaInstance.js";
 export default async function updateExam(req, res) {
   const { examId, title, description, questions } = req.body;
   try {
-    const score = questions.map((question) => parseInt(question.score));
-    const totalScore = score.reduce((a, b) => a + b, 0);
     await prisma.exam.update({
       where: { id: parseInt(examId) },
-      data: { title: title, description: description, full_mark: totalScore },
+      data: { title, description },
     });
+
     const queryQuestion = await prisma.exam_question.findMany({
       where: {
         exam_id: parseInt(examId),
       },
     });
     const questionIds = queryQuestion.map((question) => question.id);
+
     await prisma.exam_choice.deleteMany({
-      where: {
-        question_id: { in: questionIds },
-      },
+        where: {
+            question_id: { in: questionIds },
+        },
     });
     await prisma.exam_question.deleteMany({
       where: { exam_id: parseInt(examId) },
     });
     for (const question of questions) {
       let score = parseInt(question.score);
-      if (question.type === "Checklist") {
-        score = question.score / question.options.length;
+      if (question.type === "Checklist"){
+          score = question.score / question.answer.length;
       }
       const queryQuestionRaw = await prisma.$queryRaw`
         INSERT INTO "exam_question" ("exam_id", "type", "title", "mark") 
@@ -35,6 +35,7 @@ export default async function updateExam(req, res) {
       }, ${score}) 
         RETURNING id`;
       const questionId = queryQuestionRaw[0].id;
+      // Check if the question type has options (Multiple Choice or Checklist)
       if (
         question.type === "Multiple Choice" ||
         question.type === "Checklist"
@@ -43,9 +44,9 @@ export default async function updateExam(req, res) {
           const isCorrect = (question.answer || []).includes(option.choiceText);
           await prisma.exam_choice.create({
             data: {
-              question_id: parseInt(questionId),
+              question_id: questionId,
               choice_text: option.choiceText,
-              // choice_img: option.choiceImg || null,
+              choice_img: option.choiceImg || null,
               correct_ans: isCorrect,
             },
           });

@@ -52,18 +52,11 @@ export const studentProfileController = async (req, res) => {
         date_of_birth,
         identification_no,
         degree_level,
-        s.image,
         a.address,
         a.sub_district,
         a.district,
         a.province,
-        a.postal_code,
-        COALESCE(json_agg(json_build_object(
-          'id', c.id,
-          'name', c.name,
-          'description', c.description,
-          'club_img', c.club_img
-        )) FILTER (WHERE c.id IS NOT NULL), '[]') AS clubs
+        a.postal_code
       FROM 
         student s
       JOIN 
@@ -78,15 +71,8 @@ export const studentProfileController = async (req, res) => {
         "address" a ON s.address_id = a.id
       JOIN
         "user" u ON u.id = s.user_id
-        LEFT JOIN
-        club_member cm ON cm.student_id = s.id
-      LEFT JOIN
-        club c ON cm.club_id = c.id
       WHERE 
-        s.id = ${studentId}
-      GROUP BY
-        u.personal_email, s.firstname, s.midname, s.lastname, s.phone, s.date_of_birth, s.identification_no, d.degree_level, s.image, a.address, a.sub_district, a.district, a.province, a.postal_code;
-    ;
+        s.id = ${studentId};
     `;
 
     if (result.length === 0) {

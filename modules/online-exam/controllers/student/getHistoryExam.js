@@ -1,43 +1,21 @@
 import prisma from "../../../../core/db/prismaInstance.js";
 
-import { decodeToken } from "../../middleware/jwt.js";
-
 export default async function getHistoryExam(req, res) {
-  const token = req.cookies.token;
-  const sectionId = parseInt(req.query.sectionid);
+  // const studentId = req.query.studentId;
+  const studentId = "66130500850";
   try {
-    const decoded = decodeToken(token);
-    const userId = decoded.id;
-
-    const queryStudentId = await prisma.$queryRaw`
-    SELECT id 
-    FROM student 
-    WHERE user_id = ${userId}::uuid`;
-    console.log(queryStudentId[0].id)
-
-    const queryStudent = await prisma.$queryRaw`
-    SELECT se.exam_id 
-    FROM student_exam AS se, exam AS e, student AS s 
-    WHERE s.user_id = ${userId}::uuid 
-    AND s.id = se.student_id 
-    AND e.id = se.exam_id 
-    AND se.student_id = ${queryStudentId[0].id} 
-    AND se.status = 'Completed' 
-    AND (e.is_publish_immediately = true OR e.publish_score_status = true) 
-    AND e.section_id = ${sectionId}`;
-
+    const queryStudent =
+      await prisma.$queryRaw`SELECT student_exam.exam_id FROM student_exam, exam WHERE exam.id = student_exam.exam_id AND student_exam.student_id = ${studentId} AND student_exam.status = 'Completed' AND is_publish_immediately = true`;
     const examIds = queryStudent.map((exam) => exam.exam_id);
-    if (examIds.length < 1) {
-      return res.status(404).json({ message: "No exam found" });
-    }
-    const examIdsList = `(${examIds.join(",")})`;
-    const queryExam = await prisma.$queryRawUnsafe(`
-      SELECT se.id AS studentExamId, e.id, e.title, se.student_id 
-      FROM exam AS e, student_exam AS se 
-      WHERE e.id = se.exam_id 
-      AND e.id IN ${examIdsList}
-      AND se.student_id = '${queryStudentId[0].id}'
-      `);
+    const queryExam = await prisma.exam.findMany({
+      where: {
+        id: { in: examIds },
+      },
+      select: {
+        id: true,
+        title: true,
+      },
+    });
     return res
       .status(200)
       .json({ message: "All exams fetched", data: queryExam });

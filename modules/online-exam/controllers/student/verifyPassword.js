@@ -1,7 +1,6 @@
 import prisma from "../../../../core/db/prismaInstance.js"
 
 import { decodeToken } from "../../middleware/jwt.js"
-import { decryptPin } from "../../utils/crypto.js";
 
 export default async function verifyPassword(req, res) {
     const password = req.body.password;
@@ -18,8 +17,8 @@ export default async function verifyPassword(req, res) {
                 id: true,
             },
         });
-        const queryExamRaw = await prisma.$queryRaw`SELECT pin, vi FROM exam WHERE id = ${examId}`;
-        if (decryptPin(queryExamRaw[0].pin, queryExamRaw[0].vi) === password) {
+        const queryExamRaw = await prisma.$queryRaw`SELECT "pin" FROM "exam" WHERE id = ${examId}`;
+        if (queryExamRaw[0].pin === password) {
             await prisma.student_exam.create({
                 data: {
                     exam_id: examId,

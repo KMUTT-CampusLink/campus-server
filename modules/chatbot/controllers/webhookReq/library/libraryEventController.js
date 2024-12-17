@@ -1,18 +1,15 @@
 import prisma from "../../../../../core/db/prismaInstance.js";
 
-export const libraryEventController = async () => {
+export const libraryEventController = async (req, res) => {
   try {
     const events = await prisma.$queryRaw`
-      SELECT * 
+      SELECT title, location, event_date 
       FROM "library_event"
       WHERE event_date >= CURRENT_DATE
     `;
-    if(!events || events.length === 0){
-      return "There is no upcoming event yet.";
-    }
     let fulfillment = "Here are the upcoming library events:\n";
     events.map((event, index) => {
-      fulfillment += `${index + 1}. Event: ${event.title}\t\tLocation: ${event.location}\t\tDate: ${new Date(event.event_date).toLocaleDateString()}\nDescription: ${event.description}\n\n`;
+      fulfillment += `${index + 1}. Event: ${event.title}\n   Location: ${event.location}\n   Date: ${new Date(event.event_date).toLocaleDateString()}\n\n`;
     });
     return fulfillment;
   } catch (error) {
