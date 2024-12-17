@@ -48,17 +48,17 @@ export default async function dashboard(req, res) {
     );
 
     const mostIncorrectQuestionData = await prisma.$queryRaw`
-      SELECT eq.id,eq.title,eq.type,ec.choice_text
+      SELECT eq.id,eq.title,eq.type,ec.choice_text, eq.question_img
       FROM exam_question AS eq, exam_choice AS ec
       WHERE eq.id=ec.question_id
       AND eq.id = ANY (${incorrectQuestionIDs})
     `;
-    // console.log(mostIncorrectQuestionData);
     const groupedData = mostIncorrectQuestionData.reduce((acc, item) => {
       if (!acc[item.id]) {
         acc[item.id] = {
           id: item.id,
           title: item.title,
+          question_img: item.question_img,
           type: item.type,
           choice_text: [],
         };
