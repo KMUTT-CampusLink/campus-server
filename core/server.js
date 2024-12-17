@@ -1,10 +1,10 @@
 import cors from "cors";
+import cron from "node-cron";
 import express from "express";
 import cookieParser from "cookie-parser";
 import { logger } from "./middleware/logger.js";
 import { corsConfig } from "./config/corsConfig.js";
 import { verifyAccessToken } from "../modules/registration/middleware/jwtHandler.js";
-import cron from "node-cron";
 // routes
 import { userRouter } from "../modules/registration/routes/userRouter.js";
 import { attendRouter } from "../modules/attendance/routes/attendRouter.js";
@@ -20,9 +20,10 @@ import { parkRouter } from "../modules/parking-and-bike/routes/parkRouter.js";
 import { paymentRouter } from "../modules/payment/routes/paymentRouter.js";
 import { regisRouter } from "../modules/registration/routes/regisRouter.js";
 import { transRouter } from "../modules/transportation/routes/transRouter.js";
+// other methods
+import updateStudentGrade from "../modules/online-exam/controllers/student/updateStudentGrade.js";
 
 //update student grade from exam every grading day
-import updateStudentGrade from '../modules/online-exam/controllers/student/updateStudentGrade.js'
 cron.schedule(`0 0 30 5 *`, async () => {
   console.log("Running job on May 30...");
   await updateStudentGrade(true);
@@ -37,7 +38,6 @@ cron.schedule("0 0 30 12 *", async () => {
   console.log("Running job on December 30...");
   await updateStudentGrade(true);
 });
-
 
 const app = express();
 const port = process.env.PORT || 3000;
