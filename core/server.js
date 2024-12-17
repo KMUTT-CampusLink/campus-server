@@ -1,10 +1,10 @@
 import cors from "cors";
+import cron from "node-cron";
 import express from "express";
 import cookieParser from "cookie-parser";
 import { logger } from "./middleware/logger.js";
 import { corsConfig } from "./config/corsConfig.js";
 import { verifyAccessToken } from "../modules/registration/middleware/jwtHandler.js";
-
 // routes
 import { userRouter } from "../modules/registration/routes/userRouter.js";
 import { attendRouter } from "../modules/attendance/routes/attendRouter.js";
@@ -20,6 +20,24 @@ import { parkRouter } from "../modules/parking-and-bike/routes/parkRouter.js";
 import { paymentRouter } from "../modules/payment/routes/paymentRouter.js";
 import { regisRouter } from "../modules/registration/routes/regisRouter.js";
 import { transRouter } from "../modules/transportation/routes/transRouter.js";
+// other methods
+import updateStudentGrade from "../modules/online-exam/controllers/student/updateStudentGrade.js";
+
+//update student grade from exam every grading day
+cron.schedule(`0 0 30 5 *`, async () => {
+  console.log("Running job on May 30...");
+  await updateStudentGrade(true);
+});
+
+cron.schedule("0 0 15 9 *", async () => {
+  console.log("Running job on September 15...");
+  await updateStudentGrade(true);
+});
+
+cron.schedule("0 0 30 12 *", async () => {
+  console.log("Running job on December 30...");
+  await updateStudentGrade(true);
+});
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -38,12 +56,9 @@ app.use(express.urlencoded({ extended: false }));
 
 // json middleware
 app.use(express.json());
-
 // all routing
 app.use("/api/users", userRouter);
-
-app.use(verifyAccessToken);
-app.get("/api/authorize", (req, res) => {
+app.get("/api/authorize", verifyAccessToken, (req, res) => {
   return res.status(200).json({
     condition: "success",
     data: {
@@ -53,21 +68,20 @@ app.get("/api/authorize", (req, res) => {
     message: "User is authorized",
   });
 });
-
-app.use("/api/regis", regisRouter);
-app.use("/api/attend", attendRouter);
-app.use("/api/security", secureRouter);
-app.use("/api/botastra", botRouter);
-app.use("/api/clubs", clubRouter);
+app.use("/api/regis", verifyAccessToken, regisRouter);
+app.use("/api/attend", verifyAccessToken, attendRouter);
+app.use("/api/security", verifyAccessToken, secureRouter);
+app.use("/api/botastra", verifyAccessToken, botRouter);
+app.use("/api/clubs", verifyAccessToken, clubRouter);
 app.use("/api/employ", employRouter);
-app.use("/api/library", libRouter);
+app.use("/api/library", verifyAccessToken, libRouter);
 app.use("/api/map", mapRouter);
-app.use("/api/courses", courseRouter);
-app.use("/api/exams", examRouter);
-app.use("/api/parking", parkRouter);
-app.use("/api/payment", paymentRouter);
-app.use("/api/transport", transRouter);
+app.use("/api/courses", verifyAccessToken, courseRouter);
+app.use("/api/exams", verifyAccessToken, examRouter);
+app.use("/api/parking", verifyAccessToken, parkRouter);
+app.use("/api/payment", verifyAccessToken, paymentRouter);
+app.use("/api/transport", verifyAccessToken, transRouter);
 
 app.listen(port, () =>
-  console.log(`Application started on port ${process.env.HOSTNAME}:${port}`)
+  console.log(`[server] running on port ${process.env.HOSTNAME}:${port}`)
 );
