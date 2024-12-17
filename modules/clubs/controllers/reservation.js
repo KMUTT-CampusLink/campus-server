@@ -40,26 +40,45 @@ export const reserveSeat = async (req, res) => {
     const issuedDate = new Date();
     const dueDate = new Date(issuedDate.getTime() + 24 * 60 * 60 * 1000); // Add 24 hours
 
-    // Insert into `invoice`
-    const newInvoice = await prisma.invoice.create({
-      data: {
+    // Check if there is a cancelled invoice for this user and announcement
+    let existingInvoice = await prisma.invoice.findFirst({
+      where: {
         user_id: userId,
-        issued_by: "Club",
-        amount: parseFloat(price),
-        due_date: dueDate,
         title: `${title} Ticket Fee`,
+        status: "Cancelled",
       },
     });
 
-    // Step 2: Insert into `event_reservation`
+    if (existingInvoice) {
+      // Update the cancelled invoice status to "Unpaid"
+      existingInvoice = await prisma.invoice.update({
+        where: { id: existingInvoice.id },
+        data: { status: "Unpaid", due_date: dueDate },
+      });
+    } else {
+      // Insert into `invoice` if no cancelled invoice exists
+      existingInvoice = await prisma.invoice.create({
+        data: {
+          user_id: userId,
+          issued_by: "Club",
+          amount: parseFloat(price),
+          due_date: dueDate,
+          title: `${title} Ticket Fee`,
+          status: "Unpaid",
+        },
+      });
+    }
+
+    // Insert into `event_reservation`
     const reservation = await prisma.event_reservation.create({
       data: {
         user_id: userId,
         club_announcement_id: clubAnnouncementId,
-        invoice_id: newInvoice.id,
+        invoice_id: existingInvoice.id,
       },
     });
-    
+
+    // Update reserved seats
     const updatedAnnouncement = await prisma.club_announcement.update({
       where: { id: clubAnnouncementId },
       data: {
@@ -74,13 +93,14 @@ export const reserveSeat = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Reservation successful",
-      data: { reservation, invoice: newInvoice },
+      data: { reservation, invoice: existingInvoice },
     });
   } catch (error) {
     console.error("Error reserving event:", error);
     res.status(500).json({ success: false, message: "Reservation failed" });
   }
 };
+
 
 export const getReservationStatus = async (req, res) => {
   const { clubAnnouncementId, userId } = req.body;
@@ -151,55 +171,6 @@ export const cancelReservation = async (req, res) => {
   }
 };
 
-// export const getJoinedEvents = async (req, res) => {
-//   const { studentId } = req.params;
-
-//   try {
-//     // Fetch the user_id associated with the student_id
-//     const student = await prisma.student.findUnique({
-//       where: { id: studentId },
-//       select: { user_id: true }, // Fetch only the user_id
-//     });
-
-//     if (!student) {
-//       return res.status(404).json({ success: false, message: "Student not found" });
-//     }
-
-//     // Fetch joined events using the user_id
-//     const events = await prisma.event_reservation.findMany({
-//       where: {
-//         user_id: student.user_id, // Use the user_id fetched from the student relation
-//       },
-//       include: {
-//         club_announcement: {
-//           select: {
-//             id: true,
-//             title: true,
-//             date: true,
-//             location: true,
-//           },
-//         },
-//       },
-//     });
-
-//     if (!events || events.length === 0) {
-//       return res.status(200).json({ success: true, data: [] });
-//     }
-
-//     const joinedEvents = events.map((event) => ({
-//       id: event.club_announcement.id,
-//       title: event.club_announcement.title,
-//       date: event.club_announcement.date,
-//       location: event.club_announcement.location || "Not Specified",
-//     }));
-
-//     res.status(200).json({ success: true, data: joinedEvents });
-//   } catch (error) {
-//     console.error("Error fetching joined events:", error);
-//     res.status(500).json({ success: false, message: "Failed to fetch events" });
-//   }
-// };
-
 export const getJoinedEvents = async (req, res) => {
   const { memberId } = req.params; // Correct parameter name
   console.log("Received memberId:", memberId); // Debug log
@@ -267,40 +238,6 @@ export const getJoinedEvents = async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to fetch events" });
   }
 };
-
-// export const getEventParticipants = async (req, res) => {
-//   const { id } = req.params; // Extract the announcement ID
-//   console.log(`Announcement ID: ${id}`);
-  
-//   try {
-//     const participants = await prisma.event_reservation.findMany({
-//       where: { club_announcement_id: parseInt(id) }, // Filter by announcement ID
-//       include: {
-//         invoice: {
-//           select: {
-//             status: true, // Fetch only the 'status' field from the related invoice table
-//           },
-//         },
-//         user: {
-//           include: { 
-//             student: {
-//               select: { firstname: true, midname: true, lastname: true },
-//             }, 
-//             employee: {
-//               select: { firstname: true, midname: true, lastname: true },
-//             }, 
-//           },
-//         },
-//       },
-//     });
-
-//     // Send response with participants and related invoice status
-//     res.status(200).json({ data: participants });
-//   } catch (error) {
-//     console.error("Error fetching participants:", error);
-//     res.status(500).json({ error: "Internal server error" });
-//   }
-// };
 
 export const getEventParticipants = async (req, res) => {
   const { id } = req.params; // Extract the announcement ID
