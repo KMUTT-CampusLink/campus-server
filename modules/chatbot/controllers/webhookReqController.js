@@ -97,6 +97,8 @@ export const webhookReqController = async(req, res) => {
     }
     parameters = {
       "books": null,
+      "book_data": book_data,
+      "trips_data": null,
     }
   }else if(pageName === "Course"){
     const progName = req.body.sessionInfo.parameters.program.trim();
@@ -177,6 +179,8 @@ export const webhookReqController = async(req, res) => {
       "start": null,
       "stop": null,
       "day": null,
+      "trips_data": trips_data,
+      "book_data": null,
     }
     if(!trips_data || trips_data.length === 0){
       result = `I'm sorry. There is no route available from ${startStop} to ${endStop}.`
@@ -191,7 +195,7 @@ export const webhookReqController = async(req, res) => {
     const userId = req.user.id;
     result = await statusCheckController(userId);
   }
-  // console.log(result);
+  // console.log(trips_data);
   res.json({
     "fulfillmentResponse": {
       "messages": [
