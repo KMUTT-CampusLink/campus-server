@@ -4,19 +4,24 @@ const prisma = new PrismaClient();
 
 const generateQrCode = async (req, res) => {
   const secId = parseInt(req.params.secId);
-  const empId = req.user.employeeId;
+  const empId = req.user.empId;
+  console.log(empId);
   const professorId = await prisma.professor.findFirst({
     where: {
-      id: empId,
+      emp_id: empId,
     },
     select: {
       id: true,
     },
   })
+  console.log(professorId);
 
   // TODO: get profesor token from client cookies
   
   try {
+    if (!professorId) {
+      return res.status(400).json("Invalid Professor");
+    }
     // const expiredAt = new Date(availableAt.getTime() + 15 * 60 * 1000); // QR expires in 15 minutes
     const section = await prisma.section.findFirst({
       where: {

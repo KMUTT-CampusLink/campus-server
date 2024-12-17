@@ -25,6 +25,7 @@ import getAllStudentInSection from "../controllers/professor/examModification/ge
 import checkHasParticipant from "../controllers/professor/examModification/checkHasParticipant.js";
 import getGradingDate from "../controllers/professor/studentScoring/getGradingDate.js";
 import updateAnnouceGrades from "../controllers/professor/studentScoring/updateAnnouceGrades.js";
+import updateStudentGradeManually from "../controllers/student/updateStudentGradeManually.js";
 // student import
 import getAllExam from "../controllers/student/getAllExam.js";
 import getHistoryExams from "../controllers/student/getHistoryExam.js";
@@ -97,5 +98,6 @@ examRouter.get("/student/getScoreById", studentGetStudentScoreById);
 examRouter.get("/student/getstudentQuestionScore", studentGetQuestionScore);
 examRouter.get("/student/studentGetStudentAnswerById",studentGetStudentAnswerById);
 examRouter.get("/student/studentExamReview", getStudentExamReviewData);
+examRouter.put("/student/updateStudentGradeManually", updateStudentGradeManually);
 
 export { examRouter };

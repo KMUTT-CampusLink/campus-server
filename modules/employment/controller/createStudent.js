@@ -23,6 +23,8 @@ const createStudent = async (req, res) => {
     postal_code,
   } = req.body;
 
+  const image = req.file;
+
   console.log("Request body:", req.body);
 
   const degree_Id = parseInt(degree_id, 10);
@@ -94,7 +96,7 @@ const createStudent = async (req, res) => {
           personal_email: personalEmailToUse,
           password: hashedPassword,
           role: "Student",
-          is_activated: true,
+          is_activated: false,
         },
       });
 
@@ -104,6 +106,7 @@ const createStudent = async (req, res) => {
           midname,
           lastname,
           phone,
+          image: image.objName,
           address: {
             connect: {
               id: newAddress.id,
