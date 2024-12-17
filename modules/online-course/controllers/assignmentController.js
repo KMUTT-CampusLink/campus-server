@@ -195,6 +195,7 @@ export const getAllAssignments = async (req, res) => {
 
 // Controller to add a submission for an assignment
 export const addSubmissionStudent = async (req, res) => {
+
   const { assignment_id, student_id } = req.body;
 
   try {
@@ -216,6 +217,13 @@ export const addSubmissionStudent = async (req, res) => {
     if (!file) {
       return res.status(400).json({ message: "File is required." });
     }
+
+    const filePath = file.objName || file.path; // Use file path if objName is undefined
+
+if (!filePath) {
+  return res.status(400).json({ message: "File path is missing." });
+}
+
 
     // Prepare file data
     const fileData = {
