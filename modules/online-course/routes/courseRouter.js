@@ -3,6 +3,8 @@ import {
   addCourseMaterials,
   addVideo,
   getAllVideos,
+  editCourseMaterial,
+  deleteCourseMaterial
 } from "../controllers/courseMaterialController.js";
 import multerErrorHandler from "../../../core/middleware/multerErrorHandler.js";
 import file_uploader from "../../../core/middleware/multerUploader.js";
@@ -56,3 +58,12 @@ courseRouter.post(
 );
 
 export { courseRouter };
+
+courseRouter.put(
+  "/editVideo/:id",
+  file_uploader.single("courseVideo"), // Handle file upload
+  multerErrorHandler,
+  editCourseMaterial
+);
+
+courseRouter.delete("/deleteVideo/:id", deleteCourseMaterial);
