@@ -56,7 +56,8 @@ export const reserveSeat = async (req, res) => {
         data: { status: "Unpaid", due_date: dueDate },
       });
     } else {
-      // Insert into invoice if no cancelled invoice exists
+
+      // Insert into `invoice` if no cancelled invoice exists
       existingInvoice = await prisma.invoice.create({
         data: {
           user_id: userId,
@@ -69,7 +70,7 @@ export const reserveSeat = async (req, res) => {
       });
     }
 
-    // Insert into event_reservation
+    // Insert into `event_reservation`
     const reservation = await prisma.event_reservation.create({
       data: {
         user_id: userId,
