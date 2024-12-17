@@ -29,7 +29,7 @@ libRouter.get("/user", getAllUser);
 libRouter.get("/everyBook", getEveryBook);
 libRouter.get("/eventReservation", getEventReservations);
 
-libRouter.get("/userRole", verifyRoles("Staff"), getUserRole);
+libRouter.get("/userRole", getUserRole);
 libRouter.post("/reservations", createReservation);
 libRouter.post("/returnBook", updateReturnBook);
 libRouter.post("/event/reserve", reserveEventSeat);
