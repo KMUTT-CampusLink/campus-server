@@ -218,9 +218,11 @@ export const updateAnnouncement = async (req, res) => {
     start_time = "00:00",
     end_time = "00:00",
     location,
+    max_seats,
+    price,
   } = req.body;
   
-  console.log("Received Data:", { title, content, date, start_time, end_time, location });
+  console.log("Received Data:", { title, content, date, start_time, end_time, location, max_seats, price });
 
   const startDateTime = `${date} ${start_time}:00`;
   const endDateTime = `${date} ${end_time}:00`;
@@ -242,7 +244,9 @@ export const updateAnnouncement = async (req, res) => {
         date = ${date}::date,
         start_time = ${startDateTime}::timestamp,
         end_time = ${endDateTime}::timestamp,
-        location = ${location}
+        location = ${location},
+        max_seats = ${parseInt(max_seats)},
+        price = ${parseFloat(price)}
       WHERE id = ${parseInt(id)}
     `;
 
