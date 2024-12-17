@@ -1,27 +1,36 @@
 import prisma from '../../../../core/db/prismaInstance.js';
 import Stripe from 'stripe';
 import dotenv from 'dotenv';
+import { decodeToken } from '../../middlewares/jwt.js';
+
 dotenv.config();
 
 const stripe = new Stripe(process.env.STRIPE_KEY ?? ""); // ตรวจสอบว่าใช้ STRIPE_KEY ที่ถูกต้องใน .env
 
 const connectPaymentGateway = async (req, res) => {
   try {
-    const { inv, ins } = req.body; // รับค่า inv หรือ ins จาก req.body
+    const { inv, ins, balance } = req.body; // รับค่า inv, ins, balance จาก req.body
+
+    // ดึง User ID จาก Token
+    const token = req.cookies.token;
+    const decoded = decodeToken(token);
+    const userId = decoded.id;
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized: User ID is required' });
+    }
 
     let invoice;
 
     if (inv) {
-      // ดึงข้อมูลใบแจ้งหนี้จากฐานข้อมูลโดยใช้ inv id
       invoice = await prisma.invoice.findUnique({
-        where: { id: inv.toString() }, // แปลง inv เป็น string ถ้าจำเป็น
+        where: { id: inv.toString() },
       });
 
       if (!invoice) {
         return res.status(404).json({ error: "Invoice not found" });
       }
     } else if (ins) {
-      // ดึงข้อมูลการผ่อนจ่ายจากฐานข้อมูลโดยใช้ ins id
       const installment = await prisma.installment.findUnique({
         where: { id: ins.toString() },
       });
@@ -30,46 +39,81 @@ const connectPaymentGateway = async (req, res) => {
         return res.status(404).json({ error: "Installment not found" });
       }
 
-      // สร้างข้อมูลใบแจ้งหนี้ชั่วคราวเพื่อใช้ใน Checkout Session
       invoice = {
         id: installment.id,
         amount: installment.amount,
-        customer_id: installment.customer_id, // ถ้ามี field customer_id ในตาราง installment
-        due_date: installment.due_date,
+        customer_id: installment.customer_id,
       };
     } else {
       return res.status(400).json({ error: "Invoice ID or Installment ID is required" });
     }
 
-    // สร้าง Checkout Session โดยใช้ข้อมูลใบแจ้งหนี้
+    let finalAmount = invoice.amount; // ตั้งค่าเริ่มต้นเป็นยอดเต็ม
+    let userWallet = 0;
+
+    if (balance === "Yes") {
+      // ดึงข้อมูล wallet จาก User
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { wallet: true },
+      });
+
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      userWallet = user.wallet ?? 0;
+
+      if (userWallet >= invoice.amount) {
+        // เงินคงเหลือเพียงพอ หักเงินจาก Wallet และอัปเดตสถานะ Invoice เป็น Paid
+        await prisma.user.update({
+          where: { id: userId },
+          data: { wallet: userWallet - invoice.amount },
+        });
+
+        await prisma.invoice.update({
+          where: { id: invoice.id },
+          data: { status: "Paid" },
+        });
+
+        return res.status(200).json({ message: "Invoice paid successfully using wallet balance" });
+      } else {
+        // เงินคงเหลือไม่พอ หักเงินทั้งหมดจาก Wallet และคำนวณส่วนต่าง
+        await prisma.user.update({
+          where: { id: userId },
+          data: { wallet: 0 },
+        });
+
+        finalAmount = invoice.amount - userWallet; // ส่วนต่างที่ต้องชำระผ่าน Stripe
+      }
+    }
+
+    // สร้าง Stripe Checkout Session สำหรับส่วนต่างที่เหลือ
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card', 'promptpay'], // รองรับการชำระเงินผ่านบัตรและ PromptPay
+      payment_method_types: ['card', 'promptpay'],
       line_items: [
         {
           price_data: {
             currency: 'thb',
             product_data: {
-              name: inv
-                ? `Payment for Invoice #${invoice.id}` // ชื่อสินค้าเมื่อเป็น invoice
-                : `Payment for Installment #${invoice.id}`, // ชื่อสินค้าเมื่อเป็น installment
+              name: `Payment for Invoice #${invoice.id}`,
             },
-            unit_amount: Math.round(invoice.amount * 100), // แปลงบาทเป็นสตางค์ (เช่น 500 บาท = 50000 สตางค์)
+            unit_amount: Math.round(finalAmount * 100), // แปลงบาทเป็นสตางค์
           },
           quantity: 1,
         },
       ],
       mode: 'payment',
-      success_url: `${process.env.CLIENT_URL}/checkout-success?session_id={CHECKOUT_SESSION_ID}`, // URL ที่จะเปลี่ยนไปเมื่อชำระเงินสำเร็จ
-      cancel_url: `${process.env.CLIENT_URL}/checkout-cancel`, // URL เมื่อผู้ใช้ยกเลิกการชำระเงิน
+      success_url: `${process.env.CLIENT_URL}/checkout-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.CLIENT_URL}/checkout-cancel`,
       metadata: {
         invoice_id: inv ? invoice.id : null,
         installment_id: ins ? invoice.id : null,
-        customer_id: invoice.customer_id,
+        customer_id: userId,
       },
-    });
+    });    
 
-    // ส่ง URL ของ Checkout Session กลับไปยัง Frontend
-    res.status(200).json({ url: session.url });
+    res.status(200).json({ url: session.url, amount_due: finalAmount });
 
   } catch (error) {
     console.error('Error connecting to payment gateway:', error);
