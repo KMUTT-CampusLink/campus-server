@@ -45,6 +45,9 @@ import studentGetQuestionScore from "../controllers/student/studentGetQuestionSc
 import studentGetStudentAnswerById from "../controllers/student/studentGetStudentAnswerById.js";
 import getStudentExamReviewData from "../controllers/student/getStudentExamReviewData.js";
 import updateExpandDays from "../controllers/professor/studentScoring/updateExpandDays.js";
+import file_uploader from "../../../core/middleware/multerUploader.js";
+import multerErrorHandler from "../../../core/middleware/multerErrorHandler.js";
+import AddExamImage from "../controllers/professor/examModification/addExamImage.js";
 
 const examRouter = Router();
 
@@ -57,6 +60,12 @@ examRouter.get("/validateSection", validateSection);
 
 //professor router
 examRouter.post("/professor/createExam", createExam);
+examRouter.post(
+  "/professor/addExamImage/:examId",
+  file_uploader.array("file"),
+  multerErrorHandler,
+  AddExamImage
+);
 examRouter.get("/professor/getExams", getExams);
 examRouter.get("/professor/getExamById", getExamById);
 examRouter.delete("/professor/deleteExamById", deleteExamById);
@@ -93,8 +102,11 @@ examRouter.get("/student/getStudentStatus", getStudentExamStatus);
 examRouter.get("/student/getExamTime", getExamTime);
 examRouter.get("/student/getFullMark", getStudentFullMark);
 examRouter.get("/student/getScoreById", studentGetStudentScoreById);
-examRouter.get("/student/getstudentQuestionScore",studentGetQuestionScore);
-examRouter.get("/student/studentGetStudentAnswerById",studentGetStudentAnswerById);
-examRouter.get("/student/studentExamReview", getStudentExamReviewData)
+examRouter.get("/student/getstudentQuestionScore", studentGetQuestionScore);
+examRouter.get(
+  "/student/studentGetStudentAnswerById",
+  studentGetStudentAnswerById
+);
+examRouter.get("/student/studentExamReview", getStudentExamReviewData);
 
 export { examRouter };
