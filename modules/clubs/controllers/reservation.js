@@ -111,6 +111,46 @@ export const getReservationStatus = async (req, res) => {
   }
 };
 
+export const cancelReservation = async (req, res) => {
+  const { reservationId } = req.body;
+
+  try {
+    const reservation = await prisma.event_reservation.findUnique({
+      where: { id: reservationId },
+      include: { club_announcement: true },
+    });
+
+    if (!reservation) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Reservation not found" });
+    }
+
+    // Decrement reserved seats
+    await prisma.club_announcement.update({
+      where: { id: reservation.club_announcement_id },
+      data: {
+        reserved_seats: {
+          decrement: 1,
+        },
+      },
+    });
+
+    // Delete the reservation record
+    await prisma.event_reservation.delete({
+      where: { id: reservation.id },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Reservation cancelled successfully",
+    });
+  } catch (error) {
+    console.error("Error cancelling reservation:", error);
+    res.status(500).json({ success: false, message: "Failed to cancel" });
+  }
+};
+
 // export const getJoinedEvents = async (req, res) => {
 //   const { studentId } = req.params;
 
@@ -225,5 +265,39 @@ export const getJoinedEvents = async (req, res) => {
   } catch (error) {
     console.error("Error fetching joined events:", error);
     res.status(500).json({ success: false, message: "Failed to fetch events" });
+  }
+};
+
+export const getEventParticipants = async (req, res) => {
+  const { id } = req.params; // Extract the announcement ID
+  console.log(`Announcement ID: ${id}`);
+  
+  try {
+    const participants = await prisma.event_reservation.findMany({
+      where: { club_announcement_id: parseInt(id) }, // Filter by announcement ID
+      include: {
+        invoice: {
+          select: {
+            status: true, // Fetch only the 'status' field from the related invoice table
+          },
+        },
+        user: {
+          include: { 
+            student: {
+              select: { firstname: true, midname: true, lastname: true },
+            }, 
+            employee: {
+              select: { firstname: true, midname: true, lastname: true },
+            }, 
+          },
+        },
+      },
+    });
+
+    // Send response with participants and related invoice status
+    res.status(200).json({ data: participants });
+  } catch (error) {
+    console.error("Error fetching participants:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };

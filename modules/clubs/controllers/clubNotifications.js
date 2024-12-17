@@ -28,9 +28,9 @@ export const getNotifications = async (req, res) => {
       where: {
         OR: [
           { stu_recipient: actualId },
-          { stu_sender: actualId },
+          //{ stu_sender: actualId },
           { emp_recipient: actualId },
-          { emp_sender: actualId },
+          //{ emp_sender: actualId },
         ],
       },
       select: {
