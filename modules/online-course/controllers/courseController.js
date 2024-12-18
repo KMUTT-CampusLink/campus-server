@@ -24,10 +24,13 @@ export const getCourseByStudentID = async (req, res) => {
     const { studentID } = req.params;
 
     const courses = await prisma.$queryRaw`
-      SELECT s.id as sec_id, c.code, c.name AS course_name
-      FROM enrollment_detail ed, section s, course c
-      WHERE ed.student_id = ${studentID} AND ed.status = 'Active'
-      AND ed.section_id = s.id AND s.course_code = c.code`;
+      SELECT ed.section_id AS sec_id, s.name as sec_name, c.code, c.name AS course_name, c.description, sem.id as sem_id, sem.name as semester, c.image as image_url
+      FROM enrollment_detail ed, section s, course c, semester sem
+      WHERE ed.student_id = ${studentID}
+      AND ed.status = 'Active'
+      AND ed.section_id = s.id
+      AND s.semester_id = sem.id
+      AND s.course_code = c.code`;
 
     if (!courses) {
       return res.status(200).json([]);
@@ -43,7 +46,7 @@ export const getAllCoursesByStudentID = async (req, res) => {
     const { studentID } = req.params;
 
     const courses = await prisma.$queryRaw`
-      SELECT ed.section_id AS sec_id, c.code, c.name AS course_name, c.description, sem.name as semester
+      SELECT ed.section_id AS sec_id, s.name as sec_name, c.code, c.name AS course_name, c.description, sem.id as sem_id, sem.name as semester, c.image as image_url
       FROM enrollment_detail ed, section s, course c, semester sem
       WHERE ed.student_id = ${studentID}
       AND ed.section_id = s.id
@@ -64,7 +67,7 @@ export const getAllCoursesByProfessorID = async (req, res) => {
     const { professorID } = req.params;
 
     const courses = await prisma.$queryRaw`
-      SELECT s.id as sec_id, s.name as sec_name, c.code, c.name as course_name, sem.id as sem_id, sem.name as semester
+      SELECT s.id as sec_id, s.name as sec_name, c.code, c.name as course_name, sem.id as sem_id, sem.name as semester, c.image as image_url
       FROM professor p, section s, course c, semester sem
       WHERE p.emp_id = ${professorID}
       AND p.section_id = s.id 

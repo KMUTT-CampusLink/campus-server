@@ -3,6 +3,8 @@ import {
   addCourseMaterials,
   addVideo,
   getAllVideos,
+  editCourseMaterial,
+  deleteCourseMaterial
 } from "../controllers/courseMaterialController.js";
 import multerErrorHandler from "../../../core/middleware/multerErrorHandler.js";
 import file_uploader from "../../../core/middleware/multerUploader.js";
@@ -15,6 +17,7 @@ import {
 import { studentRouter } from "./studentRouter.js";
 import { discussionRouter } from "./discussionRouter.js";
 import { assignmentRouter } from "./assignmentRouter.js";
+import { announcementRouter } from "./announcementRouter.js";
 // import { professorRouter } from "./professorRouter.js";
 
 const courseRouter = Router();
@@ -33,6 +36,7 @@ courseRouter.use("/assignment", assignmentRouter);
 // courseRouter.use("/:studentID/all",getAllCoursesByStudentID);
 courseRouter.get("/:professorID/teach", getAllCoursesByProfessorID);
 courseRouter.get("/course/:sectionID", getCourseHeaderBySectionID);
+courseRouter.use("/announcement", announcementRouter);
 
 courseRouter.post(
   "/addVideo",
@@ -40,6 +44,8 @@ courseRouter.post(
   multerErrorHandler,
   addVideo
 );
+
+
 
 courseRouter.post(
   "/addVideoMaterials",
@@ -52,3 +58,12 @@ courseRouter.post(
 );
 
 export { courseRouter };
+
+courseRouter.put(
+  "/editVideo/:id",
+  file_uploader.single("courseVideo"), // Handle file upload
+  multerErrorHandler,
+  editCourseMaterial
+);
+
+courseRouter.delete("/deleteVideo/:id", deleteCourseMaterial);
