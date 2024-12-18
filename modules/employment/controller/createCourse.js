@@ -12,6 +12,7 @@ const createCourse = async (req, res) => {
         program_id: parseInt(program_id),
         description,
         objective,
+        image: image.objName,
       },
     });
     res.json({

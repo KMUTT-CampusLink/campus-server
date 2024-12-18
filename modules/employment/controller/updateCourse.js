@@ -35,8 +35,9 @@ const updateCourse = async (req, res) => {
       where: { code },
       data: updatedFields,
     });
+    console.log(updatedFields);
 
-    console.log("Updated Student:", updatedFields);
+    console.log("Updated Student:", updatedCourse);
 
     res.json({
       message: "Course updated successfully",
