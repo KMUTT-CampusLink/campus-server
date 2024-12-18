@@ -3,13 +3,13 @@ import prisma from "../../../core/db/prismaInstance.js";
 const getAllBookRes = async (req, res) => {
   try {
     const bookRes = await prisma.$queryRaw`
-    SELECT b.cover_image, b.title, bd.id, bd.status, br.firstname, br.lastname
+    SELECT b.cover_image, b.title, bd.id, bd.status, br.firstname, br.lastname, br.reserve_id
     FROM book b, book_duplicate bd
-    LEFT JOIN (SELECT br1.book_duplicate_id,s.firstname, s.lastname
+    LEFT JOIN (SELECT br1.book_duplicate_id,s.firstname, s.lastname, br1.id as reserve_id
               FROM book_reservation br1, student s
               WHERE br1.user_id = s.user_id AND br1.status = 'Reserved'
               UNION
-              SELECT br1.book_duplicate_id,e.firstname, e.lastname
+              SELECT br1.book_duplicate_id,e.firstname, e.lastname, br1.id as reserve_id
               FROM book_reservation br1, employee e
               WHERE br1.user_id = e.user_id AND br1.status = 'Reserved') br
     ON br.book_duplicate_id = bd.id
