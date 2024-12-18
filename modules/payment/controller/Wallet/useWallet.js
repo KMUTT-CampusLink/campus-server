@@ -75,12 +75,12 @@ const useWallet = async (req, res) => {
     if (inv) {
       await prisma.invoice.update({
         where: { id: inv.toString() },
-        data: { status: "Paid" },
+        data: { status: "Paid" , paid_date: new Date() },
       });
     } else if (ins) {
       await prisma.installment.update({
         where: { id: ins.toString() },
-        data: { status: "Paid" },
+        data: { status: "Paid",  paid_date: new Date() },
       });
     }
 
