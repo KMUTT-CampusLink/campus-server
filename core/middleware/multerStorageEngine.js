@@ -14,8 +14,8 @@ function getDestination(req, file, cb) {
     file.mimetype.startsWith("image")
       ? "img"
       : file.mimetype.startsWith("video")
-      ? "vd"
-      : "doc"
+        ? "vd"
+        : "doc"
   );
 }
 
@@ -39,6 +39,8 @@ CustomStorageMinIO.prototype._handleFile = function _handleFile(req, file, cb) {
         that.bucketName,
         objName,
         minioStream,
+        null,
+        { "Content-Type": file.mimetype },
         (err, etag) => {
           if (err) cb(err);
           cb(null, {
