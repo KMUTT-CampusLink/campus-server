@@ -48,7 +48,8 @@ const postCheckin = async (req, res) => {
                             }
                         }
                     }
-                }
+                },
+                verified_car: true
             }
         });
 
