@@ -48,15 +48,14 @@ const postCheckin = async (req, res) => {
                             }
                         }
                     }
-                },
-                verified_car: true
+                }
             }
         });
 
         if (!reservation) {
             return res.status(400).json({ error: `Reservation with ID ${reservation_id} does not exist.` });
-        } else if (reservation.verified_car.user_id !== user.id) {
-            return res.status(403).json({ error: "Unauthorized access. You do not own this reservation." });
+        } else if (user.role !== 'Staff') {
+            return res.status(403).json({ error: "Unauthorized access. You must be staff." });
         } else if (reservation.status !== 'Reserved') {
             return res.status(400).json({ error: "Cannot check in. The reservation status must be 'Reserved'." });
         }
